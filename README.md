@@ -1,2 +1,5 @@
-# Working Title
-Software engineering project about project management
+# PLUMP
+
+Planning & Logistics for Unified Management of Projects
+
+
