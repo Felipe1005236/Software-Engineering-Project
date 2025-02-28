@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to CSS -->
+    <script src="script.js" defer></script> <!-- Link to JS -->
+</head>
+<body>
+    <div class="settings-container">
+        <aside class="settings-sidebar">
+            <ul>
+                <li data-section="profile" class="active">Profile</li>
+                <li data-section="preferences">Preferences</li>
+                <li data-section="security">Security</li>
+                <li data-section="notifications">Notifications</li>
+            </ul>
+        </aside>
+        
+        <main class="settings-content">
+            <section id="profile" class="settings-section">
+                <h2>Profile Settings</h2>
+                <label>Username: <input type="text" id="username" value="JohnDoe"></label>
+                <label>Email: <input type="email" id="email" value="john@example.com"></label>
+                <button id="save-profile">Save</button>
+            </section>
+
+            <section id="preferences" class="settings-section hidden">
+                <h2>Preferences</h2>
+                <label>
+                    <input type="checkbox" id="dark-mode"> Enable Dark Mode
+                </label>
+            </section>
+
+            <section id="security" class="settings-section hidden">
+                <h2>Security</h2>
+                <button>Change Password</button>
+            </section>
+
+            <section id="notifications" class="settings-section hidden">
+                <h2>Notification Settings</h2>
+                <label><input type="checkbox"> Email Notifications</label>
+                <label><input type="checkbox"> Push Notifications</label>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
