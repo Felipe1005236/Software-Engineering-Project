@@ -1,0 +1,8 @@
+This text file details all of the people involved in the project and their respective group. 
+Further information about the participation of each member and their productivity scheme can be found within the respective 
+Backend and Frontend folders.
+
+The 10 person team is seperated into two parts, for Front-end and Back-end. 
+
+The Front-end team includes: Bissera, Saim, Stefan and Milica.
+The Back-end team includes: Kuranage, Felipe, Bilal, Kamila, Madina, Melek. 
