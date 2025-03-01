@@ -3,7 +3,7 @@ All of the team members contributions can be found under their respective name.
 
 Kuranage:
 
-Felipe:
+Felipe: Made the basis for the Github and organized it.
 
 Bilal:
 
