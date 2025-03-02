@@ -5,3 +5,8 @@
 # PLUMP  
 
 **Planning & Logistics for Unified Management of Projects**
+
+## Features 💡  
+✅ Task Tracking 📅  
+✅ Team Collaboration 🤝  
+✅ Productivity Insights 📊  
