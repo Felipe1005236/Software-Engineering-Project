@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Assets/Logo.png" width="250">
+  <img src="Assets/Logo.jpeg" width="250">
 </p>
 
 # PLUMP  
