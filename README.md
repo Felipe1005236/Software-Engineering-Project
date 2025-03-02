@@ -1,7 +1,7 @@
-![PLUMP Logo](Assets/Logo.jpeg)
+<p align="center">
+  <img src="Assets/Logo.png" width="250">
+</p>
 
-# PLUMP
+# PLUMP  
 
-Planning & Logistics for Unified Management of Projects
-
-
+**Planning & Logistics for Unified Management of Projects**
