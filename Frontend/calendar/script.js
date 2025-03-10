@@ -31,9 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let day = 1; day <= daysInMonth; day++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day');
-        dayElement.textContent = day;
-  
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayOfWeek = new Date(year, month, day).toLocaleString('default', { weekday: 'short' });
+  
+        // Display the day number and day of the week
+        dayElement.innerHTML = `<span class="day-number">${day}</span><br><span class="day-week">${dayOfWeek}</span>`;
+  
         const dayTasks = tasks.filter(task => task.date === dateKey);
   
         if (dayTasks.length > 0) {
