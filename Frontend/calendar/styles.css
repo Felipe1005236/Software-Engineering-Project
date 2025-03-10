@@ -1,0 +1,149 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding-top: 20px; /* Added to move the content down */
+    color: #333;
+  }
+  
+  .container {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #444;
+    font-size: 28px;
+  }
+  
+  .calendar {
+    margin-bottom: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #444;
+  }
+  
+  .nav-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    background: #6a11cb;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .nav-btn:hover {
+    background: #2575fc;
+  }
+  
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  
+  .day {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  
+  .day:hover {
+    border-color: #6a11cb;
+  }
+  
+  .day.today {
+    background-color: #e3f2fd;
+    border-color: #6a11cb;
+  }
+  
+  .day.has-tasks {
+    background-color: #c8e6c9;
+    border-color: #4caf50;
+  }
+  
+  .task-form {
+    margin-top: 20px;
+  }
+  
+  .task-form h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #444;
+    font-size: 22px;
+  }
+  
+  .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-group input:focus {
+    border-color: #6a11cb;
+    outline: none;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 12px;
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .btn:hover {
+    background: #2575fc;
+  }
