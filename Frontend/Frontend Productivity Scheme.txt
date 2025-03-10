@@ -3,9 +3,9 @@ All of the team members contributions can be found under their respective name.
 
 Bissera:
 
-Saim: +
+Saim: 
 
-Stefan: + + +
+Stefan: Made a demo for a Profile Icon, Task Management Page & Login Page with matching UI desings.
 
 Milica:
 
