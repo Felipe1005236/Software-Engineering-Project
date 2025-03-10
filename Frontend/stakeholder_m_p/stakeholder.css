@@ -54,29 +54,25 @@ body {
   padding: 40px;
 }
 
-/* Input Fields */
-.input-group {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-}
-
-input, select {
+/* Stakeholder List Table */
+table {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #ddd;
+  border-collapse: collapse;
+  margin-top: 20px;
   border-radius: 10px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
+  overflow: hidden;
 }
 
-input:focus, select:focus {
-  border-color: #6a11cb;
-  outline: none;
+th, td {
+  border: 2px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  font-size: 16px;
+}
+
+th {
+  background-color: #6a11cb;
+  color: white;
 }
 
 /* Button Styling */
@@ -94,6 +90,21 @@ input:focus, select:focus {
 
 .btn:hover {
   background: #2575fc;
+}
+
+/* Input Fields */
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: #6a11cb;
+  outline: none;
 }
 
 /* Dark Mode */
@@ -116,4 +127,31 @@ input:focus, select:focus {
 
 .dark-mode .settings-content {
   background: #1e1e1e;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.modal-content button {
+  margin-top: 10px;
 }
