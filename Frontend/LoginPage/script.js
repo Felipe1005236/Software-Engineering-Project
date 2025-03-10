@@ -25,7 +25,15 @@ document.getElementById('registerForm').addEventListener('submit', function (e) 
     const name = document.getElementById('registerName').value;
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
+    const repeatPassword = document.getElementById('registerRepeatPassword').value;
     const role = document.getElementById('registerRole').value;
+
+    // Validate password match
+    if (password !== repeatPassword) {
+        alert('Passwords do not match!');
+        return;
+    }
+
     console.log('Register:', { name, email, password, role });
     alert('Registration successful!');
 });

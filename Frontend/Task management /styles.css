@@ -143,3 +143,44 @@ tr:nth-child(even) {
     font-weight: bold;
     color: #555;
 }
+
+/* Add Task Button */
+#addTaskBtn {
+    margin-bottom: 20px;
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#addTaskBtn:hover {
+    background: #2575fc;
+}
+
+/* Actions Buttons */
+.actions button {
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-right: 5px;
+    transition: background 0.3s ease;
+}
+
+.actions button:hover {
+    background: #2575fc;
+}
+/* Admin Task Management Section */
+#adminTaskManagement.hidden {
+    display: none;
+}
+
+#adminTaskManagement {
+    margin-top: 30px;
+}
