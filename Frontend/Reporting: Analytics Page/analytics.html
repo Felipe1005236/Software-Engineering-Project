@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporting & Analytics</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles1.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="container mx-auto">
+    <!-- Header -->
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold">Reporting & Analytics</h1>
+      <div class="mt-4">
+        <label for="date-range" class="mr-2">Date Range:</label>
+        <select id="date-range" class="p-2 border rounded">
+          <option value="7">Last 7 Days</option>
+          <option value="30">Last 30 Days</option>
+          <option value="90">Last 90 Days</option>
+          <option value="custom">Custom</option>
+        </select>
+        <button class="ml-4 bg-blue-500 text-white px-4 py-2 rounded">Export</button>
+      </div>
+    </header>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="text-gray-600">Total Events</h3>
+        <p class="text-2xl font-bold">150</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="text-gray-600">Completed</h3>
+        <p class="text-2xl font-bold">80%</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="text-gray-600">Cancellations</h3>
+        <p class="text-2xl font-bold">10</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="text-gray-600">Busiest Day</h3>
+        <p class="text-2xl font-bold">Monday</p>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div class="bg-white p-4 rounded shadow">
+        <canvas id="lineChart"></canvas>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <canvas id="heatmap"></canvas>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white p-4 rounded shadow mb-8">
+      <h2 class="text-xl font-bold mb-4">Detailed Event Data</h2>
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="p-2">Event Name</th>
+            <th class="p-2">Date</th>
+            <th class="p-2">Category</th>
+            <th class="p-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-2">Meeting</td>
+            <td class="p-2">2023-10-01</td>
+            <td class="p-2">Work</td>
+            <td class="p-2">Completed</td>
+          </tr>
+          <tr>
+            <td class="p-2">Lunch</td>
+            <td class="p-2">2023-10-02</td>
+            <td class="p-2">Personal</td>
+            <td class="p-2">Pending</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Insights -->
+    <div class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-4">Insights</h2>
+      <ul class="list-disc pl-5">
+        <li>You had a 20% increase in completed tasks this week.</li>
+        <li>Most cancellations occurred on Mondays.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Line Chart
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Events Created',
+          data: [12, 19, 3, 5, 2, 3, 10],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          fill: false,
+        }, {
+          label: 'Events Completed',
+          data: [8, 15, 2, 4, 1, 2, 7],
+          borderColor: 'rgba(153, 102, 255, 1)',
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Event Trends Over Time'
+          }
+        }
+      }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Work', 'Personal', 'Health', 'Other'],
+        datasets: [{
+          label: 'Events by Category',
+          data: [12, 19, 3, 5],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Event Distribution by Category'
+          }
+        }
+      }
+    });
+
+    // Donut Chart
+    const donutCtx = document.getElementById('donutChart').getContext('2d');
+    new Chart(donutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Completed', 'Pending', 'Canceled'],
+        datasets: [{
+          label: 'Completion Rate',
+          data: [80, 15, 5],
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(255, 99, 132, 0.2)'
+          ],
+          borderColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Completion Rate'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
