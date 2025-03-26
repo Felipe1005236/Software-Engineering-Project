@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Homepage </title>
+        <link rel="stylesheet" href="homepage_css_updated.css">
+        <meta name="viewport" content="width = device-width, initial-scale=1">
+        <script src="homepage.js"></script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    </head>
+    <body>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul>
+                <li><a href="#"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+                <li><a href="#"><span class="icon">📅</span><span class="text">Calendar</span></a></li>
+                <li><a href="#"><span class="icon">📊</span><span class="text">Budget</span></a></li>
+                <li><a href="#"><span class="icon">💬</span><span class="text">Messages</span></a></li>
+            </ul>
+        </div>
+    
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>Hello User!</h1>
+            <p class="subtitle">This is your agenda for today</p>
+
+            <div class="containers">
+                    <!-- Calendar -->
+            <div class="widget calendar">
+                <div class="month-container">
+                    <button class="nav-button" onclick="changeMonth(-1)">←</button>
+                    <h2 class="month">March 2025</h2>
+                    <button class="nav-button" onclick="changeMonth(1)">→</button>
+                </div>
+                <div class="calendar-grid">
+                    <!-- Days of the Week -->
+                    <div class="days-row">
+                        <div class="day-header">Mon</div>
+                        <div class="day-header">Tue</div>
+                        <div class="day-header">Wed</div>
+                        <div class="day-header">Thu</div>
+                        <div class="day-header">Fri</div>
+                        <div class="day-header">Sat</div>
+                        <div class="day-header">Sun</div>
+                    </div>
+                    <!-- Calendar Dates -->
+                    <div class="dates-grid">
+                        <div class="date">1</div>
+                        <div class="date">2</div>
+                        <div class="date">3</div>
+                        <div class="date">4</div>
+                        <div class="date">5</div>
+                        <div class="date">6</div>
+                        <div class="date">7</div>
+                        <div class="date">8</div>
+                        <div class="date">9</div>
+                        <div class="date">10</div>
+                        <div class="date">11</div>
+                        <div class="date">12</div>
+                        <div class="date">13</div>
+                        <div class="date">14</div>
+                        <div class="date">15</div>
+                        <div class="date">16</div>
+                        <div class="date">17</div>
+                        <div class="date">18</div>
+                        <div class="date">19</div>
+                        <div class="date">20</div>
+                        <div class="date">21</div>
+                        <div class="date">22</div>
+                        <div class="date">23</div>
+                        <div class="date">24</div>
+                        <div class="date">25</div>
+                        <div class="date">26</div>
+                        <div class="date">27</div>
+                        <div class="date">28</div>
+                        <div class="date">29</div>
+                        <div class="date">30</div>
+                        <div class="date">31</div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Schedule -->
+            <div class="widget schedule">
+                <h2>Today's Schedule</h2>
+                <button class="add-button" onclick="openAddForm()">Add New</button>
+                <!-- Schedule items will be added here -->
+                <div id="schedule-items"></div>
+            </div>
+            
+            <!-- Add New Form (hidden by default) -->
+            <div id="add-form" class="add-form">
+                <h3>Add New Task</h3>
+                <input type="text" id="task-name" placeholder="Task Name">
+                <input type="time" id="task-time">
+                <button onclick="addTask()">Add</button>
+                <button onclick="closeAddForm()">Cancel</button>
+            </div>
+
+            <div class="widget active-projects">
+                <h2>Active Projects</h2>
+                <div id="projects-list">
+                    <!-- "No projects assigned" message -->
+                    <div id="no-projects-message">No projects assigned.</div>
+                </div>
+                <div id="projects-list">
+                    <!-- Projects will be dynamically added here -->
+                </div>
+                <button class="add-project-button" onclick="openAddProjectForm()">Add Project</button>
+            </div>
+
+                <!-- Add Project Form (hidden by default) -->
+            <div id="widget add-project-form" class="add-form">
+                <h3>Add New Project</h3>
+                <input type="text" id="project-name" placeholder="Project Name">
+                <input type="date" id="project-deadline" placeholder="Deadline">
+                <input type="text" id="project-team" placeholder="Team Members (comma-separated)">
+                <button onclick="addProject()">Add</button>
+                <button onclick="closeAddProjectForm()">Cancel</button>
+            </div>
+
+                <!-- Message Notifications -->
+            <div class="widget message-notifications">
+                <h2>Message Notifications</h2>
+                <div id="messages-list">
+                    <!-- Messages will be dynamically added here -->
+                    <div id="no-messages-message">No new messages.</div>
+                </div>
+            </div>
+
+            <!-- Budget Tracker -->
+            <div class="widget budget-tracker">
+                <h2>Budget Tracker</h2>
+                <div class="budget-overview">
+                    <div class="budget-stat">
+                        <span class="stat-label">Total Budget:</span>
+                        <span class="stat-value" id="total-budget">$1000</span>
+                    </div>
+                    <div class="budget-stat">
+                        <span class="stat-label">Total Expenses:</span>
+                        <span class="stat-value" id="total-expenses">$400</span>
+                    </div>
+                    <div class="budget-stat">
+                        <span class="stat-label">Remaining:</span>
+                        <span class="stat-value" id="remaining-budget">$600</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" id="budget-progress"></div>
+                    </div>
+                    </div>
+                    <div class="expense-categories">
+                            <h3>Expense Categories</h3>
+                                <ul id="categories-list">
+                                    <!-- add categories here -->
+                                </ul>
+                    </div>
+                    <button class="add-expense-button" onclick="openAddExpenseForm()">Add Expense</button>
+            </div>
+
+            <!-- Quick Stats Dashboard -->
+            <div class="widget quick-stats">
+                <h2>Quick Stats</h2>
+                <div class="stats-container">
+                    <div class="stat">
+                        <span class="stat-value" id="tasks-completed">0</span>
+                        <span class="stat-label">Tasks Completed Today</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="overdue-tasks">0</span>
+                        <span class="stat-label">Overdue Tasks</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="active-projects">0</span>
+                        <span class="stat-label">Active Projects</span>
+                    </div>
+                    <div class="stat">
+                        <div class="progress-bar">
+                            <div class="progress" id="overall-progress"></div>
+                        </div>
+                        <span class="stat-label">Overall Progress</span>
+                    </div>
+            </div>
+        
+            
+
+                    <!-- Add Expense Form (hidden by default) -->
+                    <div id="add-expense-form" class="add-form">
+                        <h3>Add Expense</h3>
+                        <input type="number" id="expense-amount" placeholder="Amount">
+                        <input type="text" id="expense-category" placeholder="Category">
+                        <input type="text" id="expense-description" placeholder="Description">
+                        <button onclick="addExpense()">Add</button>
+                        <button onclick="closeAddExpenseForm()">Cancel</button>
+                    </div>
+            </div>
+            </div>
+    
+    
+        </div>
+
+    
+        <script src="homepage.js"></script>
+    </body>
+</html>
