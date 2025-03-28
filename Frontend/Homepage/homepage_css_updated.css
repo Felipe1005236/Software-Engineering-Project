@@ -1,0 +1,504 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #333;
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 60px;
+    background: #444;
+    color: hsl(0, 0%, 100%);
+    transition: width 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar:hover {
+    width: 200px;
+}
+
+.sidebar ul {
+    list-style: none; /*remove bullet points*/
+    padding: 20px 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    padding: 10px 20px; 
+    white-space: nowrap; /*prevents text wrapping*/
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none; /*remove underline*/
+    display: flex;
+    align-items: center;
+}
+
+.sidebar ul li a .icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.sidebar ul li a .text {
+    display: none;
+}
+
+.sidebar:hover ul li a .text {
+    display: inline;
+}
+
+.containers{
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 50px;
+    row-gap: 20px;
+}
+/*main content*/
+.main-content {
+    flex: 1; 
+    padding: 20px;
+    background: #fff;
+    border-radius: 20px 0 0 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-left: 60px;
+}
+
+
+h1 {
+    color: #444;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #777;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Widgets */
+.widget {
+    background: #fff;
+    width: auto;
+    max-width: 550px;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendar */
+.calendar{
+    width: 400px;
+}
+.calendar .month-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar .month-container h2 {
+    color: #444;
+    font-size: 22px;
+}
+
+.calendar .nav-button {
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.calendar .calendar-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calendar .days-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    font-weight: bold;
+    color: #555;
+    text-align: center;
+}
+
+.calendar .dates-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.calendar .date {
+    padding: 10px;
+    text-align: center;
+    border-radius: 50px;
+    background: white;
+    color: #555;
+}
+
+.calendar .date:hover {
+    background: #6a11cb;
+    color: #fff;
+}
+
+/* Current Date Highlight */
+.current-date {
+    background-color: #6a11cb;
+    color: #fff;
+    border-radius: 50%;
+}
+
+/* Schedule */
+.schedule{
+    width: 330px;
+    height: auto;
+    max-height: 350px;
+    overflow: auto;
+    scrollbar-width: none;
+}
+.schedule h2 {
+    color: #555;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.add-button {
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    background: #2575fc;
+}
+/* Add New Form */
+.add-form {
+    display: none; /* Hidden by default */
+    position: fixed;
+    width: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.add-form h3 {
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.add-form input {
+    display: block;
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.add-form button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-form button:first-of-type {
+    background: #6a11cb;
+    color: #fff;
+}
+
+.add-form button:last-of-type {
+    background: #ddd;
+    color: #333;
+}
+
+/* Schedule Items */
+#schedule-items {
+    margin-top: 20px;
+}
+
+.schedule-item {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schedule-item span {
+    font-size: 16px;
+    color: #555;
+}
+
+.schedule-item button {
+    background: #ff6b6b;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Active Projects Widget */
+.active-projects {
+    width: 350px;
+    height: auto;
+    width: 400px;
+    max-height: 570px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    scrollbar-width: none;
+}
+
+.active-projects h2 {
+    color: #555;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+#projects-list {
+    margin-top: 20px;
+}
+
+.project-item {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.project-item h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #444;
+}
+
+.project-item p {
+    margin: 0;
+    font-size: 14px;
+    color: #777;
+}
+
+.project-item .deadline {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.project-item .team {
+    font-style: italic;
+}
+
+.project-item .done-checkbox {
+    margin-top: 10px;
+}
+
+.add-project-button {
+    position: sticky;
+    top: 350px;
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.add-project-button:hover {
+    background: #2575fc;
+}
+#no-projects-message {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    margin-top: 20px;
+}
+/* Message Notifications Widget */
+.message-notifications {
+    left: 770px; /* Position next to the calendar */
+    top: 20px; /* Position at the top */
+    width: 400px; /* Same width as Active Projects */
+    height: 150px; /* Height to fit above Active Projects */
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    scrollbar-width: none;
+}
+
+#no-messages-message {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+/* Quick Stats Dashboard */
+.quick-stats {
+    /* left: 1000px; Adjust as needed */
+    right: 20px;
+    top: 20px; /* Adjust as needed */
+    width: 400px;
+    min-width: 200px;
+    height: 300px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.quick-stats h2 {
+    color: #444;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #6a11cb;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #777;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: #6a11cb;
+    border-radius: 5px;
+    width: 0; /* Initial width, updated dynamically */
+}
+
+/* Budget Tracker */
+.budget-tracker {
+    width: 330px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.budget-tracker h2 {
+    color: #444;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.budget-overview {
+    margin-bottom: 20px;
+}
+
+.budget-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #777;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #6a11cb;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: #6a11cb;
+    border-radius: 5px;
+    width: 40%; /* Initial width, updated dynamically */
+}
+
+.expense-categories h3 {
+    font-size: 18px;
+    color: #444;
+    margin-bottom: 10px;
+}
+
+#categories-list {
+    list-style: none;
+    padding: 0;
+}
+
+#categories-list li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #555;
+}
+
+.add-expense-button {
+    background: #6a11cb;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.add-expense-button:hover {
+    background: #2575fc;
+}
