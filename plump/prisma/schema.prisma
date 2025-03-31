@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+}
+
+model User {
+  id              Int    @id @default(autoincrement())
+  firstName       String
+  lastName        String
+  email           String @unique
+  phone           String
+  address         String
+  unit            String
+  unitManager     String
+  activationDate  DateTime @default(now())
+  active          Boolean @default(false)
+  primaryRole     Role @default(USER)
+  type            String
+
+  // Relationships
+  teams           TeamMember[]
+  assignedTasks   Task[] @relation("TaskOwner")
+}
+
+model Team {
+  id        Int    @id @default(autoincrement())
+  name      String
+  createdOn DateTime @default(now())
+
+  // Relationships
+  members   TeamMember[]
+  projects  Project[]
+}
+
+model TeamMember {
+  id      Int   @id @default(autoincrement())
+  userId  Int
+  teamId  Int
+
+  // Relations
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+}
+
+model Project {
+  id          Int    @id @default(autoincrement())
+  title       String
+  status      String
+  phase       String
+  projectLead Int
+
+  // Foreign Keys
+  teamId      Int
+  healthId    Int
+  budgetId    Int
+  dateId      Int
+
+  // Relationships
+  team        Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  health      HealthStatus?
+  budget      Budget?
+  dates       DateDetail?
+  tasks       Task[]
+}
+
+model Budget {
+  id          Int    @id @default(autoincrement())
+  projectId   Int    @unique
+  totalBudget Float
+  actualCost  Float
+  forecastCost Float
+
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model HealthStatus {
+  id        Int    @id @default(autoincrement())
+  projectId Int    @unique
+  scope     String
+  schedule  String
+  cost      String
+  resource  String
+  overall   String
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model DateDetail {
+  id                 Int    @id @default(autoincrement())
+  projectId          Int    @unique
+  taskId             Int?
+  targetDate         DateTime
+  startDate          DateTime
+  actualCompletion   DateTime?
+
+  project           Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task              Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id               Int    @id @default(autoincrement())
+  projectId        Int
+  dateId           Int?
+  title           String
+  percentageComplete Float
+  priority        String
+  ownerId         Int
+  details         String
+  status          String
+
+  // Relationships
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  dates         DateDetail? @relation(fields: [dateId], references: [id], onDelete: Cascade)
+  owner         User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
