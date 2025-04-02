@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Homepage </title>
+        <link rel="stylesheet" href="homepage_css_updated.css">
+        <meta name="viewport" content="width = device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        />
+        <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>
+    <body>
+        <!-- Sidebar -->
+         <div id="sidebar-root"></div>
+        <!-- <div class="sidebar">
+            <ul>
+                <li><a href="#"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+                <li><a href="#"><span class="icon">📅</span><span class="text">Calendar</span></a></li>
+                <li><a href="#"><span class="icon">📊</span><span class="text">Budget</span></a></li>
+                <li><a href="#"><span class="icon">💬</span><span class="text">Messages</span></a></li>
+            </ul>
+        </div> -->
+        <!-- <script type="text/babel">
+            function Sidebar() {
+                const [expanded, setExpanded] = React.useState(false);
+
+                return(
+                    <div 
+                      className={`sidebar ${expanded ? 'expanded' : ''}`}
+                      onMouseEnter={() => setExpanded(true)}
+                      onMouseLeave={() => setExpanded(false)}
+                    >
+
+                        <ul>
+                            <li><a href="#"><span className="icon">🏠</span><span className="text">Home</span></a></li>
+                            <li><a href="#"><span className="icon">📅</span><span className="text">Calendar</span></a></li>
+                            <li><a href="#"><span className="icon">📊</span><span className="text">Budget</span></a></li>
+                            <li><a href="#"><span className="icon">💬</span><span className="text">Messages</span></a></li>
+                        </ul>
+                    </div>
+                );
+            }
+
+            ReactDOM.createRoot(document.getElementById('sidebar-root')).render(<Sidebar/>);
+        </script> -->
+    
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <h1>Hello User!</h1>
+            <p class="subtitle">This is your agenda for today</p>
+
+            <!-- Weather -->
+            <div class="weather-widget">
+                <!-- <div class="weather-header">
+                  
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                </div> -->
+                <!-- <button class="refresh-btn" title="Refresh"></button> -->
+                <div class="weather-content">
+                  <div class="current-weather">
+                    <div class="weather-icon">
+                      <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="weather-details">
+                      <div class="temperature">--°C</div>
+                      <div class="conditions">Loading...</div>
+                      <div class="location">Your Location</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            <div class="containers">
+
+                    <!-- Calendar -->
+                <div class="container">
+                    <div class="widget calendar">
+                      <div class="header">
+                        <div class="month"></div>
+                        <div class="btns">
+                          <div class="btn today-btn">
+                            <i class="fas fa-calendar-day"></i>
+                          </div>
+                          <div class="btn prev-btn">
+                            <i class="fas fa-chevron-left"></i>
+                          </div>
+                          <div class="btn next-btn">
+                            <i class="fas fa-chevron-right"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="weekdays">
+                        <div class="day">Sun</div>
+                        <div class="day">Mon</div>
+                        <div class="day">Tue</div>
+                        <div class="day">Wed</div>
+                        <div class="day">Thu</div>
+                        <div class="day">Fri</div>
+                        <div class="day">Sat</div>
+                      </div>
+                      <div class="days"></div>
+                    </div>
+                  </div>
+    
+            <!-- Schedule -->
+            <div class="widget schedule">
+                <h2>Today's Schedule</h2>
+                <button class="add-button" onclick="openAddForm()">Add New</button>
+                <!-- Schedule items will be added here -->
+                <div id="schedule-items"></div>
+            </div>
+            
+            <!-- Add New Form (hidden by default) -->
+            <div id="add-form" class="add-form">
+                <h3>Add New Task</h3>
+                <input type="text" id="task-name" placeholder="Task Name">
+                <input type="time" id="task-time">
+                <button onclick="addTask()">Add</button>
+                <button onclick="closeAddForm()">Cancel</button>
+            </div>
+
+            <div class="widget active-projects">
+                <h2>Active Projects</h2>
+                <div id="projects-list">
+                    <div id="no-projects-message">No projects assigned.</div>
+                </div>
+                <div id="projects-list">
+                    <!-- Projects will be dynamically added here -->
+                </div>
+                <button class="add-project-button" onclick="openAddProjectForm()">Add Project</button>
+            </div>
+
+                <!-- Add Project Form (hidden by default) -->
+            <div id="add-project-form" class="add-form">
+                <h3>Add New Project</h3>
+                <input type="text" id="project-name" placeholder="Project Name">
+                <input type="date" id="project-deadline" placeholder="Deadline">
+                <input type="text" id="project-team" placeholder="Team Members (comma-separated)">
+                <button onclick="addProject()">Add</button>
+                <button onclick="closeAddProjectForm()">Cancel</button>
+            </div>
+
+                <!-- Message Notifications -->
+            <div class="widget message-notifications">
+                <h2>Message Notifications</h2>
+                <div id="messages-list">
+                    <!-- Messages will be dynamically added here -->
+                    <div id="no-messages-message">No new messages.</div>
+                </div>
+            </div>
+
+            
+
+            <!-- Budget Tracker -->
+            <div class="widget budget-tracker">
+                <h2>Budget Tracker</h2>
+                <div class="budget-overview">
+                    <div class="budget-stat">
+                        <span class="stat-label">Total Budget:</span>
+                        <span class="stat-value" id="total-budget">$1000</span>
+                    </div>
+                    <div class="budget-stat">
+                        <span class="stat-label">Total Expenses:</span>
+                        <span class="stat-value" id="total-expenses">$400</span>
+                    </div>
+                    <div class="budget-stat">
+                        <span class="stat-label">Remaining:</span>
+                        <span class="stat-value" id="remaining-budget">$600</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" id="budget-progress"></div>
+                    </div>
+                    </div>
+                    <div class="expense-categories">
+                            <h3>Expense Categories</h3>
+                                <ul id="categories-list">
+                                    <!-- add categories here -->
+                                </ul>
+                    </div>
+                    <button class="add-expense-button" onclick="openAddExpenseForm()">Add Expense</button>
+            </div>
+
+            <!-- Quick Stats Dashboard -->
+            <div class="widget quick-stats">
+                <h2>Quick Stats</h2>
+                <div class="stats-container">
+                    <div class="stat">
+                        <span class="stat-value" id="tasks-completed">0</span>
+                        <span class="stat-label">Tasks Completed Today</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="overdue-tasks">0</span>
+                        <span class="stat-label">Overdue Tasks</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="active-projects">0</span>
+                        <span class="stat-label">Active Projects</span>
+                    </div>
+                    <div class="stat">
+                        <div class="progress-bar">
+                            <div class="progress" id="overall-progress"></div>
+                        </div>
+                        <span class="stat-label">Overall Progress</span>
+                    </div>
+            </div>
+        
+            
+
+                    <!-- Add Expense Form (hidden by default) -->
+                    <div id="add-expense-form" class="add-form">
+                        <h3>Add Expense</h3>
+                        <input type="number" id="expense-amount" placeholder="Amount">
+                        <input type="text" id="expense-category" placeholder="Category">
+                        <input type="text" id="expense-description" placeholder="Description">
+                        <button onclick="addExpense()">Add</button>
+                        <button onclick="closeAddExpenseForm()">Cancel</button>
+                    </div>
+            </div>
+            </div>
+
+                <!--Quick notes-->
+            <div class="widget quick-note">
+                <h3>Quick Notes</h3>
+                <textarea id="quick-note-input" placeholder="Write something down..."></textarea>
+                <div class="note-footer">
+                    <button id="save-note">Save</button>
+                    <span id="note-status"></span>
+                </div>
+            </div>
+    
+    
+        </div>
+
+    
+        <script src="homepage.js"></script>
+        <script src="sidebar.js"></script>
+    </body>
+</html>

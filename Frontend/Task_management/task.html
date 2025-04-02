@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+  <ul>
+    <li><a href="index.html"><span class="icon">🔐</span><span class="text">Login/Registration</span></a></li>
+    <li><a href="dashboard.html"><span class="icon">🏠</span><span class="text">Dashboard/Homepage</span></a></li>
+    <li><a href="project-charter.html"><span class="icon">📄</span><span class="text">Project Charter</span></a></li>
+    <li><a href="task-management.html"><span class="icon">📋</span><span class="text">Task Management</span></a></li>
+    <li><a href="stakeholder-management.html"><span class="icon">👥</span><span class="text">Stakeholder Management</span></a></li>
+    <li><a href="risk-management.html"><span class="icon">⚠️</span><span class="text">Risk Management</span></a></li>
+    <li><a href="reporting.html"><span class="icon">📊</span><span class="text">Reporting/Analytics</span></a></li>
+    <li><a href="user-management.html"><span class="icon">👤</span><span class="text">User Management (Admin)</span></a></li>
+    <li><a href="settings.html"><span class="icon">⚙️</span><span class="text">Settings/Profile</span></a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <h1>Task Management</h1>
+
+  <!-- Assigned Tasks Table -->
+  <div class="table-container">
+    <h2>Assigned Tasks</h2>
+    <table id="assignedTasksTable">
+      <thead>
+      <tr>
+        <th>Task Name</th>
+        <th>Priority</th>
+        <th>Progress</th>
+        <th>Deadline</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td contenteditable="true">Design Homepage</td>
+        <td>
+          <select class="priority-select">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-bar">
+            <div class="progress" style="width: 70%;"></div>
+          </div>
+        </td>
+        <td contenteditable="true">2025-03-15</td>
+      </tr>
+      <tr>
+        <td contenteditable="true">Fix Login Bug</td>
+        <td>
+          <select class="priority-select">
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="low">Low</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-bar">
+            <div class="progress" style="width: 40%;"></div>
+          </div>
+        </td>
+        <td contenteditable="true">2025-03-20</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- My Tasks Table -->
+  <div class="table-container">
+    <h2>My Tasks</h2>
+    <table id="myTasksTable">
+      <thead>
+      <tr>
+        <th>Task Name</th>
+        <th>Priority</th>
+        <th>Progress</th>
+        <th>Deadline</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td contenteditable="true">Write API Documentation</td>
+        <td>
+          <select class="priority-select">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-bar">
+            <div class="progress" style="width: 20%;"></div>
+          </div>
+        </td>
+        <td contenteditable="true">2025-03-25</td>
+      </tr>
+      <tr>
+        <td contenteditable="true">Test User Registration</td>
+        <td>
+          <select class="priority-select">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </td>
+        <td>
+          <div class="progress-bar">
+            <div class="progress" style="width: 90%;"></div>
+          </div>
+        </td>
+        <td contenteditable="true">2025-03-10</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

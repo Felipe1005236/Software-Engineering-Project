@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stakeholder Management</title>
+    <link rel="stylesheet" href="stakeholder.css">
+</head>
+<body>
+
+<div class="settings-container">
+    <!-- Sidebar -->
+    <div class="settings-sidebar">
+        <h2>Stakeholder Management</h2>
+        <ul>
+            <li class="active" data-section="stakeholder-list">Stakeholders</li>
+            <li data-section="engagement-strategy">Engagement Strategies</li>
+            <li data-section="issues-tracking">Issues & Concerns</li>
+        </ul>
+        <label>
+            <input type="checkbox" id="dark-mode"> Dark Mode
+        </label>
+    </div>
+
+    <!-- Main Content -->
+    <div class="settings-content">
+        <!-- Stakeholder List -->
+        <div id="stakeholder-list" class="settings-section">
+            <h2>Stakeholder List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Contact</th>
+                        <th>Influence</th>
+                        <th>Interest</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="stakeholder-table-body">
+                    <!-- Stakeholder rows will be added dynamically -->
+                </tbody>
+            </table>
+            <button class="btn" id="add-stakeholder">Add Stakeholder</button>
+        </div>
+    </div>
+</div>
+
+<!-- Stakeholder Form Modal -->
+<div id="stakeholder-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Stakeholder</h2>
+        <label>Name: <input type="text" id="stakeholder-name"></label>
+        <label>Role: <input type="text" id="stakeholder-role"></label>
+        <label>Contact: <input type="text" id="stakeholder-contact"></label>
+        <label>Influence: 
+            <select id="stakeholder-influence">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+        </label>
+        <label>Interest: 
+            <select id="stakeholder-interest">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+        </label>
+        <button class="btn" id="save-stakeholder">Save</button>
+    </div>
+</div>
+
+<script src="stakeholder.js"></script>
+</body>
+</html>
