@@ -1,23 +1,39 @@
-// react_frontend/src/App.js
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
+import AccountPage from './pages/AccountPage';
+import ProfilePage from './pages/ProfilePage'; // New profile page
+import LoginPage from './pages/LoginPage'; // Your existing login
 import NotFound from './pages/404';
 import ServerError from './pages/500';
 
 function App() {
+    const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
     return (
         <Router>
             <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
-                {/* Add other routes here */}
+                <Route
+                    path="/login"
+                    element={<LoginPage onLogin={() => setIsAuthenticated(true)} />}
+                />
 
-                {/* 404 Catch-all Route */}
+                {/* Protected Routes */}
+                <Route
+                    path="/account"
+                    element={isAuthenticated ? <AccountPage /> : <Navigate to="/login" />}
+                />
+                <Route
+                    path="/profile"
+                    element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" />}
+                />
+
+                {/* Error Handling */}
+                <Route path="/500" element={<ServerError />} />
                 <Route path="*" element={<NotFound />} />
-
-                {/* Simulate a 500 Error (for testing) */}
-                <Route path="/simulate-500" element={<ServerError />} />
             </Routes>
         </Router>
     );
