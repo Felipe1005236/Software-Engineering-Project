@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 enum Role {
@@ -13,115 +13,145 @@ enum Role {
   MANAGER
 }
 
+enum Type {
+  INTERNAL
+  EXTERNAL
+}
+
+enum Phase {
+  INITIATING
+  PLANNING
+  EXECUTING
+  MONITORING_CONTROLLING
+}
+
+enum Status {
+  PROPOSED
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  CANCELED
+}
+
+enum HealthColours {
+  GREEN
+  YELLOW
+  RED
+}
+
+
 model User {
-  id              Int    @id @default(autoincrement())
+  userID          Int       @id @default(autoincrement())
   firstName       String
   lastName        String
-  email           String @unique
+  email           String    @unique
   phone           String
   address         String
   unit            String
   unitManager     String
-  activationDate  DateTime @default(now())
-  active          Boolean @default(false)
-  primaryRole     Role @default(USER)
-  type            String
+  activationDate  DateTime  @default(now())
+  active          Boolean   @default(false)
+  primaryRole     Role      @default(USER)
+  type            Type      @default(INTERNAL)
 
   // Relationships
-  teams           TeamMember[]
-  assignedTasks   Task[] @relation("TaskOwner")
+  teams           Team[]    // Many to Many: one user can be in many teams
+  tasks           Task[]
 }
 
 model Team {
-  id        Int    @id @default(autoincrement())
+  teamID    Int             @id @default(autoincrement())
   name      String
-  createdOn DateTime @default(now())
+  createdOn DateTime        @default(now())
+  
+  //Relationships
+  users     User[]          // Many-to-Many: one team can have many users
 
-  // Relationships
-  members   TeamMember[]
-  projects  Project[]
-}
-
-model TeamMember {
-  id      Int   @id @default(autoincrement())
-  userId  Int
-  teamId  Int
-
-  // Relations
-  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, teamId])
+  // Team–Project remains as one-to-one.
+  project   Project?        @relation("TeamProject")
 }
 
 model Project {
-  id          Int    @id @default(autoincrement())
+  projectID   Int           @id @default(autoincrement())
   title       String
-  status      String
-  phase       String
-  projectLead Int
+  status      Status
+  phase       Phase
+  //projectLead User? 
 
   // Foreign Keys
-  teamId      Int
-  healthId    Int
-  budgetId    Int
-  dateId      Int
+  teamID      Int           @unique  // Enforces one to one
+  healthID    Int           @unique
+  budgetID    Int           @unique
+  dateID      Int           @unique
 
   // Relationships
-  team        Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  health      HealthStatus?
-  budget      Budget?
-  dates       DateDetail?
+  team        Team?         @relation("TeamProject", fields: [teamID], references: [teamID])
+  health      HealthStatus? @relation(fields: [healthID], references: [healthID])
+  budget      Budget?       @relation(fields: [budgetID], references: [budgetID])
+  dates       ProjectDates? @relation(fields: [dateID], references: [dateID])
+  
   tasks       Task[]
 }
 
 model Budget {
-  id          Int    @id @default(autoincrement())
-  projectId   Int    @unique
-  totalBudget Float
-  actualCost  Float
-  forecastCost Float
+  budgetID      Int    @id @default(autoincrement())
+  projectID     Int    @unique
+  totalBudget   Float
+  actualCost    Float
+  forecastCost  Float
 
-  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Relationships
+  project     Project?
 }
 
 model HealthStatus {
-  id        Int    @id @default(autoincrement())
-  projectId Int    @unique
-  scope     String
-  schedule  String
-  cost      String
-  resource  String
-  overall   String
+  healthID  Int    @id @default(autoincrement())
+  projectID Int    @unique
+  scope     HealthColours @default(GREEN)
+  schedule  HealthColours @default(GREEN)
+  cost      HealthColours @default(GREEN)
+  resource  HealthColours @default(GREEN)
+  overall   HealthColours @default(GREEN)
 
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Relationships
+  project   Project?
 }
 
-model DateDetail {
-  id                 Int    @id @default(autoincrement())
-  projectId          Int    @unique
-  taskId             Int?
-  targetDate         DateTime
-  startDate          DateTime
-  actualCompletion   DateTime?
+model ProjectDates {
+  dateID           Int      @id @default(autoincrement())
+  targetDate       DateTime
+  startDate        DateTime
+  actualCompletion DateTime?
 
-  project           Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  task              Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+// Relationships
+  project          Project?
+  projectID        Int      @unique
 }
 
 model Task {
-  id               Int    @id @default(autoincrement())
-  projectId        Int
-  dateId           Int?
-  title           String
+  taskID             Int    @id @default(autoincrement())
+  projectID          Int
+  dateID             Int    @unique
+  title              String
   percentageComplete Float
-  priority        String
-  ownerId         Int
-  details         String
-  status          String
+  priority           String
+  userID             Int
+  details            String
+  status             String
 
   // Relationships
-  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  dates         DateDetail? @relation(fields: [dateId], references: [id], onDelete: Cascade)
-  owner         User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  project       Project @relation(fields: [projectID], references: [projectID])
+  dates         TaskDates? @relation(fields: [dateID], references: [dateID])
+  user          User? @relation(fields: [userID], references: [userID])
+}
+
+model TaskDates {
+  dateID           Int      @id @default(autoincrement())
+  targetDate       DateTime
+  startDate        DateTime
+  actualCompletion DateTime?
+
+// Relationships
+  task             Task?
+  taskID           Int      @unique
 }
