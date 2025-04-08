@@ -78,17 +78,17 @@ model Project {
   phase       Phase
   //projectLead User? 
 
-  // Foreign Keys
+  // // Foreign Keys
   teamID      Int           @unique  // Enforces one to one
-  healthID    Int           @unique
-  budgetID    Int           @unique
-  dateID      Int           @unique
+  // healthID    Int           @unique           
+  // budgetID    Int           @unique
+  // dateID      Int           @unique
 
   // Relationships
   team        Team?         @relation("TeamProject", fields: [teamID], references: [teamID])
-  health      HealthStatus? @relation(fields: [healthID], references: [healthID])
-  budget      Budget?       @relation(fields: [budgetID], references: [budgetID])
-  dates       ProjectDates? @relation(fields: [dateID], references: [dateID])
+  health      HealthStatus? //@relation(fields: [healthID], references: [healthID])
+  budget      Budget?       //@relation(fields: [budgetID], references: [budgetID])
+  dates       ProjectDates? //@relation(fields: [dateID], references: [dateID])
   
   tasks       Task[]
 }
@@ -101,7 +101,7 @@ model Budget {
   forecastCost  Float
 
   // Relationships
-  project     Project?
+  project     Project @relation(fields: [projectID], references: [projectID])
 }
 
 model HealthStatus {
@@ -114,7 +114,7 @@ model HealthStatus {
   overall   HealthColours @default(GREEN)
 
   // Relationships
-  project   Project?
+  project   Project @relation(fields: [projectID], references: [projectID])
 }
 
 model ProjectDates {
@@ -124,7 +124,7 @@ model ProjectDates {
   actualCompletion DateTime?
 
 // Relationships
-  project          Project?
+  project          Project  @relation(fields: [projectID], references: [projectID])
   projectID        Int      @unique
 }
 
