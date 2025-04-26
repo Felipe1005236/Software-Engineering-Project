@@ -1,0 +1,157 @@
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  color: #333;
+}
+
+/* Main Container */
+.settings-container {
+  display: flex;
+  width: 90vw;
+  height: 90vh;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Sidebar */
+.settings-sidebar {
+  width: 30%;
+  background: #6a11cb;
+  color: white;
+  padding: 20px;
+  border-radius: 20px 0 0 20px;
+}
+
+.settings-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.settings-sidebar li {
+  padding: 15px;
+  cursor: pointer;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: background 0.3s ease;
+}
+
+.settings-sidebar li:hover,
+.settings-sidebar li.active {
+  background: #2575fc;
+}
+
+/* Content Area */
+.settings-content {
+  width: 70%;
+  padding: 40px;
+}
+
+/* Stakeholder List Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  border: 2px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  font-size: 16px;
+}
+
+th {
+  background-color: #6a11cb;
+  color: white;
+}
+
+/* Button Styling */
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #6a11cb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #2575fc;
+}
+
+/* Input Fields */
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: #6a11cb;
+  outline: none;
+}
+
+/* Dark Mode */
+.dark-mode {
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.dark-mode .settings-container {
+  background: #2c2c2c;
+}
+
+.dark-mode .settings-sidebar {
+  background: #444;
+}
+
+.dark-mode .settings-sidebar li.active {
+  background: #555;
+}
+
+.dark-mode .settings-content {
+  background: #1e1e1e;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.modal-content button {
+  margin-top: 10px;
+}
