@@ -1,71 +1,51 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { CreateProjectDto } from './create-project.dto';
-import { UpdateProjectDto } from './update-project.dto';
-import { Project } from './projects.entity';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';  
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
-  private projects: Project[] = [];
-
-  // Get all projects
-  getAllProjects(): Project[] {
-    return this.projects;
-  }
-
-  // Get a project by ID
-  getProjectById(id: number): Project {
-    const project = this.projects.find((p) => p.projectId === id);
-    if (!project) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
-    }
-    return project;
-  }
+  constructor(private prisma: PrismaService) {}
 
   // Create a new project
-  createProject(createProjectDto: CreateProjectDto): Project {
-    if (!createProjectDto.title || !createProjectDto.projectLead) {
-      throw new BadRequestException('Title and Project Lead are required');
-    }
-
-    const newProject: Project = {
-      projectId: Date.now(),
-      tasks: [],
-      ...createProjectDto,
-    };
-    this.projects.push(newProject);
-    return newProject;
+  async create(createProjectDto: CreateProjectDto) {
+    return this.prisma.project.create({
+      data: {
+        title: createProjectDto.title,
+        status: createProjectDto.status,
+        phase: createProjectDto.phase,
+        teamID: createProjectDto.teamId,
+        health: { connect: { healthID: createProjectDto.healthId } },
+        budget: { connect: { budgetID: createProjectDto.budgetId } },
+        dates: { connect: { dateID: createProjectDto.dateId } },
+      },
+    });
   }
 
-  // Update an existing project by ID
-  updateProject(id: number, updateProjectDto: UpdateProjectDto): Project {
-    const projectIndex = this.projects.findIndex((p) => p.projectId === id);
-    if (projectIndex === -1) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
-    }
+  // Get all projects
+  async findAll() {
+    return this.prisma.project.findMany();
+  }
 
-    const updatedProject = {
-      ...this.projects[projectIndex],
-      ...updateProjectDto,
-    };
-    this.projects[projectIndex] = updatedProject;
-    return updatedProject;
+  // Get one project by ID
+  async findOne(projectID: number) {
+    return this.prisma.project.findUnique({
+      where: { projectID },
+    });
+  }
+
+  // Update a project by ID
+  async update(projectID: number, updateProjectDto: UpdateProjectDto) {
+    return this.prisma.project.update({
+      where: { projectID },
+      data: updateProjectDto,
+    });
   }
 
   // Delete a project by ID
-  deleteProject(id: number): Project {
-    const projectIndex = this.projects.findIndex((p) => p.projectId === id);
-    if (projectIndex === -1) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
-    }
-
-    const deletedProject = this.projects[projectIndex];
-    this.projects.splice(projectIndex, 1);
-    return deletedProject;
-  }
-
-  // Get all tasks for a specific project
-  getTasksForProject(id: number): any[] {
-    const project = this.getProjectById(id);
-    return project.tasks || [];
+  async remove(projectID: number) {
+    return this.prisma.project.delete({
+      where: { projectID },
+    });
   }
 }
