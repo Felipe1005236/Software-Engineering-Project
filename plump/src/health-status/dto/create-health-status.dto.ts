@@ -1,9 +1,21 @@
+import { IsString, IsInt } from 'class-validator';
+
 export class CreateHealthStatusDto {
-    projectId: string;
-    status: 'healthy' | 'warning' | 'critical' = 'healthy';
-    metrics: {
-      uptime: number;
-      responseTime: number;
-      errorRate: number;
-    };
-  }
+  @IsInt()
+  projectId: number;
+
+  @IsString()
+  scope: string;
+
+  @IsString()
+  schedule: string;
+
+  @IsString()
+  cost: string;
+
+  @IsString()
+  resource: string;
+
+  @IsString()
+  overall: string;
+}

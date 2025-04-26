@@ -1,11 +1,12 @@
+import { Project } from '@prisma/client';
+
 export interface HealthStatus {
-    id: string;
-    projectId: string;
-    status: 'healthy' | 'warning' | 'critical';
-    lastChecked: Date;
-    metrics: {
-      uptime: number;
-      responseTime: number;
-      errorRate: number;
-    };
-  }
+  id: number;
+  projectId: number;
+  scope: string;
+  schedule: string;
+  cost: string;
+  resource: string;
+  overall: string;
+  project?: Project;
+}

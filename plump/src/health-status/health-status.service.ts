@@ -1,56 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { HealthStatus } from './interfaces/health-status.interface';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateHealthStatusDto } from './dto/create-health-status.dto';
 import { UpdateHealthStatusDto } from './dto/update-health-status.dto';
 
 @Injectable()
 export class HealthStatusService {
-  private healthStatuses: HealthStatus[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  create(createHealthStatusDto: CreateHealthStatusDto): HealthStatus {
-    const newStatus: HealthStatus = {
-      id: Date.now().toString(),
-      lastChecked: new Date(),
-      ...createHealthStatusDto,
-      metrics: {
-        uptime: createHealthStatusDto.metrics.uptime ?? 100,
-        responseTime: createHealthStatusDto.metrics.responseTime ?? 0,
-        errorRate: createHealthStatusDto.metrics.errorRate ?? 0,
-      }
-    };
-    this.healthStatuses.push(newStatus);
-    return newStatus;
+  async create(createHealthStatusDto: CreateHealthStatusDto) {
+    return this.prisma.healthStatus.create({
+      data: createHealthStatusDto,
+    });
   }
 
-  findAll(): HealthStatus[] {
-    return this.healthStatuses;
+  async findAll() {
+    return this.prisma.healthStatus.findMany();
   }
 
-  findOne(id: string): HealthStatus | null {
-    return this.healthStatuses.find(status => status.id === id) || null;
+  async findOne(id: number) {
+    return this.prisma.healthStatus.findUnique({
+      where: { id },
+    });
   }
 
-  update(id: string, updateHealthStatusDto: UpdateHealthStatusDto): HealthStatus | null {
-    const index = this.healthStatuses.findIndex(status => status.id === id);
-    if (index === -1) return null;
-
-    const current = this.healthStatuses[index];
-    this.healthStatuses[index] = {
-      ...current,
-      ...updateHealthStatusDto,
-      metrics: {
-        uptime: updateHealthStatusDto.metrics?.uptime ?? current.metrics.uptime,
-        responseTime: updateHealthStatusDto.metrics?.responseTime ?? current.metrics.responseTime,
-        errorRate: updateHealthStatusDto.metrics?.errorRate ?? current.metrics.errorRate,
-      },
-      lastChecked: new Date(),
-    };
-    return this.healthStatuses[index];
+  async update(id: number, updateHealthStatusDto: UpdateHealthStatusDto) {
+    return this.prisma.healthStatus.update({
+      where: { id },
+      data: updateHealthStatusDto,
+    });
   }
 
-  remove(id: string): { deleted: boolean } {
-    const initialLength = this.healthStatuses.length;
-    this.healthStatuses = this.healthStatuses.filter(status => status.id !== id);
-    return { deleted: this.healthStatuses.length < initialLength };
+  async remove(id: number) {
+    return this.prisma.healthStatus.delete({
+      where: { id },
+    });
   }
 }
