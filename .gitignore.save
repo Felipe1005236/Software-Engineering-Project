@@ -20,6 +20,8 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 
+my-jwt-app/
+
 # IDEs and editors
 /.idea
 .proje
