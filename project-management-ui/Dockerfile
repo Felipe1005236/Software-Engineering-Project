@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Set the working directory inside the container
-WORKDIR /plump/src/app
+WORKDIR /project-management-ui/src/app
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -13,7 +13,6 @@ RUN npm install
 COPY . .
 
 # Build the NestJS application and Prisma 
-RUN npx prisma generate
 RUN npm run build
 
 # Expose the application port
