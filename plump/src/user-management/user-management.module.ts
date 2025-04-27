@@ -7,4 +7,4 @@ import { PrismaService } from 'src/prisma/prisma.service'; //Importing Prisma Se
   controllers: [UserManagementController],
   providers: [UserManagementService, PrismaService],
 })
-export class UserManagementModule {} 
+export class UserManagementModule {}

@@ -1,28 +1,20 @@
-<<<<<<< Updated upstream
+import { Role, Type, Team, Task} from '@prisma/client';
+
 export interface User {
-    id: string;
-    name: string;
-    email: string;
-    password: string;
-  }
-=======
-import { Role } from '@prisma/client';
+  userID: number;              
+  firstName: string;          
+  lastName: string;          
+  email: string;  
+  phone: string;             
+  address: string;          
+  unit: string;            
+  unitManager: string;       
+  activationDate: Date;       
+  active: boolean;           
+  primaryRole: Role;        
+  type: Type;               
 
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  unit: string;
-  unitManager: string;
-  activationDate: Date;
-  active: boolean;
-  primaryRole: Role;
-  type: string;
+  // Optional: Include relationships if needed
+  teams?: Team[];       // From Prisma schema
+  assignedTasks?: Task[];     // From Prisma schema
 }
-
-
-export { User }; 
->>>>>>> Stashed changes

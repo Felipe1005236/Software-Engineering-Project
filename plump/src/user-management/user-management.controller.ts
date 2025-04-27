@@ -19,20 +19,20 @@ export class UserManagementController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User | null> {
+  async findOne(@Param('id') id: number): Promise<User | null> {
     return this.userService.findOne(id);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<User | null> {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<{ deleted: boolean }> {
+  async remove(@Param('id') id: number): Promise<{ deleted: boolean }> {
     return this.userService.remove(id);
   }
-} 
+}
