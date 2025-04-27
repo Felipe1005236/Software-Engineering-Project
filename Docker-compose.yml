@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   backend:
@@ -9,8 +9,8 @@ services:
       - "3000:3000"
     volumes:
       - ./backend:/app
-    env_file:
-      - ./plump/.env
+    #env_file:
+    #  - ./plump/.env
     #depends_on:
     #  - db
 
