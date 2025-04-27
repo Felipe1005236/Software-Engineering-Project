@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM nginx:alpine
 
 # Set the working directory inside the container
 WORKDIR /app
