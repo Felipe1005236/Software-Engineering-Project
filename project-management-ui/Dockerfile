@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Set the working directory inside the container
-WORKDIR /project-management-ui/src/app
+WORKDIR /project-management-ui/src
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -19,4 +19,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["node", "dist/main"]
+#CMD ["node", "dist/main"]
