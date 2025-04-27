@@ -1,4 +1,5 @@
 import { IsString, IsInt, IsOptional } from 'class-validator';
+import { HealthColours } from '@prisma/client';
 
 export class UpdateHealthStatusDto {
   @IsOptional()
@@ -7,21 +8,21 @@ export class UpdateHealthStatusDto {
 
   @IsOptional()
   @IsString()
-  scope?: string;
+  scope?: HealthColours;
 
   @IsOptional()
   @IsString()
-  schedule?: string;
+  schedule?: HealthColours;
 
   @IsOptional()
   @IsString()
-  cost?: string;
+  cost?: HealthColours;
 
   @IsOptional()
   @IsString()
-  resource?: string;
+  resource?: HealthColours;
 
   @IsOptional()
   @IsString()
-  overall?: string;
+  overall?: HealthColours;
 }

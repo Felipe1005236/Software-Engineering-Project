@@ -1,21 +1,22 @@
 import { IsString, IsInt } from 'class-validator';
+import {HealthColours} from '@prisma/client';
 
 export class CreateHealthStatusDto {
   @IsInt()
   projectId: number;
 
   @IsString()
-  scope: string;
+  scope: HealthColours;
 
   @IsString()
-  schedule: string;
+  schedule: HealthColours;
 
   @IsString()
-  cost: string;
+  cost: HealthColours;
 
   @IsString()
-  resource: string;
+  resource: HealthColours;
 
   @IsString()
-  overall: string;
+  overall: HealthColours;
 }

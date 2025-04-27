@@ -8,8 +8,15 @@ export class HealthStatusService {
   constructor(private prisma: PrismaService) {}
 
   async create(createHealthStatusDto: CreateHealthStatusDto) {
+    const { projectId, ...rest } = createHealthStatusDto;
+  
     return this.prisma.healthStatus.create({
-      data: createHealthStatusDto,
+      data: {
+        ...rest,
+        project: {
+          connect: { projectID: projectId },
+        },
+      },
     });
   }
 
@@ -19,20 +26,20 @@ export class HealthStatusService {
 
   async findOne(id: number) {
     return this.prisma.healthStatus.findUnique({
-      where: { id },
+      where: { healthID: id },
     });
   }
 
   async update(id: number, updateHealthStatusDto: UpdateHealthStatusDto) {
     return this.prisma.healthStatus.update({
-      where: { id },
+      where: { healthID: id },
       data: updateHealthStatusDto,
     });
   }
 
   async remove(id: number) {
     return this.prisma.healthStatus.delete({
-      where: { id },
+      where: { healthID: id },
     });
   }
 }
