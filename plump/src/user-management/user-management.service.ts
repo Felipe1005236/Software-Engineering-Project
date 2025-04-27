@@ -8,6 +8,7 @@ import { User } from './interfaces/user.interface';
 export class UserManagementService {
   private users: User[] = [];
 
+<<<<<<< Updated upstream
   create(createUserDto: CreateUserDto): User {
     const newUser: User = {
       id: Date.now().toString(),
@@ -15,6 +16,16 @@ export class UserManagementService {
     };
     this.users.push(newUser);
     return newUser;
+=======
+  async create(createUserDto: CreateUserDto) {
+    return this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        active: createUserDto.active ?? false,  
+        primaryRole: createUserDto.primaryRole ?? 'USER'  // Default role
+      }
+    }); 
+>>>>>>> Stashed changes
   }
 
   findAll(): User[] {

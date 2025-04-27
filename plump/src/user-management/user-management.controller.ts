@@ -35,4 +35,4 @@ export class UserManagementController {
   async remove(@Param('id') id: string): Promise<{ deleted: boolean }> {
     return this.userService.remove(id);
   }
-}
+} 
