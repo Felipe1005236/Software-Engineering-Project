@@ -17,7 +17,7 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const data = await fetchWrapper('/api/projects');
+      const data = await fetchWrapper('http://backend:3000/projects');
       if (data) setProjects(data);
     } catch (err) {
       console.error('Failed to fetch projects. Using fallback data.');
