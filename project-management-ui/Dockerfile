@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Set the working directory inside the container
-WORKDIR /project-management-ui/src
+WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Expose the application port
-EXPOSE 3000
+EXPOSE 80
 
 # Command to run the application
-#CMD ["node", "dist/main"]
+CMD ["nginx", "-g", "daemon off;"]
