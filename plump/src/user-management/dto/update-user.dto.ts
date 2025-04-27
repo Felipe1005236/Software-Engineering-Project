@@ -1,10 +1,7 @@
+import { IsString, IsNotEmpty, IsEmail, IsOptional, IsEnum} from 'class-validator';
+import {Role , Type} from '@prisma/client';
+
 export class UpdateUserDto {
-<<<<<<< Updated upstream
-    readonly name?: string;
-    readonly email?: string;
-    readonly password?: string;
-  }
-=======
   @IsString()
   @IsOptional()
   firstName?: string;
@@ -42,6 +39,5 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
-  type?: string;
+  type?: Type;
 } 
->>>>>>> Stashed changes
