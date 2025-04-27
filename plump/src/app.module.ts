@@ -6,5 +6,6 @@ import { ProjectsModule } from './projects/projects.module';
 @Module({
   imports: [BudgetModule, ProjectsModule],
   providers: [PrismaService]
+
 })
 export class AppModule {}
