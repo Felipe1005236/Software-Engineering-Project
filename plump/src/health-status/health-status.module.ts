@@ -4,7 +4,7 @@ import { HealthStatusService } from './health-status.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
-  controllers: [HealthStatusController, PrismaService],
-  providers: [HealthStatusService],
+  controllers: [HealthStatusController],
+  providers: [HealthStatusService, PrismaService],
 })
 export class HealthStatusModule {}
