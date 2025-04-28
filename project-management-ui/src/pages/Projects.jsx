@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import ProjectCard from '../components/ProjectCard';
 import ProjectModal from '../components/ProjectModal';
-import { fetchWrapper } from '../utils/fetchWrapper';
 import { useNavigate } from 'react-router-dom';
+
+const BASE_URL = 'http://localhost:3000/api';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -17,8 +18,21 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const data = await fetchWrapper('/api/projects');
-      if (data) setProjects(data);
+      const response = await fetch(`${BASE_URL}/projects`);
+      if (!response.ok) throw new Error('Failed to fetch projects');
+      const data = await response.json();
+  
+      // Transform backend fields to what frontend expects
+      const sanitized = data.map((p) => ({
+        id: p.projectID,
+        name: p.title,
+        priority: 'Medium', // Default or map from backend if available
+        members: [], // Backend doesn't send members yet
+        status: p.status || 'Unknown',
+        tasks: [], 
+      }));
+  
+      setProjects(sanitized);
     } catch (err) {
       console.error('Failed to fetch projects. Using fallback data.');
       setProjects([
@@ -64,15 +78,27 @@ const Projects = () => {
 
   const handleSave = async (newProject) => {
     try {
-      if (editProject) {
-        await fetchWrapper(`/api/projects/${editProject.id}`, 'PUT', newProject);
-        setProjects((prev) =>
-          prev.map((p) => (p.id === editProject.id ? { ...newProject, id: editProject.id } : p))
-        );
-      } else {
-        const saved = await fetchWrapper('/api/projects', 'POST', newProject);
-        setProjects((prev) => [...prev, saved]);
-      }
+      const url = editProject
+        ? `${BASE_URL}/projects/${editProject.id}`
+        : `${BASE_URL}/projects`;
+
+      const method = editProject ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProject),
+      });
+
+      if (!response.ok) throw new Error('Failed to save project');
+
+      const saved = await response.json();
+
+      setProjects((prev) =>
+        editProject
+          ? prev.map((p) => (p.id === editProject.id ? { ...saved } : p))
+          : [...prev, saved]
+      );
     } catch (err) {
       console.error('Save failed:', err);
     }
@@ -81,7 +107,12 @@ const Projects = () => {
 
   const handleDelete = async (target) => {
     try {
-      await fetchWrapper(`/api/projects/${target.id}`, 'DELETE');
+      const response = await fetch(`${BASE_URL}/projects/${target.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Delete failed');
+
       setProjects((prev) => prev.filter((p) => p.id !== target.id));
     } catch (err) {
       console.error('Delete failed:', err);
@@ -130,7 +161,7 @@ const Projects = () => {
               project={project}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onViewTasks={() => navigate(`/projects/${project.name}/tasks`)}
+              onViewTasks={() => navigate(`/projects/${project.id}/tasks`)}
             />
           ))}
         </motion.div>

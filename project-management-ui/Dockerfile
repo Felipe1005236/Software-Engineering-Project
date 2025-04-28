@@ -1,22 +1,23 @@
-FROM node:20-alpine
+# First stage: Build React App
+FROM node:20-alpine AS build
 
-# Set the working directory inside the container
-WORKDIR /project-management-ui/src/app
-
-# Copy package.json and package-lock.json to the working directory
+WORKDIR /app
 COPY package*.json ./
-
-# Install the application dependencies
 RUN npm install
-
-# Copy the rest of the application files
 COPY . .
-
-# Build the NestJS application and Prisma 
 RUN npm run build
 
-# Expose the application port
-EXPOSE 3000
+# Second stage: Serve with Nginx
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Command to run the application
-CMD ["node", "dist/main"]
+
+# Optional: custom Nginx config
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+
