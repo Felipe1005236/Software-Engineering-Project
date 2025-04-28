@@ -17,23 +17,30 @@ const word = {
   visible: { y: 0, opacity: 1 },
 };
 
-export default function App() {
+export default function AppLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white font-sans relative">
 
-    {/* App name in top-left */}
-<div className="absolute top-6 left-6 text-2xl font-bold tracking-tight">
-  ⚡ PLUMP
-</div>
+      {/* Logo and App name in top-left */}
+      <div className="absolute top-6 left-6 flex items-center gap-2">
+        <img
+          src="/plump-logo.png" // Make sure the image is saved correctly here
+          alt="PLUMP Logo"
+          className="w-10 h-10 object-contain"
+        />
+        <span className="text-2xl font-bold tracking-tight">
+          PLUMP
+        </span>
+      </div>
 
-{/* Login button in top-right */}
-<div className="absolute top-6 right-6">
-  <Link to="/login">
-    <button className="border border-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white hover:text-black transition">
-      Log In
-    </button>
-  </Link>
-</div>
+      {/* Login button in top-right */}
+      <div className="absolute top-6 right-6">
+        <Link to="/login">
+          <button className="border border-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white hover:text-black transition">
+            Log In
+          </button>
+        </Link>
+      </div>
 
       {/* Hero Content */}
       <div className="flex items-center justify-center min-h-screen px-6">
@@ -67,7 +74,7 @@ export default function App() {
             </Link>
 
             {/* Link to Learn More Page */}
-            <Link to="/learn">
+            <Link to="/learn-more">
               <button className="border border-white px-6 py-3 rounded-full font-medium hover:bg-white hover:text-black transition">
                 Learn More
               </button>
