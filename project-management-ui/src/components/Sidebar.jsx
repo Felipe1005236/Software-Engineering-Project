@@ -7,6 +7,7 @@ import {
   FaUsers,
   FaCogs,
   FaUserTie,
+  FaWallet,
   FaBars,
   FaTimes,
 } from 'react-icons/fa';
@@ -17,6 +18,7 @@ const navItems = [
   { name: 'Projects', path: '/projects', icon: <FaProjectDiagram /> },
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
+  { name: 'Budget', path: '/budget', icon: <FaWallet /> },  // <-- small fix: lowercase "budget"
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
 ];
@@ -40,16 +42,23 @@ const Sidebar = () => {
         {collapsed ? <FaBars /> : <FaTimes />}
       </button>
 
-      {/* Title */}
+      {/* Logo Title */}
       {!collapsed && (
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-2xl font-extrabold mb-10 tracking-wide text-white"
+          className="flex items-center gap-3 mb-10"
         >
-          ⚡ PLUMP
-        </motion.h1>
+          <img
+            src="/plump-logo.png" // make sure it's inside public/ folder
+            alt="PLUMP Logo"
+            className="w-10 h-10 object-contain"
+          />
+          <span className="text-2xl font-extrabold tracking-wide text-white">
+            PLUMP
+          </span>
+        </motion.div>
       )}
 
       {/* Navigation */}

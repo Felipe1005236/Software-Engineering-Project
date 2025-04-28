@@ -18,10 +18,13 @@ import Settings from '../pages/Settings';
 import Stakeholders from '../pages/Stakeholders';
 import TaskList from '../pages/TaskList';
 import TaskDetails from '../pages/TaskDetails';
+import Budget from '../pages/budget';
 
+// Error Pages
 import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
 
+// Other
 import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => (
@@ -34,7 +37,7 @@ const AppRoutes = () => (
     <Route path="/signup" element={<Signup />} />
     <Route path="/forgot" element={<ForgotPassword />} />
 
-    {/* --- Protected Main App Pages with Layout --- */}
+    {/* --- Protected Main App Pages (Inside Layout) --- */}
     <Route
       element={
         <ProtectedRoute>
@@ -48,6 +51,7 @@ const AppRoutes = () => (
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/stakeholders" element={<Stakeholders />} />
+      <Route path="/budget" element={<Budget />} />
 
       {/* Nested Task Routes */}
       <Route path="/projects/:name/tasks" element={<TaskList />} />
