@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';  
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { Prisma, Status } from '@prisma/client'; 
 
 @Injectable()
 export class ProjectsService {
@@ -48,4 +49,38 @@ export class ProjectsService {
       where: { projectID },
     });
   }
-}
+  
+
+  async searchProjects(filters: {
+    title?: string;
+    status?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }) {
+    return this.prisma.project.findMany({
+      where: {
+        ...(filters.title && {
+          title: {
+            contains: filters.title,
+          },
+        }),
+        ...(filters.status && {
+          status: {
+            equals: filters.status as any,
+          },
+        }),
+        ...(filters.startDate && filters.endDate && {
+          dates: { // 🔥 inside the related ProjectDates model
+            startDate: {
+              gte: filters.startDate,
+              lte: filters.endDate,
+            },
+          },
+        }),
+      },
+      include: {
+        dates: true, // 🔥 Optional: to return date info too
+      },
+    });
+  }
+}  
