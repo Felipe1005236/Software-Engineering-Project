@@ -22,12 +22,11 @@ const Projects = () => {
       if (!response.ok) throw new Error('Failed to fetch projects');
       const data = await response.json();
   
-      // Transform backend fields to what frontend expects
       const sanitized = data.map((p) => ({
         id: p.projectID,
         name: p.title,
-        priority: 'Medium', // Default or map from backend if available
-        members: [], // Backend doesn't send members yet
+        priority: 'Medium',
+        members: [], 
         status: p.status || 'Unknown',
         tasks: [], 
       }));
@@ -81,19 +80,29 @@ const Projects = () => {
       const url = editProject
         ? `${BASE_URL}/projects/${editProject.id}`
         : `${BASE_URL}/projects`;
-
+  
       const method = editProject ? 'PUT' : 'POST';
-
+  
+      const payload = editProject
+        ? {
+            title: newProject.name,
+            status: newProject.status || 'Planning',
+          }
+        : {
+            title: newProject.name,
+            status: newProject.status || 'Planning',
+          };
+  
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProject),
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) throw new Error('Failed to save project');
-
+  
       const saved = await response.json();
-
+  
       setProjects((prev) =>
         editProject
           ? prev.map((p) => (p.id === editProject.id ? { ...saved } : p))
@@ -104,6 +113,7 @@ const Projects = () => {
     }
     setIsModalOpen(false);
   };
+  
 
   const handleDelete = async (target) => {
     try {

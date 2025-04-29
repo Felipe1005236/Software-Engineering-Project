@@ -13,14 +13,26 @@ export class ProjectsService {
       data: {
         title: createProjectDto.title,
         status: createProjectDto.status,
-        phase: createProjectDto.phase,
-        teamID: createProjectDto.teamId,
-        health: { connect: { healthID: createProjectDto.healthId } },
-        budget: { connect: { budgetID: createProjectDto.budgetId } },
-        dates: { connect: { dateID: createProjectDto.dateId } },
+        ...(createProjectDto.phase && { phase: createProjectDto.phase }),
+        ...(createProjectDto.teamId && { teamID: createProjectDto.teamId }),
+        ...(createProjectDto.healthId && {
+          health: {
+            connect: { healthID: createProjectDto.healthId }
+          }
+        }),
+        ...(createProjectDto.budgetId && {
+          budget: {
+            connect: { budgetID: createProjectDto.budgetId }
+          }
+        }),
+        ...(createProjectDto.dateId && {
+          dates: {
+            connect: { dateID: createProjectDto.dateId }
+          }
+        }),
       },
     });
-  }
+  }  
 
   // Get all projects
   async findAll() {
