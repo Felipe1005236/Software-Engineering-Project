@@ -1,15 +1,15 @@
-import { IsString, IsNumber } from 'class-validator';
-import { Status, Phase } from '@prisma/client';  
+import { IsString, IsNumber, IsEnum } from 'class-validator';
+import { Status, Phase } from '@prisma/client';
 
 export class CreateProjectDto {
   @IsString()
   title: string;
 
-  @IsString()
+  @IsEnum(Status)
   status: Status;
 
-  @IsString()
-  phase: Phase; 
+  @IsEnum(Phase)
+  phase: Phase;
 
   @IsNumber()
   teamId: number;

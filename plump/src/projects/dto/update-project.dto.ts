@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum } from 'class-validator';
 import { Status, Phase } from '@prisma/client'; 
 
 export class UpdateProjectDto {
@@ -6,13 +6,13 @@ export class UpdateProjectDto {
   @IsOptional()
   title?: string;
 
-  @IsString()
+  @IsEnum(Status)
   @IsOptional()
-  status?: Status; 
+  status?: Status; // ✅ Correct validation for enums
 
-  @IsString()
+  @IsEnum(Phase)
   @IsOptional()
-  phase?: Phase; 
+  phase?: Phase; // ✅ Correct validation for enums
 
   @IsNumber()
   @IsOptional()
