@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+}
+
+enum Type {
+  INTERNAL
+  EXTERNAL
+}
+
+enum Phase {
+  INITIATING
+  PLANNING
+  EXECUTING
+  MONITORING_CONTROLLING
+}
+
+enum Status {
+  PROPOSED
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  CANCELED
+}
+
+enum HealthColours {
+  GREEN
+  YELLOW
+  RED
+}
+
+
+model User {
+  userID          Int       @id @default(autoincrement())
+  firstName       String
+  lastName        String
+  email           String    @unique
+  phone           String
+  address         String
+  unit            String
+  unitManager     String
+  activationDate  DateTime  @default(now())
+  active          Boolean   @default(false)
+  primaryRole     Role      @default(USER)
+  type            Type      @default(INTERNAL)
+
+  // Relationships
+  teams           Team[]    // Many to Many: one user can be in many teams
+  tasks           Task[]
+}
+
+model Team {
+  teamID    Int             @id @default(autoincrement())
+  name      String
+  createdOn DateTime        @default(now())
+  
+  //Relationships
+  users     User[]          // Many-to-Many: one team can have many users
+
+  // Team–Project remains as one-to-one.
+  project   Project?        @relation("TeamProject")
+}
+
+model Project {
+  projectID   Int           @id @default(autoincrement())
+  title       String
+  status      Status
+  phase       Phase
+  //projectLead User? 
+
+  // // Foreign Keys
+  teamID      Int           @unique  // Enforces one to one
+  // healthID    Int           @unique           
+  // budgetID    Int           @unique
+  // dateID      Int           @unique
+
+  // Relationships
+  team        Team?         @relation("TeamProject", fields: [teamID], references: [teamID])
+  health      HealthStatus? //@relation(fields: [healthID], references: [healthID])
+  budget      Budget?       //@relation(fields: [budgetID], references: [budgetID])
+  dates       ProjectDates? //@relation(fields: [dateID], references: [dateID])
+  
+  tasks       Task[]
+}
+
+model Budget {
+  budgetID      Int    @id @default(autoincrement())
+  projectID     Int    @unique
+  totalBudget   Float
+  actualCost    Float
+  forecastCost  Float
+
+  // Relationships
+  project     Project @relation(fields: [projectID], references: [projectID])
+}
+
+model HealthStatus {
+  healthID  Int    @id @default(autoincrement())
+  projectID Int    @unique
+  scope     HealthColours @default(GREEN)
+  schedule  HealthColours @default(GREEN)
+  cost      HealthColours @default(GREEN)
+  resource  HealthColours @default(GREEN)
+  overall   HealthColours @default(GREEN)
+
+  // Relationships
+  project   Project @relation(fields: [projectID], references: [projectID])
+}
+
+model ProjectDates {
+  dateID           Int      @id @default(autoincrement())
+  targetDate       DateTime
+  startDate        DateTime
+  actualCompletion DateTime?
+
+// Relationships
+  project          Project  @relation(fields: [projectID], references: [projectID])
+  projectID        Int      @unique
+}
+
+model Task {
+  taskID             Int    @id @default(autoincrement())
+  projectID          Int
+  dateID             Int    @unique
+  title              String
+  percentageComplete Float
+  priority           String
+  userID             Int
+  details            String
+  status             String
+
+  // Relationships
+  project       Project @relation(fields: [projectID], references: [projectID])
+  dates         TaskDates? @relation(fields: [dateID], references: [dateID])
+  user          User? @relation(fields: [userID], references: [userID])
+   comments      Comment[]
+}
+
+model TaskDates {
+  dateID           Int      @id @default(autoincrement())
+  targetDate       DateTime
+  startDate        DateTime
+  actualCompletion DateTime?
+
+// Relationships
+  task             Task?
+  taskID           Int      @unique
+}
+
+model Comment {
+  id         Int         @id @default(autoincrement())
+  content    String
+  createdAt  DateTime    @default(now())
+  task       Task        @relation(fields: [taskId], references: [taskID])
+  taskId     Int
+  attachments Attachment[]
+}
+
+model Attachment {
+  id         Int      @id @default(autoincrement())
+  fileUrl    String
+  comment    Comment  @relation(fields: [commentId], references: [id])
+  commentId  Int
+}
