@@ -18,6 +18,7 @@ import Settings from '../pages/Settings';
 import Stakeholders from '../pages/Stakeholders';
 import TaskList from '../pages/TaskList';
 import TaskDetails from '../pages/TaskDetails';
+import Risks from '../pages/Risks';
 
 import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
@@ -48,6 +49,7 @@ const AppRoutes = () => (
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/stakeholders" element={<Stakeholders />} />
+      <Route path="/risks" element={<Risks/>} />
 
       {/* Nested Task Routes */}
       <Route path="/projects/:name/tasks" element={<TaskList />} />

@@ -9,6 +9,8 @@ import {
   FaUserTie,
   FaBars,
   FaTimes,
+  FaEllipsisV,
+  FaExclamationTriangle,
 } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -19,6 +21,7 @@ const navItems = [
   { name: 'Team', path: '/team', icon: <FaUsers /> },
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
+  { name: 'Risks', path: '/risks', icon: <FaExclamationTriangle/>},
 ];
 
 const Sidebar = () => {
