@@ -1,4 +1,0 @@
-- For this meeting we divided a couple of the tasks and started working on them
-- Started working on the ER diagram for out database
-- Chose the language for the Backend, Typescript using Nest.js
-- Chose to use Docker for containerization in order to guarantee stability and problems with, "It runs on my computer" 
