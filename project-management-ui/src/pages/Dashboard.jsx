@@ -60,17 +60,7 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         className="flex justify-between items-center"
       >
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-3">
-            <span className="text-lg font-medium">Hello, User</span>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-48 px-3 py-1 rounded-md text-black text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
         <button
           onClick={fetchDashboardData}
           className="flex items-center gap-2 px-4 py-2 bg-zinc-800/60 backdrop-blur border border-white/10 rounded-lg hover:bg-zinc-700/60 transition shadow-soft"
