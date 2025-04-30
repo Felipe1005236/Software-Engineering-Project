@@ -78,6 +78,12 @@ model Project {
   phase       Phase
   //projectLead User? 
 
+  //gantt chart data
+  startDate      DateTime?
+  endDate        DateTime?
+  dependencies   String?   
+  ganttData      String?   
+
   // // Foreign Keys
   teamID      Int           @unique  // Enforces one to one
   // healthID    Int           @unique           
@@ -143,6 +149,7 @@ model Task {
   project       Project @relation(fields: [projectID], references: [projectID])
   dates         TaskDates? @relation(fields: [dateID], references: [dateID])
   user          User? @relation(fields: [userID], references: [userID])
+  dependencies String?
 }
 
 model TaskDates {
