@@ -23,6 +23,8 @@ import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
 
 import ProtectedRoute from './ProtectedRoute';
+import TimeTracking from '../pages/TimeTracking';
+
 
 const AppRoutes = () => (
   <Routes>
@@ -48,7 +50,7 @@ const AppRoutes = () => (
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/stakeholders" element={<Stakeholders />} />
-
+        <Route path="/time-tracking" element={<TimeTracking />} />
       {/* Nested Task Routes */}
       <Route path="/projects/:name/tasks" element={<TaskList />} />
       <Route path="/projects/:name/tasks/:id" element={<TaskDetails />} />
@@ -58,6 +60,7 @@ const AppRoutes = () => (
     <Route path="/500" element={<ServerError />} />
     <Route path="/404" element={<NotFound />} />
     <Route path="*" element={<NotFound />} />
+
   </Routes>
 );
 
