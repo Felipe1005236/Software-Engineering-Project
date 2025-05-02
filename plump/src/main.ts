@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:8080', // allow frontend container to access backend
+    origin: 'http://localhost:8000', // allow frontend container to access backend
   });
   
   app.setGlobalPrefix('api');
