@@ -9,14 +9,20 @@ import {
   FaUserTie,
   FaBars,
   FaTimes,
+  FaThLarge,
 } from 'react-icons/fa';
 import { useState } from 'react';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: <FaHome /> },
   { name: 'Projects', path: '/projects', icon: <FaProjectDiagram /> },
+  { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, // ✅ Added
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
+<<<<<<< Updated upstream
+=======
+  { name: 'Budget', path: '/budget', icon: <FaWallet /> },
+>>>>>>> Stashed changes
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
 ];
@@ -48,8 +54,20 @@ const Sidebar = () => {
           transition={{ delay: 0.1 }}
           className="text-2xl font-extrabold mb-10 tracking-wide text-white"
         >
+<<<<<<< Updated upstream
           ⚡ PLUMP
         </motion.h1>
+=======
+          <img
+            src="/plump-logo.png"
+            alt="PLUMP Logo"
+            className="w-10 h-10 object-contain"
+          />
+          <span className="text-2xl font-extrabold tracking-wide text-white">
+            PLUMP
+          </span>
+        </motion.div>
+>>>>>>> Stashed changes
       )}
 
       {/* Navigation */}
