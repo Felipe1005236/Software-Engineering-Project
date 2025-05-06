@@ -18,17 +18,12 @@ import Calendar from '../pages/Calendar';
 import Team from '../pages/Team';
 import Settings from '../pages/Settings';
 import Stakeholders from '../pages/Stakeholders';
-import Budget from '../pages/budget';
 import TaskList from '../pages/TaskList';
 import TaskDetails from '../pages/TaskDetails';
 
 import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
-
-<<<<<<< Updated upstream
-=======
 // Auth Wrapper
->>>>>>> Stashed changes
 import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => (
@@ -41,11 +36,7 @@ const AppRoutes = () => (
     <Route path="/signup" element={<Signup />} />
     <Route path="/forgot" element={<ForgotPassword />} />
 
-<<<<<<< Updated upstream
-    {/* --- Protected Main App Pages with Layout --- */}
-=======
     {/* Protected Routes (with sidebar + layout) */}
->>>>>>> Stashed changes
     <Route
       element={
         <ProtectedRoute>
@@ -62,7 +53,6 @@ const AppRoutes = () => (
       <Route path="/stakeholders" element={<Stakeholders />} />
 
       {/* Project Routes */}
-      <Route path="/projects" element={<Projects />} />
       <Route path="/projects/:id" element={<ProjectDetails />} />
       <Route path="/projects/:id/tasks" element={<TaskList />} />
       <Route path="/projects/:id/tasks/:taskId" element={<TaskDetails />} />

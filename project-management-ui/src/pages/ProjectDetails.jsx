@@ -3,12 +3,14 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   Legend, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaClipboardCheck } from 'react-icons/fa';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
 const ProjectDetails = () => {
-  // Static project data — replace with GET /api/projects/:id
+  const navigate = useNavigate();
+
   const project = {
     id: 1,
     name: 'Website Redesign',
@@ -124,12 +126,23 @@ const ProjectDetails = () => {
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">Tasks</h2>
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-500 text-white text-sm"
-            onClick={() => setShowForm(!showForm)}
-          >
-            <FaPlus /> Assign Task
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="px-3 py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm"
+              onClick={() => {
+                localStorage.setItem('currentProjectId', project.id);
+                navigate(`/projects/${project.id}/tasks`);
+              }}
+            >
+              View All Tasks
+            </button>
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-500 text-white text-sm"
+              onClick={() => setShowForm(!showForm)}
+            >
+              <FaPlus /> Assign Task
+            </button>
+          </div>
         </div>
 
         {showForm && (
