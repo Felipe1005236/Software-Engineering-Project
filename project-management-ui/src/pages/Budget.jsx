@@ -5,10 +5,16 @@ import {
 } from 'recharts';
 
 const Budget = () => {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState([
+    { id: 1, name: 'Website Redesign' },
+    { id: 2, name: 'Mobile App Development' },
+    { id: 3, name: 'Marketing Campaign' },
+  ]);
+
   const [budgets, setBudgets] = useState([]);
   const [selectedChartsProjectID, setSelectedChartsProjectID] = useState(null);
   const [formData, setFormData] = useState({
+    budgetID: null,
     projectID: '',
     totalBudget: '',
     actualCost: '',
@@ -16,13 +22,6 @@ const Budget = () => {
   });
   const [formOpen, setFormOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/projects')
-      .then(res => res.json())
-      .then(data => setProjects(data))
-      .catch(err => console.error('Failed to fetch projects:', err));
-  }, []);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('budgets')) || [];
@@ -35,14 +34,12 @@ const Budget = () => {
 
     if (existingBudget) {
       setFormData({
-        projectID: existingBudget.projectID,
-        totalBudget: existingBudget.totalBudget,
-        actualCost: existingBudget.actualCost,
-        forecastCost: existingBudget.forecastCost,
+        ...existingBudget,
       });
       setEditIndex(budgets.findIndex(b => b.projectID === id));
     } else {
       setFormData({
+        budgetID: null,
         projectID: id,
         totalBudget: '',
         actualCost: '',
@@ -60,6 +57,7 @@ const Budget = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const entry = {
+      budgetID: formData.budgetID || Date.now(),
       projectID: parseInt(formData.projectID),
       totalBudget: parseFloat(formData.totalBudget),
       actualCost: parseFloat(formData.actualCost),
@@ -76,7 +74,7 @@ const Budget = () => {
 
     setBudgets(updated);
     localStorage.setItem('budgets', JSON.stringify(updated));
-    setFormData({ projectID: '', totalBudget: '', actualCost: '', forecastCost: '' });
+    setFormData({ budgetID: null, projectID: '', totalBudget: '', actualCost: '', forecastCost: '' });
     setFormOpen(false);
   };
 
@@ -188,7 +186,7 @@ const Budget = () => {
         {/* Budget Cards */}
         <div className="space-y-6">
           {budgets.map((b, i) => (
-            <div key={i} className="bg-zinc-800/60 p-6 rounded-xl border border-white/10 shadow-subtle">
+            <div key={b.budgetID || i} className="bg-zinc-800/60 p-6 rounded-xl border border-white/10 shadow-subtle">
               <h2 className="text-2xl font-semibold mb-2">{getProjectName(b.projectID)}</h2>
               <p><strong>Total Budget:</strong> ${b.totalBudget.toFixed(2)}</p>
               <p><strong>Actual Cost:</strong> ${b.actualCost.toFixed(2)}</p>

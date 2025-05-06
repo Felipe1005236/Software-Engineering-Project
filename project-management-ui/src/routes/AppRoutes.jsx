@@ -18,7 +18,7 @@ import Settings from '../pages/Settings';
 import Stakeholders from '../pages/Stakeholders';
 import TaskList from '../pages/TaskList';
 import TaskDetails from '../pages/TaskDetails';
-import Budget from '../pages/budget';
+import Budget from '../pages/Budget';
 
 // Error Pages
 import NotFound from '../pages/NotFound';
