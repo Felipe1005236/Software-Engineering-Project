@@ -20,10 +20,16 @@ import Settings from '../pages/Settings';
 import Stakeholders from '../pages/Stakeholders';
 import TaskList from '../pages/TaskList';
 import TaskDetails from '../pages/TaskDetails';
+import Budget from '../pages/Budget';
 
+// Error Pages
 import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
+//projectdasboard-page
 // Auth Wrapper
+
+// Other
+//main
 import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => (
@@ -36,7 +42,11 @@ const AppRoutes = () => (
     <Route path="/signup" element={<Signup />} />
     <Route path="/forgot" element={<ForgotPassword />} />
 
+//projectdasboard-page
     {/* Protected Routes (with sidebar + layout) */}
+//
+    {/* --- Protected Main App Pages (Inside Layout) --- */}
+//main
     <Route
       element={
         <ProtectedRoute>
@@ -51,6 +61,7 @@ const AppRoutes = () => (
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/stakeholders" element={<Stakeholders />} />
+      <Route path="/budget" element={<Budget />} />
 
       {/* Project Routes */}
       <Route path="/projects/:id" element={<ProjectDetails />} />

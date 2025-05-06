@@ -7,6 +7,7 @@ import {
   FaUsers,
   FaCogs,
   FaUserTie,
+  FaWallet,
   FaBars,
   FaTimes,
   FaThLarge,
@@ -19,7 +20,10 @@ const navItems = [
   { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
+  //projectdasboard-page
   { name: 'Budget', path: '/budget', icon: <FaWallet /> },
+  { name: 'Budget', path: '/budget', icon: <FaWallet /> },  // <-- small fix: lowercase "budget"
+  //main
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
 ];
@@ -43,23 +47,30 @@ const Sidebar = () => {
         {collapsed ? <FaBars /> : <FaTimes />}
       </button>
 
-      {/* Title */}
+      {/* Logo Title */}
       {!collapsed && (
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-2xl font-extrabold mb-10 tracking-wide text-white"
+          className="flex items-center gap-3 mb-10"
         >
           <img
+    //projectdasboard-page
             src="/plump-logo.png"
+            src="/plump-logo.png" // make sure it's inside public/ folder
+    //main
             alt="PLUMP Logo"
             className="w-10 h-10 object-contain"
           />
           <span className="text-2xl font-extrabold tracking-wide text-white">
             PLUMP
           </span>
+    //projectdasboard-page
         </motion.h1>
+
+        </motion.div>
+    //main
       )}
 
       {/* Navigation */}
