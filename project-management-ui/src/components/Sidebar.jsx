@@ -10,9 +10,9 @@ import {
   FaWallet,
   FaBars,
   FaTimes,
-  FaThLarge,
-  FaWallet,
-} from 'react-icons/fa';
+  FaThLarge
+} 
+from 'react-icons/fa';
 import { useState } from 'react';
 
 const navItems = [
@@ -56,9 +56,8 @@ const Sidebar = () => {
           className="flex items-center gap-3 mb-10"
         >
           <img
-    //projectdasboard-page
+    projectdasboard-page
             src="/plump-logo.png"
-            src="/plump-logo.png" // make sure it's inside public/ folder
     //main
             alt="PLUMP Logo"
             className="w-10 h-10 object-contain"
@@ -66,9 +65,7 @@ const Sidebar = () => {
           <span className="text-2xl font-extrabold tracking-wide text-white">
             PLUMP
           </span>
-    //projectdasboard-page
-        </motion.h1>
-
+    
         </motion.div>
     //main
       )}
