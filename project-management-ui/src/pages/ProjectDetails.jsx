@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   Legend, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
-import { FaPlus, FaClipboardCheck } from 'react-icons/fa';
+import { FaPlus, FaClipboardCheck, FaCommentDots } from 'react-icons/fa';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
+const BASE_URL = 'http://localhost:3000/api';
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
@@ -47,6 +48,26 @@ const ProjectDetails = () => {
     assignee: ''
   });
 
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingText, setEditingText] = useState('');
+
+  useEffect(() => {
+    fetchComments();
+  }, []);
+
+  const fetchComments = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/projects/${project.id}/comments`);
+      if (!res.ok) throw new Error('Failed to fetch comments');
+      const data = await res.json();
+      setComments(data);
+    } catch (err) {
+      console.error('Error loading comments:', err);
+    }
+  };
+
   const handleAddTask = () => {
     const nextId = tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
     const task = {
@@ -58,6 +79,81 @@ const ProjectDetails = () => {
     setTasks(prev => [...prev, task]);
     setNewTask({ name: '', description: '', assignee: '' });
     setShowForm(false);
+  };
+
+  const handleAddComment = async () => {
+    if (newComment.trim() === '') return;
+  
+    // === TEMP FALLBACK UNTIL BACKEND IS READY ===
+    const comment = {
+      id: Date.now(),
+      text: newComment,
+      createdAt: new Date().toISOString(),
+    };
+    setComments((prev) => [comment, ...prev]);
+    setNewComment('');
+    
+    // === UNCOMMENT BELOW WHEN BACKEND IS READY ===
+    /*
+    try {
+      const res = await fetch(`${BASE_URL}/projects/${project.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newComment }),
+      });
+      if (!res.ok) throw new Error('Failed to post comment');
+      const saved = await res.json();
+      setComments((prev) => [saved, ...prev]);
+      setNewComment('');
+    } catch (err) {
+      console.error('Failed to add comment:', err);
+    }
+    */
+  };
+  
+
+  /* edit this out when backe nd ready for delete const handleDeleteComment = async (id) => {
+    try {
+      await fetch(`${BASE_URL}/comments/${id}`, { method: 'DELETE' });
+      setComments((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
+  };
+*/
+
+// TEMP mock delete until backend is connected
+const handleDeleteComment = (id) => {
+  setComments((prev) => prev.filter((c) => c.id !== id));
+};
+
+  const startEditing = (id, text) => {
+    setEditingCommentId(id);
+    setEditingText(text);
+  };
+
+  const cancelEditing = () => {
+    setEditingCommentId(null);
+    setEditingText('');
+  };
+
+  const saveEditedComment = async () => {
+    if (!editingText.trim()) return;
+    try {
+      const res = await fetch(`${BASE_URL}/comments/${editingCommentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: editingText }),
+      });
+      if (!res.ok) throw new Error('Failed to update comment');
+      const updated = await res.json();
+      setComments((prev) =>
+        prev.map((c) => (c.id === updated.id ? updated : c))
+      );
+      cancelEditing();
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
   };
 
   const completedTasks = tasks.filter(t => t.completed).length;
@@ -214,13 +310,75 @@ const ProjectDetails = () => {
       </section>
 
       {/* Summary */}
-      <section>
+      <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4">Summary</h2>
         <div className="bg-zinc-900 p-4 rounded border border-white/10 shadow-subtle text-sm text-zinc-400 space-y-2">
           <p><FaClipboardCheck className="inline mr-2 text-green-400" />Tasks Completed: {completedTasks}/{tasks.length}</p>
           <p>Total Participants: {teamMembers.length}</p>
           <p>Budget Remaining: ${(budget.totalBudget - budget.actualCost).toFixed(2)}</p>
           <p>Forecast Overrun: ${Math.max(0, budget.forecastCost - budget.totalBudget).toFixed(2)}</p>
+        </div>
+      </section>
+
+      {/* Team Journal */}
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">Team Journal</h2>
+        <div className="bg-zinc-900 p-4 rounded border border-white/10 shadow-subtle space-y-4">
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              placeholder="Write a journal entry..."
+              className="flex-grow px-4 py-2 bg-zinc-800 text-white rounded border border-white/10 focus:outline-none focus:ring focus:ring-indigo-500/40"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+            />
+            <button
+              onClick={handleAddComment}
+              className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-500 text-white text-sm shadow"
+            >
+              Post
+            </button>
+          </div>
+
+          <ul className="space-y-3">
+            {comments.length === 0 && (
+              <p className="text-zinc-500 text-sm italic">No entries yet. Be the first to write one!</p>
+            )}
+            {comments.map((c) => (
+              <li key={c.id} className="text-sm text-zinc-300 border-t border-white/10 pt-2">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <FaCommentDots className="inline mr-2 text-indigo-400" />
+                    {editingCommentId === c.id ? (
+                      <input
+                        className="w-full mt-1 p-2 bg-zinc-800 border border-white/10 rounded text-white"
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && saveEditedComment()}
+                      />
+                    ) : (
+                      <span className="font-medium">{c.text}</span>
+                    )}
+                    <span className="block text-xs text-zinc-500 mt-1">{new Date(c.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex gap-2 ml-4 mt-1">
+                    {editingCommentId === c.id ? (
+                      <>
+                        <button onClick={saveEditedComment} className="text-xs text-green-400 hover:underline">Save</button>
+                        <button onClick={cancelEditing} className="text-xs text-zinc-400 hover:underline">Cancel</button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => startEditing(c.id, c.text)} className="text-xs text-zinc-400 hover:underline">Edit</button>
+                        <button onClick={() => handleDeleteComment(c.id)} className="text-xs text-red-400 hover:underline">Delete</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </div>
