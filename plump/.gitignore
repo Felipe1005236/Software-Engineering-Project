@@ -56,5 +56,5 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Ignore Prisma SQLite DB files
-*.db
-*.db-journal
+#*.db
+#*.db-journal
