@@ -57,6 +57,7 @@ model User {
   // Relationships
   teams           Team[]    // Many to Many: one user can be in many teams
   tasks           Task[]
+  timeTracking    TimeTracking[] 
 }
 
 model Team {
@@ -91,6 +92,7 @@ model Project {
   dates       ProjectDates? //@relation(fields: [dateID], references: [dateID])
   
   tasks       Task[]
+  timeTracking    TimeTracking[]
 }
 
 model Budget {
@@ -143,7 +145,10 @@ model Task {
   project       Project @relation(fields: [projectID], references: [projectID])
   dates         TaskDates? @relation(fields: [dateID], references: [dateID])
   user          User? @relation(fields: [userID], references: [userID])
-  comments      Comment[]
+
+  timeTracking    TimeTracking[] //madina
+
+  comments      Comment[] //melek
 }
 
 model TaskDates {
@@ -157,6 +162,26 @@ model TaskDates {
   taskID           Int      @unique
 }
 
+//madina
+model TimeTracking {
+  timeTrackingID  Int       @id @default(autoincrement())
+  userID          Int
+  projectID       Int
+  taskID          Int?       // Optional if not all time logs are task-specific
+  role            String     // e.g., "USER", "ADMIN", "MANAGER"
+  description     String?  
+  dateWorked      DateTime
+  dateRecorded    DateTime   @default(now())
+  hoursSpent      Float
+  
+
+  // Relations
+  user     User    @relation(fields: [userID], references: [userID])
+  project  Project @relation(fields: [projectID], references: [projectID])
+  task     Task?   @relation(fields: [taskID], references: [taskID])
+}
+
+//melek
 model Comment {
   id         Int         @id @default(autoincrement())
   content    String

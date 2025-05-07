@@ -31,6 +31,8 @@ import ServerError from '../pages/ServerError';
 // Other
 //main
 import ProtectedRoute from './ProtectedRoute';
+import TimeTracking from '../pages/TimeTracking';
+
 
 const AppRoutes = () => (
   <Routes>
@@ -61,18 +63,25 @@ const AppRoutes = () => (
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/stakeholders" element={<Stakeholders />} />
+        <Route path="/time-tracking" element={<TimeTracking />} />
+          
+      {/* Nested Task Routes */}
+      <Route path="/projects/:name/tasks" element={<TaskList />} />
+      <Route path="/projects/:name/tasks/:id" element={<TaskDetails />} />
       <Route path="/budget" element={<Budget />} />
 
       {/* Project Routes */}
       <Route path="/projects/:id" element={<ProjectDetails />} />
       <Route path="/projects/:id/tasks" element={<TaskList />} />
       <Route path="/projects/:id/tasks/:taskId" element={<TaskDetails />} />
+
     </Route>
 
     {/* Error Pages */}
     <Route path="/500" element={<ServerError />} />
     <Route path="/404" element={<NotFound />} />
     <Route path="*" element={<NotFound />} />
+
   </Routes>
 );
 
