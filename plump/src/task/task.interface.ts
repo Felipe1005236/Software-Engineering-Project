@@ -1,5 +1,11 @@
 export interface Task {
-  id: number;
+  taskID: number;
+  projectID: number;
+  dateID: number;
   title: string;
-  description: string;
+  percentageComplete: number;
+  priority: string;
+  userID: number;
+  details: string;
+  status: string;
 }

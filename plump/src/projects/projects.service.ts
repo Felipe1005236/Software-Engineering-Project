@@ -46,6 +46,21 @@ export class ProjectsService {
   async findOne(projectID: number) {
     return this.prisma.project.findUnique({
       where: { projectID },
+      include: {
+        budget: true,
+        health: true,
+        dates: true,
+        tasks: {
+          orderBy: {
+            taskID: 'desc'
+          }
+        },
+        team: {
+          include: {
+            users: true
+          }
+        }
+      }
     });
   }
 
