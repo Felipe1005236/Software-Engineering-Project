@@ -20,10 +20,9 @@ const navItems = [
   { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
-  //projectdasboard-page
+
   { name: 'Budget', path: '/budget', icon: <FaWallet /> },
-  { name: 'Budget', path: '/budget', icon: <FaWallet /> },  // <-- small fix: lowercase "budget"
-  //main
+
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
 ];
