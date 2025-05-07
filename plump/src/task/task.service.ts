@@ -11,7 +11,7 @@ export class TaskService {
   }
 
   getOne(id: number): Task | undefined {
-    return this.tasks.find(task => task.id === id);
+    return this.tasks.find((task) => task.id === id);
   }
 
   create(title: string, description: string): Task {
@@ -33,6 +33,6 @@ export class TaskService {
   }
 
   delete(id: number): void {
-    this.tasks = this.tasks.filter(task => task.id !== id);
+    this.tasks = this.tasks.filter((task) => task.id !== id);
   }
 }

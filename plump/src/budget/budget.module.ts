@@ -5,6 +5,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   providers: [BudgetService, PrismaService],
-  controllers: [BudgetController]
+  controllers: [BudgetController],
 })
 export class BudgetModule {}

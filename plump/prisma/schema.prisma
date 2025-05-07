@@ -90,8 +90,9 @@ model Project {
   budget Budget? //@relation(fields: [budgetID], references: [budgetID])
   dates  ProjectDates? //@relation(fields: [dateID], references: [dateID])
 
-  tasks   Task[]
-  Comment Comment[]
+  tasks        Task[]
+  Comment      Comment[]
+  KanbanColumn KanbanColumn[]
 }
 
 model Budget {
@@ -139,11 +140,13 @@ model Task {
   userID             Int
   details            String
   status             String
+  kanbanColumnId     Int? // Foreign key to KanbanColumn
 
   // Relationships
-  project Project    @relation(fields: [projectID], references: [projectID])
-  dates   TaskDates? @relation(fields: [dateID], references: [dateID])
-  user    User?      @relation(fields: [userID], references: [userID])
+  project      Project       @relation(fields: [projectID], references: [projectID])
+  dates        TaskDates?    @relation(fields: [dateID], references: [dateID])
+  user         User?         @relation(fields: [userID], references: [userID])
+  kanbanColumn KanbanColumn? @relation(fields: [kanbanColumnId], references: [id])
 }
 
 model Comment {
@@ -168,4 +171,14 @@ model TaskDates {
   // Relationships
   task   Task?
   taskID Int   @unique
+}
+
+model KanbanColumn {
+  id        Int    @id @default(autoincrement())
+  name      String
+  projectID Int
+
+  // Relationships
+  project Project @relation(fields: [projectID], references: [projectID])
+  tasks   Task[]
 }
