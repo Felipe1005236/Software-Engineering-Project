@@ -50,13 +50,32 @@ const ProjectDetails = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
+      // First create task dates
+      const datesResponse = await fetch(`${API_BASE_URL}/task-dates`, {
+        ...fetchOptions,
+        method: 'POST',
+        body: JSON.stringify({
+          startDate: new Date().toISOString(),
+          targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+        })
+      });
+
+      if (!datesResponse.ok) throw new Error('Failed to create task dates');
+      const datesData = await datesResponse.json();
+
+      // Then create the task with the dateID
       const response = await fetch(`${API_BASE_URL}/tasks`, {
         ...fetchOptions,
         method: 'POST',
         body: JSON.stringify({
           title: newTaskTitle,
           details: newTaskDescription,
-          projectID: parseInt(id)
+          projectID: parseInt(id),
+          dateID: datesData.dateID,
+          userID: 1, // TODO: Get from authenticated user
+          status: 'TODO',
+          percentageComplete: 0,
+          priority: 'MEDIUM'
         })
       });
 
