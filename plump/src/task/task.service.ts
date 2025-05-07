@@ -1,38 +1,49 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Task } from './task.interface';
 
 @Injectable()
 export class TaskService {
-  private tasks: Task[] = [];
-  private idCounter = 1;
+  constructor(private prisma: PrismaService) {}
 
-  getAll(): Task[] {
-    return this.tasks;
+  async getAll(projectID?: number) {
+    return this.prisma.task.findMany({
+      where: projectID ? { projectID } : undefined,
+      orderBy: { taskID: 'desc' }
+    });
   }
 
-  getOne(id: number): Task | undefined {
-    return this.tasks.find(task => task.id === id);
+  async getOne(id: number) {
+    return this.prisma.task.findUnique({
+      where: { taskID: id }
+    });
   }
 
-  create(title: string, description: string): Task {
-    const newTask: Task = {
-      id: this.idCounter++,
-      title,
-      description,
-    };
-    this.tasks.push(newTask);
-    return newTask;
+  async create(title: string, description: string, projectID: number) {
+    return this.prisma.task.create({
+      data: {
+        title,
+        details: description,
+        projectID,
+        status: 'TODO',
+        percentageComplete: 0,
+        priority: 'MEDIUM',
+        userID: 1, // TODO: Get from authenticated user
+        dateID: 1  // TODO: Create TaskDates record
+      }
+    });
   }
 
-  update(id: number, updates: Partial<Task>): Task | undefined {
-    const task = this.getOne(id);
-    if (task) {
-      Object.assign(task, updates);
-    }
-    return task;
+  async update(id: number, updates: Partial<Task>) {
+    return this.prisma.task.update({
+      where: { taskID: id },
+      data: updates
+    });
   }
 
-  delete(id: number): void {
-    this.tasks = this.tasks.filter(task => task.id !== id);
+  async delete(id: number) {
+    return this.prisma.task.delete({
+      where: { taskID: id }
+    });
   }
 }

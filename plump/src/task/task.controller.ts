@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Param, Body, ParseIntPipe,
+  Param, Body, ParseIntPipe, Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 
@@ -9,8 +9,8 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
-  getAll() {
-    return this.taskService.getAll();
+  getAll(@Query('projectID') projectID?: string) {
+    return this.taskService.getAll(projectID ? parseInt(projectID) : undefined);
   }
 
   @Get(':id')
@@ -19,8 +19,8 @@ export class TaskController {
   }
 
   @Post()
-  create(@Body() body: { title: string; description: string }) {
-    return this.taskService.create(body.title, body.description);
+  create(@Body() body: { title: string; details: string; projectID: number }) {
+    return this.taskService.create(body.title, body.details, body.projectID);
   }
 
   @Patch(':id')
@@ -30,7 +30,6 @@ export class TaskController {
 
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {
-    this.taskService.delete(id);
-    return { message: 'Task deleted successfully' };
+    return this.taskService.delete(id);
   }
 }

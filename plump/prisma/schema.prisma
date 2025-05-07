@@ -146,7 +146,9 @@ model Task {
   dates         TaskDates? @relation(fields: [dateID], references: [dateID])
   user          User? @relation(fields: [userID], references: [userID])
 
-  timeTracking    TimeTracking[]
+  timeTracking    TimeTracking[] //madina
+
+  comments      Comment[] //melek
 }
 
 model TaskDates {
@@ -160,6 +162,7 @@ model TaskDates {
   taskID           Int      @unique
 }
 
+//madina
 model TimeTracking {
   timeTrackingID  Int       @id @default(autoincrement())
   userID          Int
@@ -176,4 +179,21 @@ model TimeTracking {
   user     User    @relation(fields: [userID], references: [userID])
   project  Project @relation(fields: [projectID], references: [projectID])
   task     Task?   @relation(fields: [taskID], references: [taskID])
+}
+
+//melek
+model Comment {
+  id         Int         @id @default(autoincrement())
+  content    String
+  createdAt  DateTime    @default(now())
+  task       Task        @relation(fields: [taskId], references: [taskID])
+  taskId     Int
+  attachments Attachment[]
+}
+
+model Attachment {
+  id         Int      @id @default(autoincrement())
+  fileUrl    String
+  comment    Comment  @relation(fields: [commentId], references: [id])
+  commentId  Int
 }
