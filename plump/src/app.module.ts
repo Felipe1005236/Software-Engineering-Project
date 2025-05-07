@@ -8,15 +8,20 @@ import { TimeTrackingModule } from './time-tracking/time-tracking.module';
 import { TaskModule } from './task/task.module';
 import { TaskDatesModule } from './task-dates/task-dates.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { BudgetModule } from './budget/budget.module';
 
 @Module({
-  imports: [BudgetModule, ProjectsModule, UserManagementModule, HealthStatusModule, TimeTrackingModule],
-  providers: [PrismaService]
-
-@Module({
-  imports: [ProjectsModule, TaskModule, TaskDatesModule, PrismaModule],
+  imports: [
+    PrismaModule,
+    BudgetModule,
+    ProjectsModule,
+    UserManagementModule,
+    HealthStatusModule,
+    TimeTrackingModule,
+    TaskModule,
+    TaskDatesModule
+  ],
   controllers: [AppController],
   providers: [AppService],
-
 })
 export class AppModule {}

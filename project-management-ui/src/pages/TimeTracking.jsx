@@ -3,34 +3,39 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+const API_BASE_URL = 'http://localhost:3000/api';
+const fetchOptions = {
+  method: 'GET',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+};
+
 const TimeTracking = () => {
   const [timeLogs, setTimeLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch time tracking data from the backend matching Prisma schema
-    // Fields: user.name, role, project.name, hoursSpent, dateWorked
-    // Replace with actual fetch call:
-    // fetch('/api/time-tracking').then(res => res.json()).then(setTimeLogs);
+    const fetchTimeLogs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`${API_BASE_URL}/time-tracking`, fetchOptions);
+        if (!response.ok) throw new Error('Failed to fetch time logs');
+        const data = await response.json();
+        setTimeLogs(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching time logs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const placeholderData = [
-      {
-        user: { name: 'Alice' },
-        role: 'Developer',
-        project: { name: 'Project Apollo' },
-        dateWorked: new Date('2025-01-15'),
-        hoursSpent: 8,
-      },
-      {
-        user: { name: 'Alice' },
-        role: 'Developer',
-        project: { name: 'Project Apollo' },
-        dateWorked: new Date('2025-02-05'),
-        hoursSpent: 7.5,
-      },
-      // Add more entries if needed
-    ];
-
-    setTimeLogs(placeholderData);
+    fetchTimeLogs();
   }, []);
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -38,18 +43,21 @@ const TimeTracking = () => {
   const groupedLogs = {};
 
   timeLogs.forEach(log => {
-    const key = `${log.user.name}_${log.project.name}_${log.role}`;
+    const key = `${log.user.firstName} ${log.user.lastName}_${log.project.title}_${log.role}`;
     const month = new Date(log.dateWorked).getMonth();
     if (!groupedLogs[key]) {
       groupedLogs[key] = {
-        resource: log.user.name,
-        project: log.project.name,
+        resource: `${log.user.firstName} ${log.user.lastName}`,
+        project: log.project.title,
         role: log.role,
         monthlyHours: Array(12).fill(0),
       };
     }
     groupedLogs[key].monthlyHours[month] += log.hoursSpent;
   });
+
+  if (loading) return <div className="p-6 text-white">Loading...</div>;
+  if (error) return <div className="p-6 text-white text-red-500">Error: {error}</div>;
 
   return (
     <div className="p-6 space-y-6 text-white">
@@ -88,7 +96,7 @@ const TimeTracking = () => {
                 <td className="px-4 py-2">{log.project}</td>
                 {log.monthlyHours.map((hours, idx) => (
                   <td key={idx} className="px-4 py-2 text-center">
-                    {hours}
+                    {hours.toFixed(1)}
                   </td>
                 ))}
               </tr>
