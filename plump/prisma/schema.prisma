@@ -143,6 +143,7 @@ model Task {
   project       Project @relation(fields: [projectID], references: [projectID])
   dates         TaskDates? @relation(fields: [dateID], references: [dateID])
   user          User? @relation(fields: [userID], references: [userID])
+  comments      Comment[]
 }
 
 model TaskDates {
@@ -154,4 +155,20 @@ model TaskDates {
 // Relationships
   task             Task?
   taskID           Int      @unique
+}
+
+model Comment {
+  id         Int         @id @default(autoincrement())
+  content    String
+  createdAt  DateTime    @default(now())
+  task       Task        @relation(fields: [taskId], references: [taskID])
+  taskId     Int
+  attachments Attachment[]
+}
+
+model Attachment {
+  id         Int      @id @default(autoincrement())
+  fileUrl    String
+  comment    Comment  @relation(fields: [commentId], references: [id])
+  commentId  Int
 }
