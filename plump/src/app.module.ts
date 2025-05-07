@@ -17,8 +17,7 @@ import { BudgetModule } from './budget/budget.module';
     UserManagementModule,
     HealthStatusModule,
     TimeTrackingModule,
-    TaskModule,
-    TaskDatesModule
+    TaskModule
   ],
   controllers: [AppController],
   providers: [AppService],
