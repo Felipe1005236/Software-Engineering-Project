@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Status, Prisma } from '@prisma/client';
 
 @Injectable()
 export class TaskService {
@@ -29,31 +30,52 @@ export class TaskService {
     details: string,
     projectID: number,
     userID: number,
-    status: string,
+    status: Status,
     percentageComplete: number,
     priority: string,
     startDate: string,
     targetDate: string
   ) {
     try {
-      const task = await this.prisma.task.create({
-        data: {
+      // Use a transaction to ensure data consistency
+      return await this.prisma.$transaction(async (prisma) => {
+        const taskData: Prisma.TaskCreateInput = {
           title,
           details,
-          projectID,
-          userID,
           status,
           percentageComplete,
           priority,
           startDate: new Date(startDate),
-          targetDate: new Date(targetDate)
-        },
-        include: {
-          user: true
-        }
-      });
+          targetDate: new Date(targetDate),
+          project: {
+            connect: { projectID }
+          },
+          user: {
+            connect: { userID }
+          }
+        };
 
-      return task;
+        const task = await prisma.task.create({
+          data: taskData,
+          include: {
+            user: true
+          }
+        });
+
+        // Verify the task was created
+        const createdTask = await prisma.task.findUnique({
+          where: { taskID: task.taskID },
+          include: {
+            user: true
+          }
+        });
+
+        if (!createdTask) {
+          throw new Error('Task was not created successfully');
+        }
+
+        return createdTask;
+      });
     } catch (error) {
       console.error('Error creating task:', error);
       throw error;

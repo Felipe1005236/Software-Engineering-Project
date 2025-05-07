@@ -3,6 +3,7 @@ import {
   Param, Body, ParseIntPipe, Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
+import { Status } from '@prisma/client';
 
 @Controller('tasks')
 export class TaskController {
@@ -24,7 +25,7 @@ export class TaskController {
     details: string;
     projectID: number;
     userID: number;
-    status: string;
+    status: Status;
     percentageComplete: number;
     priority: string;
     startDate: string;
