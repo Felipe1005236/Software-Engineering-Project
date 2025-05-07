@@ -1,44 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   Legend, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaPlus, FaClipboardCheck } from 'react-icons/fa';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
+const API_BASE_URL = 'http://localhost:3000/api';
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
-
-  const project = {
-    id: 1,
-    name: 'Website Redesign',
-    description: 'Revamp the company website to improve user experience and SEO.',
-    manager: 'Alice Smith',
-    deadline: '2025-05-30',
-    createdAt: '2025-03-15',
-    updatedAt: '2025-04-25',
-    category: 'UI/UX & Frontend',
-    priority: 'High',
-    status: 'In Progress',
-  };
-
-  const budget = {
-    projectID: 1,
-    totalBudget: 10000,
-    actualCost: 7500,
-    forecastCost: 9800,
-  };
-
-  const teamMembers = ['Alice Smith', 'Bob Johnson', 'Charlie Davis', 'Dana Lee'];
-
-  const [tasks, setTasks] = useState([
-    { id: 1, name: 'Design mockups', completed: true, description: 'Create wireframes and high-fidelity mockups.' },
-    { id: 2, name: 'Frontend implementation', completed: false, description: 'Implement in React and Tailwind.' },
-    { id: 3, name: 'SEO optimization', completed: false, description: 'Improve search engine visibility.' },
-  ]);
-
+  const { id } = useParams();
+  const [project, setProject] = useState(null);
+  const [budget, setBudget] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -47,18 +25,124 @@ const ProjectDetails = () => {
     assignee: ''
   });
 
-  const handleAddTask = () => {
-    const nextId = tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
-    const task = {
-      id: nextId,
-      name: newTask.name,
-      completed: false,
-      description: `${newTask.description} (Assigned to: ${newTask.assignee})`
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        const fetchOptions = {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        };
+
+        console.log('Fetching project data from:', `${API_BASE_URL}/projects/${id}`);
+        const response = await fetch(`${API_BASE_URL}/projects/${id}`, fetchOptions);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Project data received:', data);
+        setProject(data);
+
+        // Fetch budget data if budgetId exists
+        if (data.budgetId) {
+          console.log('Fetching budget data for:', data.budgetId);
+          const budgetResponse = await fetch(`${API_BASE_URL}/budget/${data.budgetId}`, fetchOptions);
+          if (budgetResponse.ok) {
+            const budgetData = await budgetResponse.json();
+            console.log('Budget data received:', budgetData);
+            setBudget(budgetData);
+          }
+        }
+
+        // Fetch tasks
+        console.log('Fetching tasks for project:', id);
+        const tasksResponse = await fetch(`${API_BASE_URL}/tasks?projectId=${id}`, fetchOptions);
+        if (tasksResponse.ok) {
+          const tasksData = await tasksResponse.json();
+          console.log('Tasks data received:', tasksData);
+          setTasks(tasksData);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching project data:', err);
+        setError(`Failed to load project data: ${err.message}. Please ensure the backend server is running at ${API_BASE_URL}`);
+        setLoading(false);
+      }
     };
-    setTasks(prev => [...prev, task]);
-    setNewTask({ name: '', description: '', assignee: '' });
-    setShowForm(false);
+
+    fetchProjectData();
+  }, [id]);
+
+  const handleAddTask = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tasks`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newTask.name,
+          description: newTask.description,
+          assignee: newTask.assignee,
+          projectId: id
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+
+      const newTaskData = await response.json();
+      setTasks(prev => [...prev, newTaskData]);
+      setNewTask({ name: '', description: '', assignee: '' });
+      setShowForm(false);
+    } catch (err) {
+      console.error('Error creating task:', err);
+      setError(err.message);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 text-white">
+        <div className="animate-pulse">
+          <div className="h-8 bg-zinc-700 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-zinc-700 rounded w-1/2 mb-8"></div>
+          <div className="space-y-4">
+            <div className="h-32 bg-zinc-700 rounded"></div>
+            <div className="h-32 bg-zinc-700 rounded"></div>
+            <div className="h-32 bg-zinc-700 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-white">
+        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+          <p className="text-red-400">Error loading project: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="p-6 text-white">
+        <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4">
+          <p className="text-yellow-400">Project not found</p>
+        </div>
+      </div>
+    );
+  }
 
   const completedTasks = tasks.filter(t => t.completed).length;
   const projectProgress = tasks.length ? (completedTasks / tasks.length) * 100 : 0;
@@ -66,13 +150,11 @@ const ProjectDetails = () => {
   return (
     <div className="p-6 text-white">
       {/* Header */}
-      <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
+      <h1 className="text-3xl font-bold mb-2">{project.title}</h1>
       <p className="text-sm text-zinc-400 mb-4">
-        Status: {project.status} | Priority: {project.priority} | Category: {project.category}<br />
-        Manager: {project.manager} | Created: {project.createdAt} | Updated: {project.updatedAt}<br />
-        Deadline: {project.deadline}
+        Status: {project.status} | Phase: {project.phase}<br />
+        Team ID: {project.teamID}
       </p>
-      <p className="mb-8 text-sm text-zinc-300">{project.description}</p>
 
       {/* Progress */}
       <section className="mb-10">
@@ -84,65 +166,56 @@ const ProjectDetails = () => {
       </section>
 
       {/* Budget Charts */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Budget Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={[budget]}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-              <XAxis dataKey="projectID" stroke="#ccc" />
-              <YAxis stroke="#ccc" />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="totalBudget" fill="#8884d8" />
-              <Bar dataKey="actualCost" fill="#82ca9d" />
-              <Bar dataKey="forecastCost" fill="#ffc658" />
-            </BarChart>
-          </ResponsiveContainer>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={[
-                  { name: 'Total Budget', value: budget.totalBudget },
-                  { name: 'Actual Cost', value: budget.actualCost },
-                  { name: 'Forecast Cost', value: budget.forecastCost }
-                ]}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label
-                dataKey="value"
-              >
-                {COLORS.map((color, idx) => <Cell key={idx} fill={color} />)}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
+      {budget && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-4">Budget Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={[budget]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                <XAxis dataKey="projectID" stroke="#ccc" />
+                <YAxis stroke="#ccc" />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="totalBudget" fill="#8884d8" />
+                <Bar dataKey="actualCost" fill="#82ca9d" />
+                <Bar dataKey="forecastCost" fill="#ffc658" />
+              </BarChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Total Budget', value: budget.totalBudget },
+                    { name: 'Actual Cost', value: budget.actualCost },
+                    { name: 'Forecast Cost', value: budget.forecastCost }
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                  dataKey="value"
+                >
+                  {COLORS.map((color, idx) => <Cell key={idx} fill={color} />)}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      )}
 
       {/* Tasks */}
       <section className="mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">Tasks</h2>
-          <div className="flex gap-2">
-            <button
-              className="px-3 py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm"
-              onClick={() => {
-                localStorage.setItem('currentProjectId', project.id);
-                navigate(`/projects/${project.id}/tasks`);
-              }}
-            >
-              View All Tasks
-            </button>
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-500 text-white text-sm"
-              onClick={() => setShowForm(!showForm)}
-            >
-              <FaPlus /> Assign Task
-            </button>
-          </div>
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-500 text-white text-sm"
+            onClick={() => setShowForm(!showForm)}
+          >
+            <FaPlus /> Assign Task
+          </button>
         </div>
 
         {showForm && (
@@ -161,16 +234,6 @@ const ProjectDetails = () => {
               value={newTask.description}
               onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
             />
-            <select
-              className="w-full p-2 bg-zinc-800 rounded text-white border border-white/10"
-              value={newTask.assignee}
-              onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
-            >
-              <option value="">Assign to...</option>
-              {teamMembers.map((member, idx) => (
-                <option key={idx} value={member}>{member}</option>
-              ))}
-            </select>
             <div className="flex gap-2">
               <button onClick={handleAddTask} className="px-4 py-2 bg-green-600 rounded text-sm">Save Task</button>
               <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-700 rounded text-sm">Cancel</button>
@@ -201,26 +264,17 @@ const ProjectDetails = () => {
         </ul>
       </section>
 
-      {/* Participants */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">Participants</h2>
-        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {teamMembers.map((name, idx) => (
-            <li key={idx} className="bg-zinc-800 p-4 rounded text-sm text-center shadow">
-              {name}
-            </li>
-          ))}
-        </ul>
-      </section>
-
       {/* Summary */}
       <section>
         <h2 className="text-2xl font-semibold mb-4">Summary</h2>
         <div className="bg-zinc-900 p-4 rounded border border-white/10 shadow-subtle text-sm text-zinc-400 space-y-2">
           <p><FaClipboardCheck className="inline mr-2 text-green-400" />Tasks Completed: {completedTasks}/{tasks.length}</p>
-          <p>Total Participants: {teamMembers.length}</p>
-          <p>Budget Remaining: ${(budget.totalBudget - budget.actualCost).toFixed(2)}</p>
-          <p>Forecast Overrun: ${Math.max(0, budget.forecastCost - budget.totalBudget).toFixed(2)}</p>
+          {budget && (
+            <>
+              <p>Budget Remaining: ${(budget.totalBudget - budget.actualCost).toFixed(2)}</p>
+              <p>Forecast Overrun: ${Math.max(0, budget.forecastCost - budget.totalBudget).toFixed(2)}</p>
+            </>
+          )}
         </div>
       </section>
     </div>
