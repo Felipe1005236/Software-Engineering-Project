@@ -19,8 +19,28 @@ export class TaskController {
   }
 
   @Post()
-  create(@Body() body: { title: string; details: string; projectID: number }) {
-    return this.taskService.create(body.title, body.details, body.projectID);
+  create(@Body() body: {
+    title: string;
+    details: string;
+    projectID: number;
+    userID: number;
+    status: string;
+    percentageComplete: number;
+    priority: string;
+    startDate: string;
+    targetDate: string;
+  }) {
+    return this.taskService.create(
+      body.title,
+      body.details,
+      body.projectID,
+      body.userID,
+      body.status,
+      body.percentageComplete,
+      body.priority,
+      body.startDate,
+      body.targetDate
+    );
   }
 
   @Patch(':id')

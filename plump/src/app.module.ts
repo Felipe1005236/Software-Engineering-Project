@@ -6,7 +6,6 @@ import { UserManagementModule } from './user-management/user-management.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { TimeTrackingModule } from './time-tracking/time-tracking.module';
 import { TaskModule } from './task/task.module';
-import { TaskDatesModule } from './task-dates/task-dates.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BudgetModule } from './budget/budget.module';
 
