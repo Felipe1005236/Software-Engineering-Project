@@ -6,17 +6,15 @@ import { UserManagementModule } from './user-management/user-management.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { TimeTrackingModule } from './time-tracking/time-tracking.module';
 import { TaskModule } from './task/task.module';
-import { TaskDatesModule } from './task-dates/task-dates.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [BudgetModule, ProjectsModule, UserManagementModule, HealthStatusModule, TimeTrackingModule],
-  providers: [PrismaService]
-
-@Module({
-  imports: [ProjectsModule, TaskModule, TaskDatesModule, PrismaModule],
+  imports: [
+    ProjectsModule,
+    TaskModule,
+    PrismaModule
+  ],
   controllers: [AppController],
-  providers: [AppService],
-
+  providers: [AppService]
 })
 export class AppModule {}

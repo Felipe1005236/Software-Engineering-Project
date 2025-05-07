@@ -133,33 +133,22 @@ model ProjectDates {
 model Task {
   taskID             Int    @id @default(autoincrement())
   projectID          Int
-  dateID             Int    @unique
   title              String
   percentageComplete Float
   priority           String
   userID             Int
   details            String
   status             String
+  startDate          DateTime
+  targetDate         DateTime
+  actualCompletion   DateTime?
 
   // Relationships
   project       Project @relation(fields: [projectID], references: [projectID])
-  dates         TaskDates? @relation(fields: [dateID], references: [dateID])
   user          User? @relation(fields: [userID], references: [userID])
 
   timeTracking    TimeTracking[] //madina
-
   comments      Comment[] //melek
-}
-
-model TaskDates {
-  dateID           Int      @id @default(autoincrement())
-  targetDate       DateTime
-  startDate        DateTime
-  actualCompletion DateTime?
-
-// Relationships
-  task             Task?
-  taskID           Int      @unique
 }
 
 //madina
