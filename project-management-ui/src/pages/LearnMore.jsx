@@ -88,7 +88,7 @@ export default function LearnMore() {
               Log In
             </button>
           </Link>
-          <Link to="/login?mode=signup">
+          <Link to="/signup">
             <button className="border border-white px-8 py-4 rounded-full font-medium hover:bg-white hover:text-black transition text-sm">
               Sign Up
             </button>
@@ -98,12 +98,12 @@ export default function LearnMore() {
 
       {/* Single Back Button */}
       <div className="mt-20 text-center">
-        <a
-          href="/"
+        <Link
+          to="/"
           className="text-sm underline text-gray-500 hover:text-white transition"
         >
           ← Back to Home
-        </a>
+        </Link>
       </div>
 
     </div>
