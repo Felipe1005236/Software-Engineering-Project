@@ -22,7 +22,7 @@ const navItems = [
   { name: 'Team', path: '/team', icon: <FaUsers /> },
   //projectdasboard-page
   { name: 'Budget', path: '/budget', icon: <FaWallet /> },
-  { name: 'Budget', path: '/budget', icon: <FaWallet /> },  // <-- small fix: lowercase "budget"
+  { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
   //main
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
