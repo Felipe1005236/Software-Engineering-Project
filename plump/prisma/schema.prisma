@@ -39,6 +39,17 @@ enum HealthColours {
   RED
 }
 
+enum EventType {
+  MEETING
+  APPOINTMENT
+  PROJECT_START
+  PROJECT_END
+  PROJECT_COMPLETION
+  TASK_START
+  TASK_END
+  TASK_COMPLETION
+}
+
 model User {
   userID         Int            @id @default(autoincrement())
   firstName      String
@@ -156,3 +167,13 @@ model Attachment {
   commentId Int
   comment   Comment @relation(fields: [commentId], references: [id])
 }
+
+model CalendarEvent {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  type        EventType
+  date        DateTime
+  color       String?  // Optional: for custom color coding
+}
+

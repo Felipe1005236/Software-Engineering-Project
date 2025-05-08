@@ -9,6 +9,29 @@ import { fetchWrapper } from '../utils/fetchWrapper';
 const months = Array.from({ length: 12 }, (_, i) => format(new Date(2025, i), 'MMMM'));
 const years = Array.from({ length: 10 }, (_, i) => 2020 + i);
 
+const API_URL = 'http://localhost:3000/api';
+
+const EVENT_TYPE_COLORS = {
+  PROJECT_START: '#00bfff',
+  PROJECT_END: '#0077ff',
+  PROJECT_COMPLETION: '#00ff99',
+  TASK_START: '#ffcc00',
+  TASK_END: '#ff9900',
+  TASK_COMPLETION: '#00ff00',
+  MEETING: '#ff6600',
+  APPOINTMENT: '#cc33ff',
+  DEFAULT: '#cccccc'
+};
+
+const fetchOptions = {
+  method: 'GET',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+};
+
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState([]);
@@ -17,20 +40,89 @@ const Calendar = () => {
   const [formData, setFormData] = useState({ title: '', alert: false });
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchAllEvents = async () => {
       try {
-        const data = await fetchWrapper('/api/calendar');
-        setEvents(data);
+        // 1. Fetch manual events
+        const manualRes = await fetch(`${API_URL}/calendar-events`, fetchOptions);
+        const manualEvents = manualRes.ok ? await manualRes.json() : [];
+
+        // 2. Fetch projects
+        const projectsRes = await fetch(`${API_URL}/projects`, fetchOptions);
+        const projects = projectsRes.ok ? await projectsRes.json() : [];
+
+        // 3. Fetch tasks
+        const tasksRes = await fetch(`${API_URL}/tasks`, fetchOptions);
+        const tasks = tasksRes.ok ? await tasksRes.json() : [];
+
+        // 4. Generate project date events
+        const projectEvents = projects.flatMap(project => {
+          const arr = [];
+          if (project.dates?.startDate) arr.push({
+            title: `${project.title} Start`,
+            date: project.dates.startDate,
+            type: 'PROJECT_START',
+            color: EVENT_TYPE_COLORS.PROJECT_START
+          });
+          if (project.dates?.targetDate) arr.push({
+            title: `${project.title} Target End`,
+            date: project.dates.targetDate,
+            type: 'PROJECT_END',
+            color: EVENT_TYPE_COLORS.PROJECT_END
+          });
+          if (project.dates?.actualCompletion) arr.push({
+            title: `${project.title} Completed`,
+            date: project.dates.actualCompletion,
+            type: 'PROJECT_COMPLETION',
+            color: EVENT_TYPE_COLORS.PROJECT_COMPLETION
+          });
+          return arr;
+        });
+
+        // 5. Generate task date events
+        const taskEvents = tasks.flatMap(task => {
+          const arr = [];
+          if (task.startDate) arr.push({
+            title: `${task.title} Start`,
+            date: task.startDate,
+            type: 'TASK_START',
+            color: EVENT_TYPE_COLORS.TASK_START
+          });
+          if (task.targetDate) arr.push({
+            title: `${task.title} Target End`,
+            date: task.targetDate,
+            type: 'TASK_END',
+            color: EVENT_TYPE_COLORS.TASK_END
+          });
+          if (task.actualCompletion) arr.push({
+            title: `${task.title} Completed`,
+            date: task.actualCompletion,
+            type: 'TASK_COMPLETION',
+            color: EVENT_TYPE_COLORS.TASK_COMPLETION
+          });
+          return arr;
+        });
+
+        // 6. Assign color to manual events if not set
+        const manualEventsWithColor = manualEvents.map(ev => ({
+          ...ev,
+          color: ev.color || EVENT_TYPE_COLORS[ev.type] || EVENT_TYPE_COLORS.DEFAULT
+        }));
+
+        // 7. Combine all events
+        setEvents([
+          ...manualEventsWithColor,
+          ...projectEvents,
+          ...taskEvents
+        ]);
       } catch (err) {
         console.error('Fetch failed, using dummy data:', err);
         setEvents([
-          { title: 'Team Sync', alert: true, date: new Date() },
-          { title: 'Demo Day', alert: false, date: new Date(new Date().setDate(new Date().getDate() + 3)) },
+          { title: 'Team Sync', alert: true, date: new Date(), color: EVENT_TYPE_COLORS.MEETING },
+          { title: 'Demo Day', alert: false, date: new Date(new Date().setDate(new Date().getDate() + 3)), color: EVENT_TYPE_COLORS.APPOINTMENT },
         ]);
       }
     };
-
-    fetchEvents();
+    fetchAllEvents();
   }, []);
 
   const changeMonth = (offset) => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + offset)));
@@ -126,9 +218,8 @@ const Calendar = () => {
               {dayEvents.map((event, i) => (
                 <div
                   key={i}
-                  className={`flex items-center justify-between gap-1 px-1 py-0.5 text-xs rounded truncate ${
-                    event.alert ? 'bg-red-600/80' : 'bg-blue-600/80'
-                  }`}
+                  style={{ backgroundColor: event.color, color: '#fff' }}
+                  className="flex items-center justify-between gap-1 px-1 py-0.5 text-xs rounded truncate"
                 >
                   <span className="truncate">{event.title}</span>
                 </div>
