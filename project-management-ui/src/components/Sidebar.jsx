@@ -29,6 +29,13 @@ const navItems = [
   { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> }, 
 ];
 
+const PHASE_GROUPS = {
+  PLANNED: ['INITIATING', 'PLANNING'],
+  ACTIVE: ['EXECUTING'],
+  COMPLETED: ['MONITORING_CONTROLLING'],
+  ALL: [] // special case: no filter
+};
+
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
