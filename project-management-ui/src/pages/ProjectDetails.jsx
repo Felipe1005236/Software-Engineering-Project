@@ -17,6 +17,19 @@ const fetchOptions = {
   },
 };
 
+const STATUS_OPTIONS = [
+  'PROPOSED',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'APPROVED',
+  'CANCELED'
+];
+const PRIORITY_OPTIONS = [
+  'LOW',
+  'MEDIUM',
+  'HIGH'
+];
+
 const ProjectDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -25,6 +38,11 @@ const ProjectDetails = () => {
   const [error, setError] = useState(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
+  const [newTaskStatus, setNewTaskStatus] = useState('PROPOSED');
+  const [newTaskPriority, setNewTaskPriority] = useState('MEDIUM');
+  const [newTaskPercentage, setNewTaskPercentage] = useState(0);
+  const [newTaskStartDate, setNewTaskStartDate] = useState('');
+  const [newTaskTargetDate, setNewTaskTargetDate] = useState('');
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -50,7 +68,6 @@ const ProjectDetails = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      // Create the task with dates included
       const response = await fetch(`${API_BASE_URL}/tasks`, {
         ...fetchOptions,
         method: 'POST',
@@ -59,16 +76,14 @@ const ProjectDetails = () => {
           details: newTaskDescription,
           projectID: parseInt(id),
           userID: 1, // TODO: Get from authenticated user
-          status: 'TODO',
-          percentageComplete: 0,
-          priority: 'MEDIUM',
-          startDate: new Date().toISOString(),
-          targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+          status: newTaskStatus,
+          percentageComplete: Number(newTaskPercentage),
+          priority: newTaskPriority,
+          startDate: newTaskStartDate,
+          targetDate: newTaskTargetDate
         })
       });
-
       if (!response.ok) throw new Error('Failed to create task');
-      
       const newTask = await response.json();
       setProject(prev => ({
         ...prev,
@@ -76,6 +91,11 @@ const ProjectDetails = () => {
       }));
       setNewTaskTitle('');
       setNewTaskDescription('');
+      setNewTaskStatus('PROPOSED');
+      setNewTaskPriority('MEDIUM');
+      setNewTaskPercentage(0);
+      setNewTaskStartDate('');
+      setNewTaskTargetDate('');
     } catch (err) {
       setError(err.message);
       console.error('Error creating task:', err);
@@ -183,6 +203,46 @@ const ProjectDetails = () => {
               onChange={(e) => setNewTaskDescription(e.target.value)}
               placeholder="Task description"
               className="bg-zinc-800/60 border border-white/10 text-white placeholder-zinc-400 p-2 rounded focus:outline-none focus:border-blue-400"
+              required
+            />
+            <select
+              value={newTaskStatus}
+              onChange={e => setNewTaskStatus(e.target.value)}
+              className="bg-zinc-800/60 border border-white/10 text-white p-2 rounded focus:outline-none focus:border-blue-400"
+              required
+            >
+              {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>)}
+            </select>
+            <select
+              value={newTaskPriority}
+              onChange={e => setNewTaskPriority(e.target.value)}
+              className="bg-zinc-800/60 border border-white/10 text-white p-2 rounded focus:outline-none focus:border-blue-400"
+              required
+            >
+              {PRIORITY_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+            <input
+              type="number"
+              value={newTaskPercentage}
+              onChange={e => setNewTaskPercentage(e.target.value)}
+              min={0}
+              max={100}
+              placeholder="% Complete"
+              className="bg-zinc-800/60 border border-white/10 text-white placeholder-zinc-400 p-2 rounded focus:outline-none focus:border-blue-400"
+              required
+            />
+            <input
+              type="date"
+              value={newTaskStartDate}
+              onChange={e => setNewTaskStartDate(e.target.value)}
+              className="bg-zinc-800/60 border border-white/10 text-white p-2 rounded focus:outline-none focus:border-blue-400"
+              required
+            />
+            <input
+              type="date"
+              value={newTaskTargetDate}
+              onChange={e => setNewTaskTargetDate(e.target.value)}
+              className="bg-zinc-800/60 border border-white/10 text-white p-2 rounded focus:outline-none focus:border-blue-400"
               required
             />
           </div>
