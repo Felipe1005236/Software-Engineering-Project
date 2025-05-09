@@ -47,6 +47,7 @@ export default function ProjectDashboard() {
     p.title?.toLowerCase().includes(search.toLowerCase())
   );
 
+<<<<<<< HEAD
   const handleSubmit = (e) => {
     e.preventDefault();
     const newEntry = {
@@ -62,6 +63,30 @@ export default function ProjectDashboard() {
       startDate: '', targetDate: '', description: '',
     });
     navigate(`/projects/${newEntry.projectID}`);
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${API_BASE_URL}/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProject)
+      });
+      if (!response.ok) throw new Error('Failed to create project');
+      const createdProject = await response.json();
+      setProjects(prev => [...prev, createdProject]);
+      setShowForm(false);
+      setNewProject({
+        title: '', manager: '', category: '', priority: 'Medium',
+        status: 'PROPOSED', phase: 'INITIATING',
+        startDate: '', targetDate: '', description: '',
+      });
+      navigate(`/projects/${createdProject.projectID}`);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error creating project:', err);
+    }
+>>>>>>> 7327e053 (dashboard kinda fixed)
   };
 
   return (
