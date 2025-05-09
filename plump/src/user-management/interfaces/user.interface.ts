@@ -1,4 +1,4 @@
-import { Role, Type, Unit, Task, TeamMembership } from '@prisma/client';
+import { Role, Type } from '@prisma/client';
 
 export interface User {
   userID: number;              
@@ -7,14 +7,14 @@ export interface User {
   email: string;  
   phone: string;             
   address: string;          
-  unitID: number;            
+  unitID: number | null;            
   activationDate: Date;       
   active: boolean;           
   primaryRole: Role;        
   type: Type;               
 
   // Include relationships
-  unit: Unit;
-  teamMemberships?: TeamMembership[];
-  tasks?: Task[];
+  unit: any;
+  teamMemberships?: any[];
+  tasks?: any[];
 }

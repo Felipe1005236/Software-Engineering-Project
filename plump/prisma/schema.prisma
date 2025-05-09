@@ -86,12 +86,12 @@ model User {
   email          String           @unique
   phone          String
   address        String
-  unitID         Int
+  unitID         Int?             
   activationDate DateTime         @default(now())
   active         Boolean          @default(false)
   primaryRole    Role             @default(USER)
   type           Type             @default(INTERNAL)
-  unit           Unit             @relation(fields: [unitID], references: [unitID])
+  unit           Unit?            @relation(fields: [unitID], references: [unitID])
   tasks          Task[]
   timeTracking   TimeTracking[]
   teamMemberships TeamMembership[]

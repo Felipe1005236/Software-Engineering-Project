@@ -65,7 +65,7 @@ export class TimeTrackingService {
         where: { timeTrackingID: existingEntry.timeTrackingID },
         data: {
           hoursSpent: newHours,
-          role: userMembership.role
+          role: userMembership.teamRole
         }
       });
     }
@@ -77,7 +77,7 @@ export class TimeTrackingService {
         projectID: data.projectID,
         dateWorked: date,
         hoursSpent: data.hoursSpent,
-        role: userMembership.role
+        role: userMembership.teamRole
       }
     });
   }
