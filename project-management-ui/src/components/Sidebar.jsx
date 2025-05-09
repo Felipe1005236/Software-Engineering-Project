@@ -10,10 +10,7 @@ import {
   FaWallet,
   FaBars,
   FaTimes,
-  FaThLarge,
-  FaClock
-} 
-from 'react-icons/fa';
+
 import { useState } from 'react';
 
 const navItems = [
@@ -26,7 +23,6 @@ const navItems = [
   { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
   //main
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
-  { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> }, 
 ];
 
 const PHASE_GROUPS = {
