@@ -37,7 +37,7 @@ const Calendar = () => {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ title: '', alert: false, type: 'MEETING' });
+  const [formData, setFormData] = useState({ title: '', type: 'MEETING', description: '' });
 
   useEffect(() => {
     const fetchAllEvents = async () => {
@@ -135,14 +135,21 @@ const Calendar = () => {
   };
 
   const handleAddEvent = async () => {
-    const color = EVENT_TYPE_COLORS[formData.type] || EVENT_TYPE_COLORS.DEFAULT;
-    const newEvent = { ...formData, date: selectedDate, color };
+    const { title, type, description } = formData;
+    const color = EVENT_TYPE_COLORS[type] || EVENT_TYPE_COLORS.DEFAULT;
+    const newEvent = {
+      title,
+      type,
+      date: selectedDate,
+      color,
+      ...(description && { description })
+    };
     setEvents((prev) => [...prev, newEvent]);
-    setFormData({ title: '', alert: false, type: 'MEETING' });
+    setFormData({ title: '', type: 'MEETING', description: '' });
     setShowModal(false);
 
     try {
-      await fetchWrapper('/api/calendar-events', {
+      await fetchWrapper(`${API_URL}/calendar-events`, {
         method: 'POST',
         body: JSON.stringify(newEvent)
       });
@@ -158,7 +165,7 @@ const Calendar = () => {
     setEvents(filtered);
 
     try {
-      await fetchWrapper('/api/calendar-events', {
+      await fetchWrapper(`${API_URL}/calendar-events`, {
         method: 'DELETE',
         body: JSON.stringify(eventToDelete)
       });
@@ -267,14 +274,13 @@ const Calendar = () => {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
 
-              <label className="flex items-center space-x-2 text-sm text-zinc-300">
-                <input
-                  type="checkbox"
-                  checked={formData.alert}
-                  onChange={(e) => setFormData({ ...formData, alert: e.target.checked })}
-                />
-                <span>Set Alert</span>
-              </label>
+              <input
+                type="text"
+                className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2"
+                placeholder="Description (optional)"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
 
               <select
                 className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2 text-white"
