@@ -14,7 +14,14 @@ const TaskList = () => {
   const { name } = useParams();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: '', status: 'Pending' });
+  const [newTask, setNewTask] = useState({
+    title: '',
+    status: 'Pending',
+    percentageComplete: 0,
+    priority: 'Medium',
+    details: '',
+    dateID: 0,
+  });
   const [status, setStatus] = useState({ loading: false, error: '', success: '' });
   const lastTaskRef = useRef(null);
 
@@ -28,10 +35,7 @@ const TaskList = () => {
       setTasks(data);
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
-      setTasks([
-        { id: 1, title: 'Fix UI bugs', status: 'In Progress' },
-        { id: 2, title: 'Update documentation', status: 'Pending' },
-      ]);
+      setTasks([]);
     }
   };
 
@@ -53,7 +57,14 @@ const TaskList = () => {
       setStatus({ loading: false, error: '', success: 'Task added locally (no backend).' });
     }
 
-    setNewTask({ title: '', status: 'Pending' });
+    setNewTask({
+      title: '',
+      status: 'Pending',
+      percentageComplete: 0,
+      priority: 'Medium',
+      details: '',
+      dateID: 0,
+    });
   };
 
   const handleDelete = async (id) => {
@@ -62,7 +73,7 @@ const TaskList = () => {
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error('Delete failed:', err);
-      setTasks((prev) => prev.filter((t) => t.id !== id)); // fallback
+      setTasks((prev) => prev.filter((t) => t.id !== id));
     }
   };
 
@@ -76,30 +87,62 @@ const TaskList = () => {
         🧩 Tasks for: {decodeURIComponent(name)}
       </motion.h1>
 
-      {/* Task Form */}
       <form
         onSubmit={handleAddTask}
-        className="flex flex-col sm:flex-row items-center gap-3 bg-zinc-900/60 backdrop-blur-md border border-white/10 p-4 rounded-2xl shadow-subtle"
+        className="flex flex-col gap-3 bg-zinc-900/60 backdrop-blur-md border border-white/10 p-4 rounded-2xl shadow-subtle"
       >
         <input
           type="text"
           placeholder="Task title"
           value={newTask.title}
           onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-          className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-full sm:w-1/2"
+          className="bg-zinc-800 border border-zinc-700 text-white rounded p-2"
         />
-        <select
-          value={newTask.status}
-          onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
-          className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-full sm:w-1/4"
-        >
-          <option value="Pending">Pending</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Completed">Completed</option>
-        </select>
+        <textarea
+          placeholder="Task details"
+          value={newTask.details}
+          onChange={(e) => setNewTask({ ...newTask, details: e.target.value })}
+          className="bg-zinc-800 border border-zinc-700 text-white rounded p-2"
+        />
+        <div className="flex flex-wrap gap-3">
+          <select
+            value={newTask.status}
+            onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
+            className="bg-zinc-800 border border-zinc-700 text-white rounded p-2"
+          >
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select
+            value={newTask.priority}
+            onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+            className="bg-zinc-800 border border-zinc-700 text-white rounded p-2"
+          >
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Percentage Complete"
+            value={newTask.percentageComplete}
+            onChange={(e) =>
+              setNewTask({ ...newTask, percentageComplete: parseInt(e.target.value) })
+            }
+            className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
+          />
+          <input
+            type="number"
+            placeholder="Date ID"
+            value={newTask.dateID}
+            onChange={(e) => setNewTask({ ...newTask, dateID: parseInt(e.target.value) })}
+            className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
+          />
+        </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded text-sm font-medium transition"
+          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded text-sm font-medium transition self-start"
           disabled={status.loading}
         >
           {status.loading ? 'Adding...' : '+ Add Task'}
@@ -109,7 +152,6 @@ const TaskList = () => {
       {status.error && <p className="text-red-400 text-sm">{status.error}</p>}
       {status.success && <p className="text-green-400 text-sm">{status.success}</p>}
 
-      {/* Task Grid */}
       {tasks.length === 0 ? (
         <p className="text-zinc-500 italic">No tasks yet. Start by adding one! 🚀</p>
       ) : (
@@ -128,12 +170,18 @@ const TaskList = () => {
               ref={i === tasks.length - 1 ? lastTaskRef : null}
               whileHover={{ scale: 1.02 }}
               onClick={() => navigate(`/projects/${name}/tasks/${task.id}`)}
-              className="bg-zinc-900/60 backdrop-blur border border-white/10 rounded-xl p-4 cursor-pointer group relative shadow-soft transition-all"
+              className="bg-zinc-900/60 border border-white/10 rounded-xl p-4 cursor-pointer group relative shadow-soft transition-all"
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
             >
               <h3 className="text-lg font-semibold text-white group-hover:underline">
                 {task.title}
               </h3>
+              <p className="text-sm text-zinc-400 mt-1">{task.details}</p>
+              <p className="text-sm text-zinc-400 mt-1">Priority: {task.priority}</p>
+              <p className="text-sm text-zinc-400 mt-1">
+                Complete: {task.percentageComplete}%
+              </p>
+              <p className="text-sm text-zinc-400 mt-1">Date ID: {task.dateID}</p>
               <span
                 className={`mt-2 inline-block px-2 py-0.5 text-xs rounded-full text-white ${statusColors[task.status]}`}
               >

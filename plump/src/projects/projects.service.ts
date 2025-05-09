@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';  
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { Prisma, Status } from '@prisma/client'; 
+import { Prisma, Status, Phase } from '@prisma/client'; 
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 
@@ -12,25 +12,27 @@ export class ProjectsService {
 
   // Create a new project
   async create(createProjectDto: CreateProjectDto) {
+    const { title, status, phase, teamId, healthId, budgetId, dateId } = createProjectDto;
+    
     return this.prisma.project.create({
       data: {
-        title: createProjectDto.title,
-        status: createProjectDto.status,
-        ...(createProjectDto.phase && { phase: createProjectDto.phase }),
-        ...(createProjectDto.teamId && { teamID: createProjectDto.teamId }),
-        ...(createProjectDto.healthId && {
+        title,
+        status: status as Status,
+        phase: phase as Phase,
+        teamID: teamId,
+        ...(healthId && {
           health: {
-            connect: { healthID: createProjectDto.healthId }
+            connect: { healthID: healthId }
           }
         }),
-        ...(createProjectDto.budgetId && {
+        ...(budgetId && {
           budget: {
-            connect: { budgetID: createProjectDto.budgetId }
+            connect: { budgetID: budgetId }
           }
         }),
-        ...(createProjectDto.dateId && {
+        ...(dateId && {
           dates: {
-            connect: { dateID: createProjectDto.dateId }
+            connect: { dateID: dateId }
           }
         }),
       },
@@ -46,6 +48,21 @@ export class ProjectsService {
   async findOne(projectID: number) {
     return this.prisma.project.findUnique({
       where: { projectID },
+      include: {
+        budget: true,
+        health: true,
+        dates: true,
+        tasks: {
+          orderBy: {
+            taskID: 'desc'
+          }
+        },
+        team: {
+          include: {
+            users: true
+          }
+        }
+      }
     });
   }
 

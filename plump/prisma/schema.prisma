@@ -39,119 +39,139 @@ enum HealthColours {
   RED
 }
 
+enum EventType {
+  MEETING
+  APPOINTMENT
+  PROJECT_START
+  PROJECT_END
+  PROJECT_COMPLETION
+  TASK_START
+  TASK_END
+  TASK_COMPLETION
+}
 
 model User {
-  userID          Int       @id @default(autoincrement())
-  firstName       String
-  lastName        String
-  email           String    @unique
-  phone           String
-  address         String
-  unit            String
-  unitManager     String
-  activationDate  DateTime  @default(now())
-  active          Boolean   @default(false)
-  primaryRole     Role      @default(USER)
-  type            Type      @default(INTERNAL)
-
-  // Relationships
-  teams           Team[]    // Many to Many: one user can be in many teams
-  tasks           Task[]
+  userID         Int            @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  email          String         @unique
+  phone          String
+  address        String
+  unit           String
+  unitManager    String
+  activationDate DateTime       @default(now())
+  active         Boolean        @default(false)
+  primaryRole    Role           @default(USER)
+  type           Type           @default(INTERNAL)
+  tasks          Task[]
+  timeTracking   TimeTracking[]
+  teams          Team[]         @relation("TeamToUser")
 }
 
 model Team {
-  teamID    Int             @id @default(autoincrement())
+  teamID    Int      @id @default(autoincrement())
   name      String
-  createdOn DateTime        @default(now())
-  
-  //Relationships
-  users     User[]          // Many-to-Many: one team can have many users
-
-  // Team–Project remains as one-to-one.
-  project   Project?        @relation("TeamProject")
+  createdOn DateTime @default(now())
+  project   Project? @relation("TeamProject")
+  users     User[]   @relation("TeamToUser")
 }
 
 model Project {
-  projectID   Int           @id @default(autoincrement())
-  title       String
-  status      Status
-  phase       Phase
-  //projectLead User? 
-
-  // // Foreign Keys
-  teamID      Int           @unique  // Enforces one to one
-  // healthID    Int           @unique           
-  // budgetID    Int           @unique
-  // dateID      Int           @unique
-
-  // Relationships
-  team        Team?         @relation("TeamProject", fields: [teamID], references: [teamID])
-  health      HealthStatus? //@relation(fields: [healthID], references: [healthID])
-  budget      Budget?       //@relation(fields: [budgetID], references: [budgetID])
-  dates       ProjectDates? //@relation(fields: [dateID], references: [dateID])
-  
-  tasks       Task[]
+  projectID    Int            @id @default(autoincrement())
+  title        String
+  status       Status
+  phase        Phase
+  teamID       Int            @unique
+  budget       Budget?
+  health       HealthStatus?
+  team         Team           @relation("TeamProject", fields: [teamID], references: [teamID])
+  dates        ProjectDates?
+  tasks        Task[]
+  timeTracking TimeTracking[]
 }
 
 model Budget {
-  budgetID      Int    @id @default(autoincrement())
-  projectID     Int    @unique
-  totalBudget   Float
-  actualCost    Float
-  forecastCost  Float
-
-  // Relationships
-  project     Project @relation(fields: [projectID], references: [projectID])
+  budgetID     Int     @id @default(autoincrement())
+  projectID    Int     @unique
+  totalBudget  Float
+  actualCost   Float
+  forecastCost Float
+  project      Project @relation(fields: [projectID], references: [projectID])
 }
 
 model HealthStatus {
-  healthID  Int    @id @default(autoincrement())
-  projectID Int    @unique
+  healthID  Int           @id @default(autoincrement())
+  projectID Int           @unique
   scope     HealthColours @default(GREEN)
   schedule  HealthColours @default(GREEN)
   cost      HealthColours @default(GREEN)
   resource  HealthColours @default(GREEN)
   overall   HealthColours @default(GREEN)
-
-  // Relationships
-  project   Project @relation(fields: [projectID], references: [projectID])
+  project   Project       @relation(fields: [projectID], references: [projectID])
 }
 
 model ProjectDates {
-  dateID           Int      @id @default(autoincrement())
+  dateID           Int       @id @default(autoincrement())
   targetDate       DateTime
   startDate        DateTime
   actualCompletion DateTime?
-
-// Relationships
-  project          Project  @relation(fields: [projectID], references: [projectID])
-  projectID        Int      @unique
+  projectID        Int       @unique
+  project          Project   @relation(fields: [projectID], references: [projectID])
 }
 
 model Task {
-  taskID             Int    @id @default(autoincrement())
+  taskID             Int            @id @default(autoincrement())
   projectID          Int
-  dateID             Int    @unique
   title              String
   percentageComplete Float
   priority           String
   userID             Int
   details            String
-  status             String
-
-  // Relationships
-  project       Project @relation(fields: [projectID], references: [projectID])
-  dates         TaskDates? @relation(fields: [dateID], references: [dateID])
-  user          User? @relation(fields: [userID], references: [userID])
+  status             Status
+  startDate          DateTime       @default(now())
+  targetDate         DateTime
+  actualCompletion   DateTime?
+  comments           Comment[]
+  user               User           @relation(fields: [userID], references: [userID])
+  project            Project        @relation(fields: [projectID], references: [projectID])
 }
 
-model TaskDates {
-  dateID           Int      @id @default(autoincrement())
-  targetDate       DateTime
-  startDate        DateTime
-  actualCompletion DateTime?
+model TimeTracking {
+  timeTrackingID Int      @id @default(autoincrement())
+  userID         Int
+  projectID      Int
+  role           String
+  dateWorked     DateTime
+  dateRecorded   DateTime @default(now())
+  hoursSpent     Float
+  project        Project  @relation(fields: [projectID], references: [projectID])
+  user           User     @relation(fields: [userID], references: [userID])
 
-// Relationships
-  task             Task?
-  taskID           Int      @unique
+  @@unique([userID, projectID, dateWorked])
 }
+
+model Comment {
+  id          Int          @id @default(autoincrement())
+  content     String
+  createdAt   DateTime     @default(now())
+  taskId      Int
+  attachments Attachment[]
+  task        Task         @relation(fields: [taskId], references: [taskID])
+}
+
+model Attachment {
+  id        Int     @id @default(autoincrement())
+  fileUrl   String
+  commentId Int
+  comment   Comment @relation(fields: [commentId], references: [id])
+}
+
+model CalendarEvent {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  type        EventType
+  date        DateTime
+  color       String?  // Optional: for custom color coding
+}
+

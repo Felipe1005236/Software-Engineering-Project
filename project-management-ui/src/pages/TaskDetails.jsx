@@ -27,9 +27,15 @@ const TaskDetails = () => {
         title: 'Fix Login Bug',
         assignedTo: 'Kavya Shah',
         status: 'In Progress',
+        percentageComplete: 60,
+        priority: 'High',
         dueDate: '2025-04-05',
-        description:
-          'Users are unable to log in with expired sessions. We need to handle token refresh or force re-login smoothly.',
+        details: 'Users are unable to log in with expired sessions. We need to handle token refresh or force re-login smoothly.',
+        taskDates: {
+          startDate: '2025-04-01',
+          targetDate: '2025-04-10',
+          actualCompletion: '2025-04-12'
+        },
         comments: [
           { user: 'Alice', text: 'I think this might be an auth header issue.' },
           { user: 'Javier', text: 'Need to check the backend refresh logic.' },
@@ -91,6 +97,8 @@ const TaskDetails = () => {
           <h2 className="text-xl font-semibold">{task.title}</h2>
           <p className="text-zinc-400 text-sm">Assigned to: {task.assignedTo}</p>
           <p className="text-zinc-400 text-sm">Due: {task.dueDate}</p>
+          <p className="text-sm">Priority: {task.priority}</p>
+          <p className="text-sm">Progress: {task.percentageComplete}%</p>
           <div className="flex items-center gap-2">
             <label className="text-sm text-zinc-400">Status:</label>
             <select
@@ -103,9 +111,16 @@ const TaskDetails = () => {
               <option value="Completed">Completed</option>
             </select>
           </div>
+
+          {/* TaskDates from schema */}
+          <div className="space-y-1 text-sm text-zinc-300 pt-4">
+            <p><strong>Start Date:</strong> {task.taskDates?.startDate || '—'}</p>
+            <p><strong>Target Date:</strong> {task.taskDates?.targetDate || '—'}</p>
+            <p><strong>Actual Completion:</strong> {task.taskDates?.actualCompletion || '—'}</p>
+          </div>
         </div>
 
-        <p className="text-zinc-300">{task.description}</p>
+        <p className="text-zinc-300 whitespace-pre-line">{task.details}</p>
 
         <div className="flex justify-end">
           <button
@@ -120,7 +135,7 @@ const TaskDetails = () => {
         <div className="space-y-4 pt-4">
           <h3 className="text-lg font-semibold">💬 Comments</h3>
           <ul className="space-y-2">
-            {task.comments.map((c, i) => (
+            {task.comments?.map((c, i) => (
               <li key={i} className="bg-zinc-800 p-3 rounded-lg text-sm border border-zinc-700">
                 <span className="text-indigo-400 font-medium">{c.user}</span>: {c.text}
               </li>
