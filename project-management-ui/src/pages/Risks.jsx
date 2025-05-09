@@ -272,181 +272,159 @@ const RiskCard = ({ risk, onEdit, onDelete }) => {
 };
 
 const RiskModal = ({ isOpen, onClose, onSave, initialData }) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    probability: 'Medium',
-    impact: 'Medium',
-    responsePlan: '',
-    owner: '',
-    status: 'Open',
-  });
-
-  useEffect(() => {
-    if(isOpen) {
-        setFormData(initialData || {
-            title: '',
-            description: '',
-            probability: 'Medium',
-            impact: 'Medium',
-            responsePlan: '',
-            status: 'Open'
-        });
+  const [formData, setFormData] = useState(
+    initialData || {
+      title: '',
+      description: '',
+      probability: 'Medium',
+      impact: 'Medium',
+      responsePlan: '',
+      owner: '',
+      status: 'Open',
     }
-  }, [isOpen, initialData]);
+  );
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
-    } else {
-      setFormData({
-        title: '',
-        description: '',
-        probability: 'Medium',
-        impact: 'Medium',
-        responsePlan: '',
-        owner: '',
-        status: 'Open',
-      });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
+    setFormData({
+      title: '',
+      description: '',
+      probability: 'Medium',
+      impact: 'Medium',
+      responsePlan: '',
+      owner: '',
+      status: 'Open',
+    });
   };
 
+  if (!isOpen) return null;
+
   return (
-    <motion.div 
-      className={`fixed inset-0 bg-black/50 z-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isOpen ? 1 : 0 }}
-    >
-      <motion.div 
-        className="bg-zinc-800 rounded-lg p-6 w-full max-w-md"
-        initial={{ scale: 0.9 }}
-        animate={{ scale: isOpen ? 1 : 0.9 }}
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-zinc-900 rounded-lg p-6 w-full max-w-lg border border-white/10"
       >
         <h2 className="text-xl font-bold mb-4">
           {initialData ? 'Edit Risk' : 'Add New Risk'}
         </h2>
-        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Risk Title</label>
+            <label className="block text-sm text-zinc-400 mb-1">Title</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
               required
+              className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
             />
           </div>
-          
           <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <label className="block text-sm text-zinc-400 mb-1">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
-              rows="3"
-              required
+              rows={3}
+              className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
             />
           </div>
-          
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Probability</label>
+              <label className="block text-sm text-zinc-400 mb-1">Probability</label>
               <select
                 name="probability"
                 value={formData.probability}
                 onChange={handleChange}
-                className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
+                className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
               </select>
             </div>
-            
             <div>
-              <label className="block text-sm font-medium mb-1">Impact</label>
+              <label className="block text-sm text-zinc-400 mb-1">Impact</label>
               <select
                 name="impact"
                 value={formData.impact}
                 onChange={handleChange}
-                className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
+                className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
               >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
               </select>
             </div>
           </div>
-          
           <div>
-            <label className="block text-sm font-medium mb-1">Response Plan (Optional)</label>
+            <label className="block text-sm text-zinc-400 mb-1">Response Plan</label>
             <textarea
               name="responsePlan"
               value={formData.responsePlan}
               onChange={handleChange}
-              className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
-              rows="2"
+              rows={2}
+              className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
             />
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Owner</label>
-              <input
-                type="text"
-                name="owner"
-                value={formData.owner}
-                onChange={handleChange}
-                className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full bg-zinc-700 rounded px-3 py-2 text-sm"
-              >
-                <option value="Open">Open</option>
-                <option value="Occurring">Occurring</option>
-                <option value="Resolved">Resolved</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm text-zinc-400 mb-1">Owner</label>
+            <input
+              type="text"
+              name="owner"
+              value={formData.owner}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
+            />
           </div>
-          
-          <div className="flex justify-end space-x-3 pt-4">
+          <div>
+            <label className="block text-sm text-zinc-400 mb-1">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
+            >
+              <option>Open</option>
+              <option>Occurring</option>
+              <option>Resolved</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm rounded bg-zinc-700 hover:bg-zinc-600"
+              className="px-4 py-2 text-sm text-zinc-400 hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm rounded bg-indigo-500 hover:bg-indigo-600"
+              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-sm rounded"
             >
-              Save Risk
+              {initialData ? 'Save Changes' : 'Add Risk'}
             </button>
           </div>
         </form>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 
