@@ -7,19 +7,30 @@ import {
   FaUsers,
   FaCogs,
   FaUserTie,
+  FaWallet,
   FaBars,
   FaTimes,
+  FaThLarge,
+  FaClock
 } from 'react-icons/fa';
 import { useState } from 'react';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: <FaHome /> },
-  { name: 'Projects', path: '/projects', icon: <FaProjectDiagram /> },
+  { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
+  { name: 'Budget', path: '/budget', icon: <FaWallet /> },
+  { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
-  { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
 ];
+
+const PHASE_GROUPS = {
+  PLANNED: ['INITIATING', 'PLANNING'],
+  ACTIVE: ['EXECUTING'],
+  COMPLETED: ['MONITORING_CONTROLLING'],
+  ALL: [] // special case: no filter
+};
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -40,16 +51,23 @@ const Sidebar = () => {
         {collapsed ? <FaBars /> : <FaTimes />}
       </button>
 
-      {/* Title */}
+      {/* Logo Title */}
       {!collapsed && (
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-2xl font-extrabold mb-10 tracking-wide text-white"
+          className="flex items-center gap-3 mb-10"
         >
-          ⚡ PLUMP
-        </motion.h1>
+          <img
+            src="/plump-logo.png"
+            alt="PLUMP Logo"
+            className="w-10 h-10 object-contain"
+          />
+          <span className="text-2xl font-extrabold tracking-wide text-white">
+            PLUMP
+          </span>
+        </motion.div>
       )}
 
       {/* Navigation */}

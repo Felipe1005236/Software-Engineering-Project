@@ -7,12 +7,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+      - "5555:5555"
     volumes:
       - ./backend:/app
-    #env_file:
-    #  - ./plump/.env
-    #depends_on:
-    #  - db
+      - ./plump/prisma/dev.db:/app/prisma/dev.db
 
   frontend:
     build:
