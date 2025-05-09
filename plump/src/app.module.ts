@@ -15,6 +15,7 @@ import { DashboardController } from './dashboard/dashboard.controller';
 import { OrganizationModule } from './organization/organization.module';
 import { UnitModule } from './unit/unit.module';
 import { TeamMembershipModule } from './team-membership/team-membership.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { TeamMembershipModule } from './team-membership/team-membership.module';
     CalendarEventModule,
     OrganizationModule,
     UnitModule,
-    TeamMembershipModule
+    TeamMembershipModule,
+    AuthModule
   ],
   controllers: [AppController, SearchController, DashboardController],
   providers: [AppService, SearchService],
