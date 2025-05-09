@@ -113,7 +113,8 @@ const Projects = () => {
     }
     setIsModalOpen(false);
   };
-  
+
+
 
   const handleDelete = async (target) => {
     try {
@@ -128,6 +129,7 @@ const Projects = () => {
       console.error('Delete failed:', err);
     }
   };
+
 
   const handleEdit = (project) => {
     setEditProject(project);

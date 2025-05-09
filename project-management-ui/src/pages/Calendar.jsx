@@ -9,28 +9,120 @@ import { fetchWrapper } from '../utils/fetchWrapper';
 const months = Array.from({ length: 12 }, (_, i) => format(new Date(2025, i), 'MMMM'));
 const years = Array.from({ length: 10 }, (_, i) => 2020 + i);
 
+const API_URL = 'http://localhost:3000/api';
+
+const EVENT_TYPE_COLORS = {
+  PROJECT_START: '#00bfff',
+  PROJECT_END: '#0077ff',
+  PROJECT_COMPLETION: '#00ff99',
+  TASK_START: '#ffcc00',
+  TASK_END: '#ff9900',
+  TASK_COMPLETION: '#00ff00',
+  MEETING: '#ff6600',
+  APPOINTMENT: '#cc33ff',
+  DEFAULT: '#cccccc'
+};
+
+const fetchOptions = {
+  method: 'GET',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+};
+
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ title: '', alert: false });
+  const [formData, setFormData] = useState({ title: '', type: 'MEETING', description: '' });
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchAllEvents = async () => {
       try {
-        const data = await fetchWrapper('/api/calendar');
-        setEvents(data);
+        // 1. Fetch manual events
+        const manualRes = await fetch(`${API_URL}/calendar-events`, fetchOptions);
+        const manualEvents = manualRes.ok ? await manualRes.json() : [];
+
+        // 2. Fetch projects
+        const projectsRes = await fetch(`${API_URL}/projects`, fetchOptions);
+        const projects = projectsRes.ok ? await projectsRes.json() : [];
+
+        // 3. Fetch tasks
+        const tasksRes = await fetch(`${API_URL}/tasks`, fetchOptions);
+        const tasks = tasksRes.ok ? await tasksRes.json() : [];
+
+        // 4. Generate project date events
+        const projectEvents = projects.flatMap(project => {
+          const arr = [];
+          if (project.dates?.startDate) arr.push({
+            title: `${project.title} Start`,
+            date: project.dates.startDate,
+            type: 'PROJECT_START',
+            color: EVENT_TYPE_COLORS.PROJECT_START
+          });
+          if (project.dates?.targetDate) arr.push({
+            title: `${project.title} Target End`,
+            date: project.dates.targetDate,
+            type: 'PROJECT_END',
+            color: EVENT_TYPE_COLORS.PROJECT_END
+          });
+          if (project.dates?.actualCompletion) arr.push({
+            title: `${project.title} Completed`,
+            date: project.dates.actualCompletion,
+            type: 'PROJECT_COMPLETION',
+            color: EVENT_TYPE_COLORS.PROJECT_COMPLETION
+          });
+          return arr;
+        });
+
+        // 5. Generate task date events
+        const taskEvents = tasks.flatMap(task => {
+          const arr = [];
+          if (task.startDate) arr.push({
+            title: `${task.title} Start`,
+            date: task.startDate,
+            type: 'TASK_START',
+            color: EVENT_TYPE_COLORS.TASK_START
+          });
+          if (task.targetDate) arr.push({
+            title: `${task.title} Target End`,
+            date: task.targetDate,
+            type: 'TASK_END',
+            color: EVENT_TYPE_COLORS.TASK_END
+          });
+          if (task.actualCompletion) arr.push({
+            title: `${task.title} Completed`,
+            date: task.actualCompletion,
+            type: 'TASK_COMPLETION',
+            color: EVENT_TYPE_COLORS.TASK_COMPLETION
+          });
+          return arr;
+        });
+
+        // 6. Assign color to manual events if not set
+        const manualEventsWithColor = manualEvents.map(ev => ({
+          ...ev,
+          color: ev.color || EVENT_TYPE_COLORS[ev.type] || EVENT_TYPE_COLORS.DEFAULT
+        }));
+
+        // 7. Combine all events
+        setEvents([
+          ...manualEventsWithColor,
+          ...projectEvents,
+          ...taskEvents
+        ]);
       } catch (err) {
         console.error('Fetch failed, using dummy data:', err);
         setEvents([
-          { title: 'Team Sync', alert: true, date: new Date() },
-          { title: 'Demo Day', alert: false, date: new Date(new Date().setDate(new Date().getDate() + 3)) },
+          { title: 'Team Sync', alert: true, date: new Date(), color: EVENT_TYPE_COLORS.MEETING },
+          { title: 'Demo Day', alert: false, date: new Date(new Date().setDate(new Date().getDate() + 3)), color: EVENT_TYPE_COLORS.APPOINTMENT },
         ]);
       }
     };
-
-    fetchEvents();
+    fetchAllEvents();
   }, []);
 
   const changeMonth = (offset) => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + offset)));
@@ -43,13 +135,21 @@ const Calendar = () => {
   };
 
   const handleAddEvent = async () => {
-    const newEvent = { ...formData, date: selectedDate };
+    const { title, type, description } = formData;
+    const color = EVENT_TYPE_COLORS[type] || EVENT_TYPE_COLORS.DEFAULT;
+    const newEvent = {
+      title,
+      type,
+      date: selectedDate,
+      color,
+      ...(description && { description })
+    };
     setEvents((prev) => [...prev, newEvent]);
-    setFormData({ title: '', alert: false });
+    setFormData({ title: '', type: 'MEETING', description: '' });
     setShowModal(false);
 
     try {
-      await fetchWrapper('/api/calendar', {
+      await fetchWrapper(`${API_URL}/calendar-events`, {
         method: 'POST',
         body: JSON.stringify(newEvent)
       });
@@ -65,7 +165,7 @@ const Calendar = () => {
     setEvents(filtered);
 
     try {
-      await fetchWrapper('/api/calendar', {
+      await fetchWrapper(`${API_URL}/calendar-events`, {
         method: 'DELETE',
         body: JSON.stringify(eventToDelete)
       });
@@ -126,11 +226,10 @@ const Calendar = () => {
               {dayEvents.map((event, i) => (
                 <div
                   key={i}
-                  className={`flex items-center justify-between gap-1 px-1 py-0.5 text-xs rounded truncate ${
-                    event.alert ? 'bg-red-600/80' : 'bg-blue-600/80'
-                  }`}
+                  style={{ backgroundColor: event.color, color: '#fff' }}
+                  className="flex items-center justify-between gap-1 px-1 py-0.5 text-xs rounded truncate"
                 >
-                  <span className="truncate">{event.title}</span>
+                  <span className="truncate">{event.title} <span className="ml-2 text-xs text-zinc-400">({event.type})</span></span>
                 </div>
               ))}
             </div>
@@ -175,14 +274,22 @@ const Calendar = () => {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
 
-              <label className="flex items-center space-x-2 text-sm text-zinc-300">
-                <input
-                  type="checkbox"
-                  checked={formData.alert}
-                  onChange={(e) => setFormData({ ...formData, alert: e.target.checked })}
-                />
-                <span>Set Alert</span>
-              </label>
+              <input
+                type="text"
+                className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2"
+                placeholder="Description (optional)"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+
+              <select
+                className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2 text-white"
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              >
+                <option value="MEETING">Meeting</option>
+                <option value="APPOINTMENT">Appointment</option>
+              </select>
 
               {selectedDayEvents.length > 0 && (
                 <div className="text-sm text-zinc-400">
@@ -190,7 +297,7 @@ const Calendar = () => {
                   <ul className="space-y-1">
                     {selectedDayEvents.map((e, i) => (
                       <li key={i} className="flex justify-between items-center text-white text-xs bg-zinc-800 p-2 rounded">
-                        <span>{e.title}</span>
+                        <span>{e.title} <span className="ml-2 text-xs text-zinc-400">({e.type})</span></span>
                         <button
                           onClick={() => handleDeleteEvent(e)}
                           className="text-red-400 hover:underline text-xs"

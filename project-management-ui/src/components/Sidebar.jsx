@@ -10,9 +10,9 @@ import {
   FaWallet,
   FaBars,
   FaTimes,
-  FaThLarge
-} 
-from 'react-icons/fa';
+  FaThLarge,
+  FaClock
+} from 'react-icons/fa';
 import { useState } from 'react';
 
 const navItems = [
@@ -20,13 +20,17 @@ const navItems = [
   { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
-  //projectdasboard-page
   { name: 'Budget', path: '/budget', icon: <FaWallet /> },
-  { name: 'Budget', path: '/budget', icon: <FaWallet /> },  // <-- small fix: lowercase "budget"
-  //main
+  { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },
-  { name: 'Stakeholders', path: '/stakeholders', icon: <FaUserTie /> },
 ];
+
+const PHASE_GROUPS = {
+  PLANNED: ['INITIATING', 'PLANNING'],
+  ACTIVE: ['EXECUTING'],
+  COMPLETED: ['MONITORING_CONTROLLING'],
+  ALL: [] // special case: no filter
+};
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -56,18 +60,14 @@ const Sidebar = () => {
           className="flex items-center gap-3 mb-10"
         >
           <img
-    projectdasboard-page
             src="/plump-logo.png"
-    //main
             alt="PLUMP Logo"
             className="w-10 h-10 object-contain"
           />
           <span className="text-2xl font-extrabold tracking-wide text-white">
             PLUMP
           </span>
-    
         </motion.div>
-    //main
       )}
 
       {/* Navigation */}
