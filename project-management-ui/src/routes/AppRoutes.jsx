@@ -25,14 +25,10 @@ import Budget from '../pages/Budget';
 // Error Pages
 import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
-//projectdasboard-page
-// Auth Wrapper
 
-// Other
-//main
+// Auth Wrapper
 import ProtectedRoute from './ProtectedRoute';
 import TimeTracking from '../pages/TimeTracking';
-
 
 const AppRoutes = () => (
   <Routes>
@@ -44,11 +40,7 @@ const AppRoutes = () => (
     <Route path="/signup" element={<Signup />} />
     <Route path="/forgot" element={<ForgotPassword />} />
 
-//projectdasboard-page
-    {/* Protected Routes (with sidebar + layout) */}
-//
-    {/* --- Protected Main App Pages (Inside Layout) --- */}
-//main
+    {/* Protected Routes with Main Layout */}
     <Route
       element={
         <ProtectedRoute>
@@ -56,32 +48,28 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     >
-      {/* Top-Level */}
+      {/* Main Pages */}
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/project-dashboard" element={<ProjectDashboard />} />
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/stakeholders" element={<Stakeholders />} />
-        <Route path="/time-tracking" element={<TimeTracking />} />
-          
-      {/* Nested Task Routes */}
-      <Route path="/projects/:name/tasks" element={<TaskList />} />
-      <Route path="/projects/:name/tasks/:id" element={<TaskDetails />} />
-      <Route path="/budget" element={<Budget />} />
+      <Route path="/time-tracking" element={<TimeTracking />} />
 
       {/* Project Routes */}
       <Route path="/projects/:id" element={<ProjectDetails />} />
       <Route path="/projects/:id/tasks" element={<TaskList />} />
       <Route path="/projects/:id/tasks/:taskId" element={<TaskDetails />} />
 
+      {/* Budget */}
+      <Route path="/budget" element={<Budget />} />
     </Route>
 
     {/* Error Pages */}
     <Route path="/500" element={<ServerError />} />
     <Route path="/404" element={<NotFound />} />
     <Route path="*" element={<NotFound />} />
-
   </Routes>
 );
 

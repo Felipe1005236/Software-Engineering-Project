@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fetchWrapper } from '../utils/fetchWrapper';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaArrowLeft } from 'react-icons/fa';
 
 const statusColors = {
   'Pending': 'bg-yellow-500',
@@ -27,14 +27,21 @@ const TaskList = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [name]);
 
   const fetchTasks = async () => {
+    setStatus({ loading: true, error: '', success: '' });
     try {
       const data = await fetchWrapper(`/api/projects/${name}/tasks`);
-      setTasks(data);
+      if (data) {
+        setTasks(data);
+        setStatus({ loading: false, error: '', success: '' });
+      } else {
+        throw new Error('Failed to fetch tasks');
+      }
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
+      setStatus({ loading: false, error: 'Failed to load tasks', success: '' });
       setTasks([]);
     }
   };
@@ -45,47 +52,70 @@ const TaskList = () => {
     setStatus({ loading: true, error: '', success: '' });
 
     try {
-      const saved = await fetchWrapper(`/api/projects/${name}/tasks`, 'POST', newTask);
-      const taskToAdd = saved || { ...newTask, id: Date.now() };
-      setTasks((prev) => [...prev, taskToAdd]);
-      setTimeout(() => lastTaskRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-      setStatus({ loading: false, error: '', success: 'Task added successfully!' });
+      const saved = await fetchWrapper(`/api/projects/${name}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify(newTask)
+      });
+      
+      if (saved) {
+        setTasks((prev) => [...prev, saved]);
+        setTimeout(() => lastTaskRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        setStatus({ loading: false, error: '', success: 'Task added successfully!' });
+        setNewTask({
+          title: '',
+          status: 'Pending',
+          percentageComplete: 0,
+          priority: 'Medium',
+          details: '',
+          dateID: 0,
+        });
+      } else {
+        throw new Error('Failed to save task');
+      }
     } catch (err) {
       console.error('Add task failed:', err);
-      const fallback = { ...newTask, id: Date.now() };
-      setTasks((prev) => [...prev, fallback]);
-      setStatus({ loading: false, error: '', success: 'Task added locally (no backend).' });
+      setStatus({ loading: false, error: 'Failed to add task', success: '' });
     }
-
-    setNewTask({
-      title: '',
-      status: 'Pending',
-      percentageComplete: 0,
-      priority: 'Medium',
-      details: '',
-      dateID: 0,
-    });
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this task?')) return;
+    
     try {
-      await fetchWrapper(`/api/projects/${name}/tasks/${id}`, 'DELETE');
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+      const response = await fetchWrapper(`/api/projects/${name}/tasks/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response) {
+        setTasks((prev) => prev.filter((t) => t.id !== id));
+        setStatus({ loading: false, error: '', success: 'Task deleted successfully!' });
+      } else {
+        throw new Error('Failed to delete task');
+      }
     } catch (err) {
       console.error('Delete failed:', err);
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+      setStatus({ loading: false, error: 'Failed to delete task', success: '' });
     }
   };
 
   return (
     <div className="p-6 space-y-8 text-white">
-      <motion.h1
-        className="text-3xl font-bold"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        🧩 Tasks for: {decodeURIComponent(name)}
-      </motion.h1>
+      <div className="flex justify-between items-center">
+        <motion.h1
+          className="text-3xl font-bold"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          🧩 Tasks for: {decodeURIComponent(name)}
+        </motion.h1>
+        <button
+          onClick={() => navigate(`/projects/${name}`)}
+          className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg border border-white/10"
+        >
+          <FaArrowLeft className="w-4 h-4" />
+          Back to Project
+        </button>
+      </div>
 
       <form
         onSubmit={handleAddTask}
@@ -128,7 +158,7 @@ const TaskList = () => {
             placeholder="Percentage Complete"
             value={newTask.percentageComplete}
             onChange={(e) =>
-              setNewTask({ ...newTask, percentageComplete: parseInt(e.target.value) })
+              setNewTask({ ...newTask, percentageComplete: parseInt(e.target.value) || 0 })
             }
             className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
           />
@@ -136,7 +166,7 @@ const TaskList = () => {
             type="number"
             placeholder="Date ID"
             value={newTask.dateID}
-            onChange={(e) => setNewTask({ ...newTask, dateID: parseInt(e.target.value) })}
+            onChange={(e) => setNewTask({ ...newTask, dateID: parseInt(e.target.value) || 0 })}
             className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
           />
         </div>
@@ -152,7 +182,9 @@ const TaskList = () => {
       {status.error && <p className="text-red-400 text-sm">{status.error}</p>}
       {status.success && <p className="text-green-400 text-sm">{status.success}</p>}
 
-      {tasks.length === 0 ? (
+      {status.loading && tasks.length === 0 ? (
+        <p className="text-zinc-500 italic">Loading tasks...</p>
+      ) : tasks.length === 0 ? (
         <p className="text-zinc-500 italic">No tasks yet. Start by adding one! 🚀</p>
       ) : (
         <motion.div
