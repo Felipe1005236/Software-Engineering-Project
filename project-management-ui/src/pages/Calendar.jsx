@@ -37,7 +37,7 @@ const Calendar = () => {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ title: '', alert: false });
+  const [formData, setFormData] = useState({ title: '', alert: false, type: 'MEETING' });
 
   useEffect(() => {
     const fetchAllEvents = async () => {
@@ -135,13 +135,14 @@ const Calendar = () => {
   };
 
   const handleAddEvent = async () => {
-    const newEvent = { ...formData, date: selectedDate };
+    const color = EVENT_TYPE_COLORS[formData.type] || EVENT_TYPE_COLORS.DEFAULT;
+    const newEvent = { ...formData, date: selectedDate, color };
     setEvents((prev) => [...prev, newEvent]);
-    setFormData({ title: '', alert: false });
+    setFormData({ title: '', alert: false, type: 'MEETING' });
     setShowModal(false);
 
     try {
-      await fetchWrapper('/api/calendar', {
+      await fetchWrapper('/api/calendar-events', {
         method: 'POST',
         body: JSON.stringify(newEvent)
       });
@@ -157,7 +158,7 @@ const Calendar = () => {
     setEvents(filtered);
 
     try {
-      await fetchWrapper('/api/calendar', {
+      await fetchWrapper('/api/calendar-events', {
         method: 'DELETE',
         body: JSON.stringify(eventToDelete)
       });
@@ -221,7 +222,7 @@ const Calendar = () => {
                   style={{ backgroundColor: event.color, color: '#fff' }}
                   className="flex items-center justify-between gap-1 px-1 py-0.5 text-xs rounded truncate"
                 >
-                  <span className="truncate">{event.title}</span>
+                  <span className="truncate">{event.title} <span className="ml-2 text-xs text-zinc-400">({event.type})</span></span>
                 </div>
               ))}
             </div>
@@ -275,13 +276,22 @@ const Calendar = () => {
                 <span>Set Alert</span>
               </label>
 
+              <select
+                className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2 text-white"
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              >
+                <option value="MEETING">Meeting</option>
+                <option value="APPOINTMENT">Appointment</option>
+              </select>
+
               {selectedDayEvents.length > 0 && (
                 <div className="text-sm text-zinc-400">
                   <p className="mb-1">Existing Events:</p>
                   <ul className="space-y-1">
                     {selectedDayEvents.map((e, i) => (
                       <li key={i} className="flex justify-between items-center text-white text-xs bg-zinc-800 p-2 rounded">
-                        <span>{e.title}</span>
+                        <span>{e.title} <span className="ml-2 text-xs text-zinc-400">({e.type})</span></span>
                         <button
                           onClick={() => handleDeleteEvent(e)}
                           className="text-red-400 hover:underline text-xs"

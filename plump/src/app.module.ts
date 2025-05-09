@@ -8,6 +8,7 @@ import { TimeTrackingModule } from './time-tracking/time-tracking.module';
 import { TaskModule } from './task/task.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BudgetModule } from './budget/budget.module';
+import { CalendarEventModule } from './calendar-event/calendar-event.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { BudgetModule } from './budget/budget.module';
     UserManagementModule,
     HealthStatusModule,
     TimeTrackingModule,
-    TaskModule
+    TaskModule,
+    CalendarEventModule
   ],
   controllers: [AppController],
   providers: [AppService],
