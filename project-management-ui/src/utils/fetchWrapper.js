@@ -13,22 +13,31 @@ export const fetchWrapper = async (url, options = {}) => {
       },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
+    let data;
 
-      // Handle common status codes
+    if (response.status === 204 || response.status === 304) {
+      data = null; // no content
+    } else {
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('[fetchWrapper Error] Failed to parse JSON:', parseError);
+        throw new Error('Invalid JSON response from server');
+      }
+    }
+
+    if (!response.ok) {
+      // Handle known errors
       if (response.status === 401) {
-        // Unauthorized - maybe redirect to login
         window.location.href = '/login';
       } else if (response.status === 500) {
-        // Server error - redirect to server error page
         window.location.href = '/500';
       }
 
-      throw new Error(errorData.message || 'API error');
+      throw new Error(data?.message || 'API error');
     }
 
-    return await response.json();
+    return data;
   } catch (err) {
     console.error('[fetchWrapper Error]', err);
     throw err;

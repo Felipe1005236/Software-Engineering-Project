@@ -9,6 +9,9 @@ import { TaskModule } from './task/task.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BudgetModule } from './budget/budget.module';
 import { CalendarEventModule } from './calendar-event/calendar-event.module';
+import { SearchController } from './searchBar_testing/search.controller';
+import { SearchService } from './searchBar_testing/search.service';
+import { DashboardController } from './dashboard/dashboard.controller';
 
 @Module({
   imports: [
@@ -21,7 +24,8 @@ import { CalendarEventModule } from './calendar-event/calendar-event.module';
     TaskModule,
     CalendarEventModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, SearchController],
+  providers: [AppService, DashboardController],
+
 })
 export class AppModule {}
