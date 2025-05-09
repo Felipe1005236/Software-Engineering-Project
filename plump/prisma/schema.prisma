@@ -91,6 +91,7 @@ model User {
   active         Boolean          @default(false)
   primaryRole    Role             @default(USER)
   type           Type             @default(INTERNAL)
+  password       String           // <-- Added for authentication
   unit           Unit?            @relation(fields: [unitID], references: [unitID])
   tasks          Task[]
   timeTracking   TimeTracking[]
