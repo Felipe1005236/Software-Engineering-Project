@@ -13,24 +13,39 @@ export class UserManagementService {
         ...createUserDto,
         active: createUserDto.active ?? false,  
         primaryRole: createUserDto.primaryRole ?? 'USER'  
+      },
+      include: {
+        unit: true
       }
     });
   }
 
   async findAll() {
-    return this.prisma.user.findMany();
+    return this.prisma.user.findMany({
+      include: {
+        unit: true,
+        teamMemberships: true
+      }
+    });
   }
 
   async findOne(id: number) {  
     return this.prisma.user.findUnique({
       where: { userID: id },
+      include: {
+        unit: true,
+        teamMemberships: true
+      }
     });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     return this.prisma.user.update({
       where: { userID: id },
-      data: updateUserDto
+      data: updateUserDto,
+      include: {
+        unit: true
+      }
     });
   }
 

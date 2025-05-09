@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe,Res, Patch, Post, Query } from '@nestjs/common'; 
+import { Body, Controller, Delete, Get, Param, ParseIntPipe,Res, Patch, Post, Query, UseGuards } from '@nestjs/common'; 
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { SearchProjectsDto } from './dto/search-projects.dto'; 
 import { Response } from 'express';
+import { ProjectAccessGuard, RequiredAccess } from '../common/guards/project-access.guard';
 
 @Controller('projects')
 export class ProjectsController {
@@ -69,16 +70,22 @@ export class ProjectsController {
   }
 
   @Get(':id')
+  @UseGuards(ProjectAccessGuard)
+  @RequiredAccess('READ_ONLY')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.findOne(id);
   }
   
   @Patch(':id')
+  @UseGuards(ProjectAccessGuard)
+  @RequiredAccess('READ_WRITE')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateProjectDto: UpdateProjectDto) {
     return this.projectsService.update(id, updateProjectDto);
   }
 
   @Delete(':id')
+  @UseGuards(ProjectAccessGuard)
+  @RequiredAccess('FULL_ACCESS')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.remove(id);
   }

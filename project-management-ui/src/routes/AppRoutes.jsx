@@ -23,6 +23,7 @@ import TaskDetails from '../pages/TaskDetails';
 import Risks from '../pages/Risks';
 import TimeTracking from '../pages/TimeTracking';
 import Budget from '../pages/Budget';
+import OrganizationManagement from '../pages/OrganizationManagement';
 
 // Error Pages
 import NotFound from '../pages/NotFound';
@@ -59,6 +60,7 @@ const AppRoutes = () => (
       <Route path="/risks" element={<Risks />} />
       <Route path="/time-tracking" element={<TimeTracking />} />
       <Route path="/budget" element={<Budget />} />
+      <Route path="/organization" element={<OrganizationManagement />} />
 
       {/* Nested Task Routes */}
       <Route path="/projects/:name/tasks" element={<TaskList />} />

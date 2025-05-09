@@ -1,4 +1,4 @@
-import { Role, Type, Team, Task} from '@prisma/client';
+import { Role, Type, Unit, Task, TeamMembership } from '@prisma/client';
 
 export interface User {
   userID: number;              
@@ -7,14 +7,14 @@ export interface User {
   email: string;  
   phone: string;             
   address: string;          
-  unit: string;            
-  unitManager: string;       
+  unitID: number;            
   activationDate: Date;       
   active: boolean;           
   primaryRole: Role;        
   type: Type;               
 
-  // Optional: Include relationships if needed
-  teams?: Team[];       // From Prisma schema
-  assignedTasks?: Task[];     // From Prisma schema
+  // Include relationships
+  unit: Unit;
+  teamMemberships?: TeamMembership[];
+  tasks?: Task[];
 }

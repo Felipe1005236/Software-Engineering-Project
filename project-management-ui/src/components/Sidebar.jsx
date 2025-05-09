@@ -11,7 +11,8 @@ import {
   FaBars,
   FaTimes,
   FaThLarge,
-  FaClock
+  FaClock,
+  FaBuilding
 } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -20,6 +21,7 @@ const navItems = [
   { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
   { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
   { name: 'Team', path: '/team', icon: <FaUsers /> },
+  { name: 'Organization', path: '/organization', icon: <FaBuilding /> },
   { name: 'Budget', path: '/budget', icon: <FaWallet /> },
   { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
   { name: 'Settings', path: '/settings', icon: <FaCogs /> },

@@ -12,6 +12,9 @@ import { CalendarEventModule } from './calendar-event/calendar-event.module';
 import { SearchController } from './searchBar_testing/search.controller';
 import { SearchService } from './searchBar_testing/search.service';
 import { DashboardController } from './dashboard/dashboard.controller';
+import { OrganizationModule } from './organization/organization.module';
+import { UnitModule } from './unit/unit.module';
+import { TeamMembershipModule } from './team-membership/team-membership.module';
 
 @Module({
   imports: [
@@ -22,7 +25,10 @@ import { DashboardController } from './dashboard/dashboard.controller';
     HealthStatusModule,
     TimeTrackingModule,
     TaskModule,
-    CalendarEventModule
+    CalendarEventModule,
+    OrganizationModule,
+    UnitModule,
+    TeamMembershipModule
   ],
   controllers: [AppController, SearchController, DashboardController],
   providers: [AppService, SearchService],

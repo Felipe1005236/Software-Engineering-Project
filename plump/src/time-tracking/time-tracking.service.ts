@@ -25,7 +25,11 @@ export class TimeTrackingService {
       include: {
         team: {
           include: {
-            users: true
+            members: {
+              include: {
+                user: true
+              }
+            }
           }
         }
       }
@@ -35,8 +39,9 @@ export class TimeTrackingService {
       throw new NotFoundException('Project or team not found');
     }
 
-    const userInTeam = project.team.users.find(u => u.userID === data.userID);
-    if (!userInTeam) {
+    // Find the user membership in the team
+    const userMembership = project.team.members.find(m => m.user.userID === data.userID);
+    if (!userMembership) {
       throw new NotFoundException('User is not part of the project team');
     }
 
@@ -60,7 +65,7 @@ export class TimeTrackingService {
         where: { timeTrackingID: existingEntry.timeTrackingID },
         data: {
           hoursSpent: newHours,
-          role: userInTeam.primaryRole
+          role: userMembership.role
         }
       });
     }
@@ -72,7 +77,7 @@ export class TimeTrackingService {
         projectID: data.projectID,
         dateWorked: date,
         hoursSpent: data.hoursSpent,
-        role: userInTeam.primaryRole
+        role: userMembership.role
       }
     });
   }

@@ -59,7 +59,11 @@ export class ProjectsService {
         },
         team: {
           include: {
-            users: true
+            members: {
+              include: {
+                user: true
+              }
+            }
           }
         }
       }

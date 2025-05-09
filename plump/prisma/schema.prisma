@@ -13,6 +13,17 @@ enum Role {
   MANAGER
 }
 
+enum TeamRole {
+  TEAM_LEAD
+  TEAM_MEMBER
+}
+
+enum AccessLevel {
+  READ_ONLY
+  READ_WRITE
+  FULL_ACCESS
+}
+
 enum Type {
   INTERNAL
   EXTERNAL
@@ -50,30 +61,61 @@ enum EventType {
   TASK_COMPLETION
 }
 
+model Organization {
+  organizationID  Int      @id @default(autoincrement())
+  name            String
+  description     String?
+  createdAt       DateTime @default(now())
+  units           Unit[]
+}
+
+model Unit {
+  unitID          Int         @id @default(autoincrement())
+  name            String
+  description     String?
+  manager         String      // Name of the manager (could be changed to reference a User)
+  organizationID  Int
+  organization    Organization @relation(fields: [organizationID], references: [organizationID])
+  users           User[]
+}
+
 model User {
-  userID         Int            @id @default(autoincrement())
+  userID         Int              @id @default(autoincrement())
   firstName      String
   lastName       String
-  email          String         @unique
+  email          String           @unique
   phone          String
   address        String
-  unit           String
-  unitManager    String
-  activationDate DateTime       @default(now())
-  active         Boolean        @default(false)
-  primaryRole    Role           @default(USER)
-  type           Type           @default(INTERNAL)
+  unitID         Int
+  activationDate DateTime         @default(now())
+  active         Boolean          @default(false)
+  primaryRole    Role             @default(USER)
+  type           Type             @default(INTERNAL)
+  unit           Unit             @relation(fields: [unitID], references: [unitID])
   tasks          Task[]
   timeTracking   TimeTracking[]
-  teams          Team[]         @relation("TeamToUser")
+  teamMemberships TeamMembership[]
+}
+
+model TeamMembership {
+  membershipID   Int         @id @default(autoincrement())
+  userID         Int
+  teamID         Int
+  teamRole       TeamRole    @default(TEAM_MEMBER)
+  accessLevel    AccessLevel @default(READ_ONLY)
+  joinedAt       DateTime    @default(now())
+  user           User        @relation(fields: [userID], references: [userID])
+  team           Team        @relation(fields: [teamID], references: [teamID])
+
+  @@unique([userID, teamID])
 }
 
 model Team {
-  teamID    Int      @id @default(autoincrement())
-  name      String
-  createdOn DateTime @default(now())
-  project   Project? @relation("TeamProject")
-  users     User[]   @relation("TeamToUser")
+  teamID         Int              @id @default(autoincrement())
+  name           String
+  createdOn      DateTime         @default(now())
+  project        Project?         @relation("TeamProject")
+  members        TeamMembership[]
 }
 
 model Project {
