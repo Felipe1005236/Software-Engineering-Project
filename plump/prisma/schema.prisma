@@ -134,22 +134,20 @@ model Task {
   comments           Comment[]
   user               User           @relation(fields: [userID], references: [userID])
   project            Project        @relation(fields: [projectID], references: [projectID])
-  timeTracking       TimeTracking[]
 }
 
 model TimeTracking {
   timeTrackingID Int      @id @default(autoincrement())
   userID         Int
   projectID      Int
-  taskID         Int?
   role           String
-  description    String?
   dateWorked     DateTime
   dateRecorded   DateTime @default(now())
   hoursSpent     Float
-  task           Task?    @relation(fields: [taskID], references: [taskID])
   project        Project  @relation(fields: [projectID], references: [projectID])
   user           User     @relation(fields: [userID], references: [userID])
+
+  @@unique([userID, projectID, dateWorked])
 }
 
 model Comment {

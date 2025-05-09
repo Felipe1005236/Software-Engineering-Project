@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsIn } from 'class-validator';
 
 export class CreateTimeEntryDto {
   @IsNotEmpty()
@@ -7,20 +7,13 @@ export class CreateTimeEntryDto {
   @IsNotEmpty()
   projectID: number;
 
-  @IsOptional()
-  taskID?: number;
-
   @IsDateString()
-  workedDate: string;
+  dateWorked: string;
 
   @IsNumber()
-  hoursWorked: number; 
+  hoursSpent: number;
 
   @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsNotEmpty()
-  @IsString()
-  role: string; 
+  @IsIn(['overwrite', 'accumulate'])
+  mode?: 'overwrite' | 'accumulate';
 }

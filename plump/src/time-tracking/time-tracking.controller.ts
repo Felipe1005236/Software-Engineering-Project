@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { TimeTrackingService } from './time-tracking.service';
-import { CreateTimeEntryDto } from './dto/create-time-entry.dto'; 
+import { CreateTimeEntryDto } from './dto/create-time-entry.dto';
 
 @Controller('time-tracking')
 export class TimeTrackingController {
@@ -8,17 +8,25 @@ export class TimeTrackingController {
 
   @Post()
   async trackTime(@Body() dto: CreateTimeEntryDto) {
-    const { userID, projectID, taskID, workedDate, hoursWorked, description, role } = dto;
+    const { userID, projectID, dateWorked, hoursSpent, mode } = dto;
 
-    return this.timeTrackingService.createTimeEntry({
-      dateWorked: new Date(workedDate),
-      hoursSpent: hoursWorked, // Changed from hoursWorked to hoursSpent
-      description,
-      role, // Added role
-      user: { connect: { userID } },
-      project: { connect: { projectID } },
-      ...(taskID && { task: { connect: { taskID } } }),
-    });
+    const timeEntryData = {
+      userID,
+      projectID,
+      dateWorked: new Date(dateWorked),
+      hoursSpent,
+      mode,
+    };
+
+    return this.timeTrackingService.createTimeEntry(timeEntryData);
+  }
+
+  @Get('monthly-capacity')
+  async getMonthlyCapacity(
+    @Query('userId') userId: number,
+    @Query('year') year: number = new Date().getFullYear()
+  ) {
+    return this.timeTrackingService.getMonthlyCapacity(userId, year);
   }
 
   @Get()
