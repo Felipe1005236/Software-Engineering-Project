@@ -24,8 +24,7 @@ import { DashboardController } from './dashboard/dashboard.controller';
     TaskModule,
     CalendarEventModule
   ],
-  controllers: [AppController, SearchController],
-  providers: [AppService, DashboardController],
-
+  controllers: [AppController, SearchController, DashboardController],
+  providers: [AppService, SearchService],
 })
 export class AppModule {}
