@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { motion } from 'framer-motion';
 
+const API_BASE_URL = 'http://localhost:3000/api';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +13,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ loading: true, message: '', error: false });
+    setStatus({ loading: false, message: '', error: false });
 
     // 🔐 Temporary dev login for frontend testing
     if (email === 'admin@example.com' && password === 'admin123') {
@@ -22,7 +24,7 @@ const Login = () => {
 
     // ✅ Backend login flow
     try {
-      const data = await fetchWrapper('/api/auth/login', {
+      const data = await fetchWrapper(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
