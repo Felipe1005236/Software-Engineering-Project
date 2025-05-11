@@ -29,7 +29,11 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      localStorage.setItem('token', data.token);
+      if (!data.access_token) {
+        throw new Error('Invalid response from server');
+      }
+
+      localStorage.setItem('token', data.access_token);
       navigate('/dashboard');
     } catch (err) {
       setStatus({

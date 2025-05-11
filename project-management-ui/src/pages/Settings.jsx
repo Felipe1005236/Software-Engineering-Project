@@ -68,15 +68,15 @@ const Settings = () => {
       return;
     }
     setStatus({ loading: true, message: '', error: false });
-    try {
+      try {
       await fetchWrapper(`${API_BASE_URL}/user-management/me`, {
         method: 'DELETE',
       });
       localStorage.removeItem('token');
       window.location.href = '/login';
-    } catch (err) {
+      } catch (err) {
       setStatus({ loading: false, message: err.message || 'Failed to delete account', error: true });
-    }
+      }
   };
 
   return (
@@ -181,11 +181,11 @@ const Settings = () => {
             </div>
             <div className="mb-4">
               <label className="block text-sm text-zinc-400 mb-1">New Password</label>
-              <input
-                type="password"
+            <input
+              type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full bg-zinc-700 p-2 rounded border border-zinc-600"
+              className="w-full bg-zinc-700 p-2 rounded border border-zinc-600"
                 required
               />
             </div>

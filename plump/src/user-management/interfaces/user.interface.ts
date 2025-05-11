@@ -1,17 +1,17 @@
 import { Role, Type, TeamRole, AccessLevel } from '@prisma/client';
 
 export interface User {
-  userID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
+  userID: number;              
+  firstName: string;          
+  lastName: string;          
+  email: string;  
+  phone: string;             
+  address: string;          
   unitID: number | null;
-  activationDate: Date;
-  active: boolean;
-  primaryRole: Role;
-  type: Type;
+  activationDate: Date;       
+  active: boolean;           
+  primaryRole: Role;        
+  type: Type;               
   password: string;
   unit: {
     unitID: number;

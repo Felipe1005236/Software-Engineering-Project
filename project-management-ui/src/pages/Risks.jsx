@@ -274,13 +274,13 @@ const RiskCard = ({ risk, onEdit, onDelete }) => {
 const RiskModal = ({ isOpen, onClose, onSave, initialData }) => {
   const [formData, setFormData] = useState(
     initialData || {
-      title: '',
-      description: '',
-      probability: 'Medium',
-      impact: 'Medium',
-      responsePlan: '',
-      owner: '',
-      status: 'Open',
+    title: '',
+    description: '',
+    probability: 'Medium',
+    impact: 'Medium',
+    responsePlan: '',
+    owner: '',
+    status: 'Open',
     }
   );
 
@@ -316,7 +316,7 @@ const RiskModal = ({ isOpen, onClose, onSave, initialData }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <motion.div
+    <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="bg-zinc-900 rounded-lg p-6 w-full max-w-lg border border-white/10"
@@ -384,28 +384,28 @@ const RiskModal = ({ isOpen, onClose, onSave, initialData }) => {
               className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
             />
           </div>
-          <div>
+            <div>
             <label className="block text-sm text-zinc-400 mb-1">Owner</label>
-            <input
-              type="text"
-              name="owner"
-              value={formData.owner}
-              onChange={handleChange}
+              <input
+                type="text"
+                name="owner"
+                value={formData.owner}
+                onChange={handleChange}
               className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
-            />
-          </div>
-          <div>
+              />
+            </div>
+            <div>
             <label className="block text-sm text-zinc-400 mb-1">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
               className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
-            >
+              >
               <option>Open</option>
               <option>Occurring</option>
               <option>Resolved</option>
-            </select>
+              </select>
           </div>
           <div className="flex justify-end gap-3 mt-6">
             <button

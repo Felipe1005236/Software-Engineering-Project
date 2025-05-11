@@ -40,7 +40,7 @@ export class TaskService {
       // Use a transaction to ensure data consistency
       return await this.prisma.$transaction(async (prisma) => {
         const taskData: Prisma.TaskCreateInput = {
-          title,
+      title,
           details,
           status,
           percentageComplete,

@@ -274,13 +274,13 @@ const Calendar = () => {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
 
-              <input
+                <input
                 type="text"
                 className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2"
                 placeholder="Description (optional)"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
+                />
 
               <select
                 className="w-full p-2 rounded bg-zinc-800 border border-zinc-600 mt-2 text-white"

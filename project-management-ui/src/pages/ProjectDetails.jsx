@@ -178,7 +178,7 @@ const ProjectDetails = () => {
                   </>
                 )}
               </div>
-            </div>
+        </div>
             
             {project.health && (
               <div className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle">
@@ -197,7 +197,7 @@ const ProjectDetails = () => {
           {project.budget && (
             <div>
               <h2 className="text-2xl font-bold mb-6 text-white">Budget Overview</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle">
                   <h3 className="text-lg font-semibold mb-4 text-zinc-300">Budget Details</h3>
                   <div className="space-y-2">
@@ -207,29 +207,29 @@ const ProjectDetails = () => {
                   </div>
                 </div>
                 <div className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={[
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={[
                           { name: 'Total Budget', value: project.budget.totalBudget },
                           { name: 'Actual Cost', value: project.budget.actualCost },
                           { name: 'Forecast Cost', value: project.budget.forecastCost }
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        label
-                        dataKey="value"
-                      >
-                        {COLORS.map((color, idx) => <Cell key={idx} fill={color} />)}
-                      </Pie>
+                ]}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label
+                dataKey="value"
+              >
+                {COLORS.map((color, idx) => <Cell key={idx} fill={color} />)}
+              </Pie>
                       <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }} />
                       <Legend wrapperStyle={{ color: '#fff' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
               </div>
-            </div>
+          </div>
           )}
         </div>
       )}
@@ -246,8 +246,8 @@ const ProjectDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-zinc-400 text-sm mb-1">Title</label>
-                  <input
-                    type="text"
+            <input
+              type="text"
                     required
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
@@ -305,7 +305,7 @@ const ProjectDetails = () => {
                 
                 <div>
                   <label className="block text-zinc-400 text-sm mb-1">Target Date</label>
-                  <input
+            <input
                     type="date"
                     value={newTaskTargetDate}
                     onChange={(e) => setNewTaskTargetDate(e.target.value)}
@@ -344,10 +344,10 @@ const ProjectDetails = () => {
                 </div>
               ))}
             </div>
+            </div>
           </div>
-        </div>
-      )}
-      
+        )}
+
       {activeTab === 'team' && (
         <div>
           <h2 className="text-2xl font-bold mb-6 text-white flex items-center">
@@ -365,7 +365,7 @@ const ProjectDetails = () => {
               <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
                 Create Project Team
               </button>
-            </div>
+              </div>
           )}
         </div>
       )}

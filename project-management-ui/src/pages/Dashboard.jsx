@@ -40,7 +40,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true);
+    setLoading(true);
       setError(null);
       const response = await fetch(`${API_BASE_URL}/projects`, fetchOptions);
       if (!response.ok) throw new Error('Failed to fetch projects');
@@ -103,10 +103,10 @@ const Dashboard = () => {
 
       {/* Search Results */}
       {searchResults && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
           className="bg-zinc-800 border border-white/10 rounded-xl p-4 space-y-4 text-sm"
         >
           <h2 className="text-lg font-semibold text-white">🔍 Search Results</h2>
@@ -150,15 +150,15 @@ const Dashboard = () => {
                     <Link to="/team" className="text-indigo-400 hover:underline">
                       {user.firstName} {user.lastName} ({user.email})
                     </Link>
-                  </li>
-                ))}
-              </ul>
+            </li>
+          ))}
+        </ul>
             </div>
           )}
           {!searchResults.projects?.length && !searchResults.tasks?.length && !searchResults.users?.length && (
             <p className="text-zinc-400">No results found.</p>
           )}
-        </motion.div>
+      </motion.div>
       )}
 
       {/* Stats Grid */}
@@ -195,12 +195,12 @@ const Dashboard = () => {
         >
           <div className="flex items-center">
             <FaCalendarAlt className="text-purple-400 text-2xl mr-3" />
-            <div>
+              <div>
               <h3 className="text-lg font-semibold text-zinc-300">Planned Projects</h3>
               <p className="text-2xl font-bold text-white">{stats.plannedProjects}</p>
             </div>
           </div>
-        </div>
+              </div>
 
         <div
           className={`cursor-pointer bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle ${selectedGroup === 'COMPLETED' ? 'ring-2 ring-orange-400' : ''}`}
@@ -247,7 +247,7 @@ const Dashboard = () => {
                     {project.team?.name || 'Not assigned'}
                   </td>
                 </tr>
-              ))}
+          ))}
             </tbody>
           </table>
         </div>

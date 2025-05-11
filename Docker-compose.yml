@@ -11,6 +11,8 @@ services:
     volumes:
       - ./backend:/app
       - ./plump/prisma/dev.db:/app/prisma/dev.db
+    environment:
+      - DATABASE_URL=file:./prisma/data/dev.db
 
   frontend:
     build:
