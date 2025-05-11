@@ -187,11 +187,11 @@ const TimeTracking = () => {
         transition={{ delay: 0.1 }}
       >
         {/* Table header for months */}
-        <div className="grid grid-cols-[180px_60px_repeat(12,70px)_auto] gap-1 px-4 py-2 text-zinc-400 font-semibold bg-zinc-900/60 rounded-t-lg">
-          <span>User</span>
-          <span>Total</span>
+        <div className="grid grid-cols-[160px_56px_repeat(12,48px)_auto] gap-0.5 px-2 py-1 text-zinc-400 font-semibold bg-zinc-900/60 rounded-t-lg text-xs">
+          <span className="truncate">User</span>
+          <span className="truncate">Total</span>
           {months.map(month => (
-            <span key={month} className="text-center">{month}</span>
+            <span key={month} className="text-center truncate">{month}</span>
           ))}
           <span></span>
         </div>
@@ -200,10 +200,10 @@ const TimeTracking = () => {
           return (
             <div key={user.userID} className="bg-zinc-800/60 backdrop-blur border border-white/10 rounded-b-lg overflow-hidden">
               <div 
-                className="grid grid-cols-[180px_60px_repeat(12,70px)_auto] gap-1 items-center px-4 py-2 cursor-pointer hover:bg-zinc-700/30 transition"
+                className="grid grid-cols-[160px_56px_repeat(12,48px)_auto] gap-0.5 items-center px-2 py-1 cursor-pointer hover:bg-zinc-700/30 transition text-xs"
                 onClick={() => setExpandedUser(expandedUser === user.userID ? null : user.userID)}
               >
-                <span className="text-lg font-medium truncate">{user.firstName} {user.lastName}</span>
+                <span className="font-medium truncate">{user.firstName} {user.lastName}</span>
                 <span className="text-zinc-400 font-semibold">{monthlyTotals.reduce((a, b) => a + b, 0).toFixed(1)}h</span>
                 {monthlyTotals.map((hours, idx) => (
                   <span key={idx} className="text-center text-zinc-200">{hours.toFixed(1)}h</span>
@@ -214,10 +214,10 @@ const TimeTracking = () => {
                     setSelectedUser(user);
                     setShowTimeEntryForm(true);
                   }}
-                  className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded hover:bg-blue-500/30 border border-blue-500/30 transition flex items-center space-x-2"
+                  className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded hover:bg-blue-500/30 border border-blue-500/30 transition flex items-center space-x-2 text-xs"
                 >
-                  <FaPlus size={12} />
-                  <span>Add Hours</span>
+                  <FaPlus size={10} />
+                  <span>Add</span>
                 </button>
                 <span className="justify-self-end">{expandedUser === user.userID ? <FaChevronUp /> : <FaChevronDown />}</span>
               </div>
@@ -231,20 +231,20 @@ const TimeTracking = () => {
                     className="overflow-hidden"
                   >
                     {/* Expanded: Table layout, projects as rows, months as columns */}
-                    <div className="px-4 py-2 border-t border-white/10">
+                    <div className="px-2 py-1 border-t border-white/10">
                       <table className="min-w-full text-xs table-fixed">
                         <colgroup>
-                          <col style={{ width: '180px' }} />
+                          <col style={{ width: '160px' }} />
                           {months.map((_, idx) => (
-                            <col key={idx} style={{ width: '70px' }} />
+                            <col key={idx} style={{ width: '48px' }} />
                           ))}
                           <col style={{ width: '1px' }} />
                         </colgroup>
                         <thead>
                           <tr>
-                            <th className="bg-zinc-900/60 rounded-tl p-2 text-zinc-400 font-semibold text-left w-[180px]">Project</th>
+                            <th className="bg-zinc-900/60 p-1 text-zinc-400 font-semibold text-left w-[160px]">Project</th>
                             {months.map((month, idx) => (
-                              <th key={month} className="bg-zinc-900/60 p-2 text-zinc-400 font-semibold text-center w-[70px]">{month}</th>
+                              <th key={month} className="bg-zinc-900/60 p-1 text-zinc-400 font-semibold text-center w-[48px]">{month}</th>
                             ))}
                             <th className="w-[1px]"></th>
                           </tr>
@@ -252,11 +252,11 @@ const TimeTracking = () => {
                         <tbody>
                           {Object.values(getProjectMonthMatrix(user.userID, selectedYear)).map((proj, i) => (
                             <tr key={i}>
-                              <td className="bg-zinc-900/60 rounded-l p-2 text-zinc-200 font-medium truncate w-[180px]">{proj.project}</td>
+                              <td className="bg-zinc-900/60 p-1 text-zinc-200 font-medium truncate w-[160px]">{proj.project}</td>
                               {proj.months.map((hours, idx) => (
                                 <td
                                   key={idx}
-                                  className="bg-zinc-900/40 rounded p-2 min-h-[40px] text-blue-400 text-center relative group cursor-pointer w-[70px]"
+                                  className="bg-zinc-900/40 p-1 min-h-[32px] text-blue-400 text-center relative group cursor-pointer w-[48px]"
                                 >
                                   {hours > 0 ? (
                                     <>
