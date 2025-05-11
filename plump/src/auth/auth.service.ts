@@ -37,19 +37,6 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
-    const payload = { email: user.email, sub: user.userID };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user,
-    };
-  }
-}
-    const { password: _, ...result } = user;
-    return result;
-  }
-
-  async login(email: string, password: string) {
-    const user = await this.validateUser(email, password);
     const payload = { 
       email: user.email, 
       userId: user.userID,
@@ -58,7 +45,7 @@ export class AuthService {
     
     return {
       access_token: this.jwtService.sign(payload),
-    D user: user,
+      user: user,
     };
   }
 }
