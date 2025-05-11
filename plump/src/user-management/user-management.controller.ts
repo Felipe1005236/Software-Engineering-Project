@@ -59,7 +59,7 @@ export class UserManagementController {
     if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }
-    return this.userService.remove(userId);
+    return this.userService.remove(userID);
   }
 
   @Patch(':id')
