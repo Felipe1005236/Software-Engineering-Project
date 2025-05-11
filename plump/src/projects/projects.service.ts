@@ -40,8 +40,24 @@ export class ProjectsService {
   }  
 
   // Get all projects
-  async findAll() {
-    return this.prisma.project.findMany();
+  findAll(where?: any) {
+    return this.prisma.project.findMany({
+      where,
+      include: {
+        team: {
+          include: {
+            members: {
+              include: {
+                user: true
+              }
+            }
+          }
+        },
+        budget: true,
+        health: true,
+        dates: true
+      }
+    });
   }
 
   // Get one project by ID

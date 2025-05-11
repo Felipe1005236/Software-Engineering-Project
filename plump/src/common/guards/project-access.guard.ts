@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, SetMetadata } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, SetMetadata, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { TeamMembershipService } from '../../team-membership/team-membership.service';
 
@@ -7,6 +7,8 @@ export const RequiredAccess = (access: 'READ_ONLY' | 'READ_WRITE' | 'FULL_ACCESS
 
 @Injectable()
 export class ProjectAccessGuard implements CanActivate {
+  private readonly logger = new Logger(ProjectAccessGuard.name);
+
   constructor(
     private reflector: Reflector,
     private teamMembershipService: TeamMembershipService,
@@ -18,11 +20,14 @@ export class ProjectAccessGuard implements CanActivate {
     
     // Extract user ID from request (depends on your auth implementation)
     const userId = request.user?.userID;
+    this.logger.debug(`User ID from request: ${userId}`);
     
     // Extract project ID from params
     const { id } = request.params;
+    this.logger.debug(`Project ID from params: ${id}`);
     
     if (!userId || !id) {
+      this.logger.debug('Missing userId or project id');
       return false;
     }
 
@@ -32,7 +37,8 @@ export class ProjectAccessGuard implements CanActivate {
       +id,
       requiredAccess as any
     );
-
+    
+    this.logger.debug(`Access check result: ${JSON.stringify(accessCheck)}`);
     return accessCheck.hasAccess;
   }
 } 

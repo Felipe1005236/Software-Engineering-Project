@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaClipboardList, FaUsers, FaChartLine, FaCalendarAlt } from 'react-icons/fa';
+import { fetchWrapper } from '../utils/fetchWrapper';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 const fetchOptions = {
@@ -40,11 +41,9 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-    setLoading(true);
+      setLoading(true);
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/projects`, fetchOptions);
-      if (!response.ok) throw new Error('Failed to fetch projects');
-      const projects = await response.json();
+      const projects = await fetchWrapper('/projects');
       setAllProjects(projects);
       setStats({
         totalProjects: projects.length,

@@ -15,15 +15,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     console.log('JWT payload in validate:', payload);
-    // Handle both userId and userID in payload
-    const userID = parseInt(payload.userID || payload.userId, 10);
+    const userID = parseInt(payload.userId, 10);
     if (isNaN(userID)) {
       throw new UnauthorizedException('Invalid user ID in token');
     }
   
     // Verify user exists
     const user = await this.prisma.user.findUnique({
-      where: { userID: userID }
+      where: { userID }
     });
   
     if (!user) {
@@ -31,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
   
     const result = { 
-      userID: userID,
+      userID,
       email: payload.email, 
       role: payload.role 
     };

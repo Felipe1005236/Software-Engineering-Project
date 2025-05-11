@@ -13,16 +13,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ loading: false, message: '', error: false });
+    setStatus({ loading: true, message: '', error: false });
 
-    // 🔐 Temporary dev login for frontend testing
-    if (email === 'admin@example.com' && password === 'admin123') {
-      localStorage.setItem('token', 'mock_token');
-      navigate('/dashboard');
-      return;
-    }
-
-    // ✅ Backend login flow
     try {
       const data = await fetchWrapper(`${API_BASE_URL}/auth/login`, {
         method: 'POST',

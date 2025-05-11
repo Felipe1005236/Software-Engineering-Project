@@ -32,7 +32,7 @@ export class UserManagementController {
   @Get('me')
   async getCurrentUser(@Request() req): Promise<User | null> {
     console.log('req.user in /me:', req.user);
-    const userId = Number(req.user?.userID || req.user?.userId);
+    const userId = Number(req.user?.userID);
     if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }
@@ -45,7 +45,7 @@ export class UserManagementController {
     @Request() req,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<User | null> {
-    const userId = Number(req.user?.userID || req.user?.userId);
+    const userId = Number(req.user?.userID);
     if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }
@@ -55,7 +55,7 @@ export class UserManagementController {
   @UseGuards(JwtAuthGuard)
   @Delete('me')
   async deleteCurrentUser(@Request() req): Promise<{ deleted: boolean }> {
-    const userId = Number(req.user?.userID || req.user?.userId);
+    const userId = Number(req.user?.userID);
     if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }

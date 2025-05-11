@@ -41,11 +41,11 @@ const TeamMembershipManager = ({ teamId, projectId }) => {
       setError(null);
 
       // Fetch existing team memberships
-      const memberships = await fetchWrapper(`/api/team-memberships/team/${teamId}`);
+      const memberships = await fetchWrapper(`/team-memberships/team/${teamId}`);
       setMemberships(memberships);
 
       // Fetch users not yet in the team (for add modal)
-      const users = await fetchWrapper('/api/users');
+      const users = await fetchWrapper('/user-management');
       const teamUserIds = memberships.map(m => m.userID);
       setAvailableUsers(users.filter(user => !teamUserIds.includes(user.userID)));
 
@@ -60,7 +60,7 @@ const TeamMembershipManager = ({ teamId, projectId }) => {
   const handleAddMember = async (e) => {
     e.preventDefault();
     try {
-      const newMembership = await fetchWrapper('/api/team-memberships', {
+      const newMembership = await fetchWrapper('/team-memberships', {
         method: 'POST',
         body: JSON.stringify({
           userID: parseInt(formData.userID),
@@ -92,7 +92,7 @@ const TeamMembershipManager = ({ teamId, projectId }) => {
   const handleUpdateMember = async (e) => {
     e.preventDefault();
     try {
-      const updatedMembership = await fetchWrapper(`/api/team-memberships/${selectedMembership.userID}/${teamId}`, {
+      const updatedMembership = await fetchWrapper(`/team-memberships/${selectedMembership.userID}/${teamId}`, {
         method: 'PUT',
         body: JSON.stringify({
           teamRole: formData.teamRole,
@@ -120,7 +120,7 @@ const TeamMembershipManager = ({ teamId, projectId }) => {
     }
 
     try {
-      await fetchWrapper(`/api/team-memberships/${membership.userID}/${teamId}`, {
+      await fetchWrapper(`/team-memberships/${membership.userID}/${teamId}`, {
         method: 'DELETE'
       });
 

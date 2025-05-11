@@ -3,16 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaChevronDown, FaChevronUp, FaPlus } from 'react-icons/fa';
-
-const API_BASE_URL = 'http://localhost:3000/api';
-const fetchOptions = {
-  method: 'GET',
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-};
+import { fetchWrapper } from '../utils/fetchWrapper';
 
 const months = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -51,20 +42,10 @@ const TimeTracking = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [usersResponse, timeLogsResponse, projectsResponse] = await Promise.all([
-          fetch('http://localhost:3000/api/user-management'),
-          fetch('http://localhost:3000/api/time-tracking'),
-          fetch('http://localhost:3000/api/projects')
-        ]);
-        
-        if (!usersResponse.ok || !timeLogsResponse.ok || !projectsResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
         const [usersData, timeLogsData, projectsData] = await Promise.all([
-          usersResponse.json(),
-          timeLogsResponse.json(),
-          projectsResponse.json()
+          fetchWrapper('/user-management'),
+          fetchWrapper('/time-tracking'),
+          fetchWrapper('/projects')
         ]);
 
         setUsers(usersData);
@@ -84,8 +65,7 @@ const TimeTracking = () => {
   const handleAddTimeEntry = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_BASE_URL}/time-tracking`, {
-        ...fetchOptions,
+      await fetchWrapper('/time-tracking', {
         method: 'POST',
         body: JSON.stringify({
           userID: selectedUser.userID,
@@ -95,15 +75,9 @@ const TimeTracking = () => {
           mode: addMode,
         }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add time entry');
-      }
       
       // Refresh time logs
-      const updatedLogsResponse = await fetch(`${API_BASE_URL}/time-tracking`, fetchOptions);
-      const updatedLogs = await updatedLogsResponse.json();
+      const updatedLogs = await fetchWrapper('/time-tracking');
       setTimeLogs(updatedLogs);
       
       // Reset form

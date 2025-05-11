@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { motion } from 'framer-motion';
 
-const API_BASE_URL = 'http://localhost:3000/api';
-
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('account');
   const [firstName, setFirstName] = useState('');
@@ -17,10 +15,12 @@ const Settings = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const data = await fetchWrapper(`${API_BASE_URL}/user-management/me`);
+        const data = await fetchWrapper('/user-management/me');
         setFirstName(data.firstName);
         setLastName(data.lastName);
         setEmail(data.email);
+        // If you need the user ID for any reason, use data.userID
+        // Example: setUserId(data.userID);
       } catch (err) {
         setStatus({ loading: false, message: err.message || 'Failed to fetch user data', error: true });
       }
@@ -32,7 +32,7 @@ const Settings = () => {
     e.preventDefault();
     setStatus({ loading: true, message: '', error: false });
     try {
-      await fetchWrapper(`${API_BASE_URL}/user-management/me`, {
+      await fetchWrapper('/user-management/me', {
         method: 'PATCH',
         body: JSON.stringify({ firstName, lastName, email }),
       });
@@ -50,7 +50,7 @@ const Settings = () => {
     }
     setStatus({ loading: true, message: '', error: false });
     try {
-      await fetchWrapper(`${API_BASE_URL}/user-management/me`, {
+      await fetchWrapper('/user-management/me', {
         method: 'PATCH',
         body: JSON.stringify({ password: newPassword }),
       });
@@ -68,15 +68,15 @@ const Settings = () => {
       return;
     }
     setStatus({ loading: true, message: '', error: false });
-      try {
-      await fetchWrapper(`${API_BASE_URL}/user-management/me`, {
+    try {
+      await fetchWrapper('/user-management/me', {
         method: 'DELETE',
       });
       localStorage.removeItem('token');
       window.location.href = '/login';
-      } catch (err) {
+    } catch (err) {
       setStatus({ loading: false, message: err.message || 'Failed to delete account', error: true });
-      }
+    }
   };
 
   return (

@@ -1,14 +1,20 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe,Res, Patch, Post, Query, UseGuards } from '@nestjs/common'; 
+import { Body, Controller, Delete, Get, Param, ParseIntPipe,Res, Patch, Post, Query, UseGuards, Request } from '@nestjs/common'; 
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { SearchProjectsDto } from './dto/search-projects.dto'; 
 import { Response } from 'express';
 import { ProjectAccessGuard, RequiredAccess } from '../common/guards/project-access.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { TeamMembershipService } from '../team-membership/team-membership.service';
 
 @Controller('projects')
+@UseGuards(JwtAuthGuard)
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly teamMembershipService: TeamMembershipService
+  ) {}
 
   @Get('dashboard')
   async getDashboardStats() {
@@ -45,8 +51,16 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  async findAll(@Request() req) {
+    const userId = req.user.userID;
+    const teamMemberships = await this.teamMembershipService.findByUser(userId);
+    const teamIds = teamMemberships.map(membership => membership.teamID);
+    
+    return this.projectsService.findAll({
+      teamID: {
+        in: teamIds
+      }
+    });
   }
 
   @Get('search')

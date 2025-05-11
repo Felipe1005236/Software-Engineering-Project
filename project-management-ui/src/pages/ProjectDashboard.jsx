@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaClipboardList, FaPlus } from 'react-icons/fa';
+import { fetchWrapper } from '../utils/fetchWrapper';
 
 const iconMap = {
   default: <FaClipboardList className="text-blue-400 text-2xl" />,
@@ -28,19 +29,18 @@ export default function ProjectDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/projects`)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
+    const fetchProjects = async () => {
+      try {
+        const data = await fetchWrapper('/projects');
         if (Array.isArray(data)) setProjects(data);
         else setProjects([]);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error fetching projects:', err);
         setError(err.message);
-      });
+      }
+    };
+    
+    fetchProjects();
   }, []);
 
   const filteredProjects = projects.filter((p) =>
