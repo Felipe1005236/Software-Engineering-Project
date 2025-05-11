@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { fetchWrapper } from '../utils/fetchWrapper'; // make sure this exists
 
 export default function CreateOrganization() {
   const [form, setForm] = useState({ name: '', description: '' });
@@ -16,33 +15,44 @@ export default function CreateOrganization() {
 
   const handleNext = async (e) => {
     e.preventDefault();
-    
+
     if (!form.name.trim()) {
       setError('Organization name is required.');
       return;
     }
+
     setError('');
     setLoading(true);
 
     try {
-      const response = await fetchWrapper('/api/organizations', {
+      const response = await fetch('http://localhost:3000/api/organizations', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       });
 
-      if (!response || !response.organizationID) {
-        throw new Error('Failed to create organization');
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Server error: ${errText}`);
+      }
+
+      const data = await response.json();
+      const orgID = data?.organizationID;
+
+      if (!orgID) {
+        throw new Error('Invalid response: organization ID not found.');
       }
 
       localStorage.setItem('orgDraft', JSON.stringify({
         ...form,
-        organizationID: response.organizationID
+        organizationID: orgID
       }));
 
       navigate('/units');
+
     } catch (err) {
-      console.error(err);
-      setError(err.message || 'An error occurred while creating the organization');
+      console.error('Create org error:', err);
+      setError(err.message || 'An error occurred while creating the organization.');
     } finally {
       setLoading(false);
     }
