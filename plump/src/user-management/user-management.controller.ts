@@ -31,10 +31,12 @@ export class UserManagementController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getCurrentUser(@Request() req): Promise<User | null> {
-    if (!req.user || typeof req.user.userId !== 'number') {
+    console.log('req.user in /me:', req.user);
+    const userId = Number(req.user?.userId);
+    if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }
-    return this.userService.findOne(req.user.userId);
+    return this.userService.findOne(userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -43,19 +45,21 @@ export class UserManagementController {
     @Request() req,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<User | null> {
-    if (!req.user || typeof req.user.userId !== 'number') {
+    const userId = Number(req.user?.userId);
+    if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }
-    return this.userService.update(req.user.userId, updateUserDto);
+    return this.userService.update(userId, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('me')
   async deleteCurrentUser(@Request() req): Promise<{ deleted: boolean }> {
-    if (!req.user || typeof req.user.userId !== 'number') {
+    const userId = Number(req.user?.userId);
+    if (!req.user || isNaN(userId)) {
       throw new BadRequestException('Invalid token');
     }
-    return this.userService.remove(req.user.userId);
+    return this.userService.remove(userId);
   }
 
   @Patch(':id')

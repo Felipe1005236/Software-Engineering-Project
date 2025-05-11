@@ -13,6 +13,7 @@ services:
       - ./plump/prisma/dev.db:/app/prisma/dev.db
     environment:
       - DATABASE_URL=file:./prisma/data/dev.db
+      - JWT_SECRET=mySecretKey
 
   frontend:
     build:
@@ -20,5 +21,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:80" 
+    environment:
+      - JWT_SECRET=mySecretKey
     depends_on:
       - backend 
