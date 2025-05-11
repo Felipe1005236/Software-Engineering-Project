@@ -6,6 +6,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPlus, FaClipboardCheck, FaUsers, FaChartLine, FaUsersCog } from 'react-icons/fa';
 import TeamMembershipManager from '../components/TeamMembershipManager';
+import { fetchWrapper } from '../utils/fetchWrapper';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -52,9 +53,7 @@ const ProjectDetails = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`${API_BASE_URL}/projects/${id}`, fetchOptions);
-        if (!response.ok) throw new Error('Failed to fetch project details');
-        const data = await response.json();
+        const data = await fetchWrapper(`${API_BASE_URL}/projects/${id}`);
         setProject(data);
       } catch (err) {
         setError(err.message);
