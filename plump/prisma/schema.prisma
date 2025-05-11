@@ -10,7 +10,6 @@ datasource db {
 enum Role {
   USER
   ADMIN
-  MANAGER
 }
 
 enum TeamRole {
@@ -73,7 +72,8 @@ model Unit {
   unitID          Int         @id @default(autoincrement())
   name            String
   description     String?
-  manager         String      // Name of the manager (could be changed to reference a User)
+  managerID       Int?        @unique
+  manager         User?       @relation("UnitManager", fields: [managerID], references: [userID])
   organizationID  Int
   organization    Organization @relation(fields: [organizationID], references: [organizationID])
   users           User[]
@@ -93,6 +93,7 @@ model User {
   type           Type             @default(INTERNAL)
   password       String           // <-- Added for authentication
   unit           Unit?            @relation(fields: [unitID], references: [unitID])
+  managedUnit    Unit?            @relation("UnitManager")
   tasks          Task[]
   timeTracking   TimeTracking[]
   teamMemberships TeamMembership[]

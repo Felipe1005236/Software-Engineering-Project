@@ -9,9 +9,9 @@ export class CreateUnitDto {
   @IsOptional()
   description?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  manager: string;
+  @IsNumber()
+  @IsOptional()
+  managerID?: number;
 
   @IsNumber()
   @IsNotEmpty()

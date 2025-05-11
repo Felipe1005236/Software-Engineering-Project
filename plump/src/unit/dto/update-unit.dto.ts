@@ -9,9 +9,9 @@ export class UpdateUnitDto {
   @IsOptional()
   description?: string;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  manager?: string;
+  managerID?: number;
 
   @IsNumber()
   @IsOptional()
