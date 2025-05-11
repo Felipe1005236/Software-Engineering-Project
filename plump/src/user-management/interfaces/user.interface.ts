@@ -17,7 +17,7 @@ export interface User {
     unitID: number;
     name: string;
     description: string | null;
-    manager: string;
+    managerID: number | null;
     organizationID: number;
   } | null;
   teamMemberships: Array<{
