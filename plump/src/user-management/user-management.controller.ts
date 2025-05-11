@@ -30,36 +30,32 @@ export class UserManagementController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getCurrentUser(@Request() req): Promise<User | null> {
-    console.log('req.user in /me:', req.user);
-    const userId = Number(req.user?.userID);
-    if (!req.user || isNaN(userId)) {
-      throw new BadRequestException('Invalid token');
+  async getCurrentUser(@Request() req) {
+    console.log('Request user:', req.user);
+    if (!req.user || !req.user.userID) {
+      throw new BadRequestException('Invalid user');
     }
-    return this.userService.findOne(userId);
+    const user = await this.userService.findOne(req.user.userID);
+    console.log('User data:', user);
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  async updateCurrentUser(
-    @Request() req,
-    @Body() updateUserDto: UpdateUserDto
-  ): Promise<User | null> {
-    const userId = Number(req.user?.userID);
-    if (!req.user || isNaN(userId)) {
-      throw new BadRequestException('Invalid token');
+  async updateCurrentUser(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    if (!req.user || !req.user.userID) {
+      throw new BadRequestException('Invalid user');
     }
-    return this.userService.update(userId, updateUserDto);
+    return this.userService.update(req.user.userID, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('me')
-  async deleteCurrentUser(@Request() req): Promise<{ deleted: boolean }> {
-    const userId = Number(req.user?.userID);
-    if (!req.user || isNaN(userId)) {
-      throw new BadRequestException('Invalid token');
+  async deleteCurrentUser(@Request() req) {
+    if (!req.user || !req.user.userID) {
+      throw new BadRequestException('Invalid user');
     }
-    return this.userService.remove(userId);
+    return this.userService.remove(req.user.userID);
   }
 
   @Patch(':id')

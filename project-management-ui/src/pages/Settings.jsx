@@ -15,13 +15,16 @@ const Settings = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        console.log('Fetching user data...');
         const data = await fetchWrapper('/user-management/me');
+        console.log('User data received:', data);
         setFirstName(data.firstName);
         setLastName(data.lastName);
         setEmail(data.email);
         // If you need the user ID for any reason, use data.userID
         // Example: setUserId(data.userID);
       } catch (err) {
+        console.error('Error fetching user data:', err);
         setStatus({ loading: false, message: err.message || 'Failed to fetch user data', error: true });
       }
     };
