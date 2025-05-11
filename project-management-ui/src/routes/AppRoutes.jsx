@@ -8,6 +8,8 @@ import Pricing from '../pages/Pricing';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 import ForgotPassword from '../pages/ForgotPassword';
+import CreateOrganization from '../pages/CreateOrganization'; 
+import UnitManagement from '../pages/UnitManagement';
 
 // Protected Pages (with MainLayout)
 import Dashboard from '../pages/Dashboard';
@@ -41,6 +43,8 @@ const AppRoutes = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
     <Route path="/forgot" element={<ForgotPassword />} />
+    <Route path="/create-org" element={<CreateOrganization />} /> { }
+    <Route path="/units" element={<UnitManagement />} /> 
 
     {/* Protected Routes (with sidebar + layout) */}
     <Route
