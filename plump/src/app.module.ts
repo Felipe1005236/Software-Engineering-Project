@@ -16,9 +16,11 @@ import { OrganizationModule } from './organization/organization.module';
 import { UnitModule } from './unit/unit.module';
 import { TeamMembershipModule } from './team-membership/team-membership.module';
 import { AuthModule } from './auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     PrismaModule,
     BudgetModule,
     ProjectsModule,
@@ -30,7 +32,7 @@ import { AuthModule } from './auth/auth.module';
     OrganizationModule,
     UnitModule,
     TeamMembershipModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController, SearchController, DashboardController],
   providers: [AppService, SearchService],
