@@ -5,6 +5,9 @@ import { FaCircle, FaPlus } from 'react-icons/fa';
 
 const Team = () => {
   const [teamMembers, setTeamMembers] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [unitForm, setUnitForm] = useState({ name: '', description: '' });
+  const [unitStatus, setUnitStatus] = useState({ loading: false, message: '', error: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [newRole, setNewRole] = useState('');
@@ -12,6 +15,7 @@ const Team = () => {
 
   useEffect(() => {
     fetchTeam();
+    fetchUnits();
   }, []);
 
   const fetchTeam = async () => {
@@ -42,7 +46,7 @@ const Team = () => {
           status: 'Idle',
         },
         {
-          firstName: 'Milicia',
+          firstName: 'Milica',
           lastName: 'Tadic',
           email: 'milicia@example.com',
           primaryRole: 'MANAGER',
@@ -52,6 +56,44 @@ const Team = () => {
           status: 'Offline',
         },
       ]);
+    }
+  };
+
+  const fetchUnits = async () => {
+    try {
+      const data = await fetchWrapper('/api/units');
+      setUnits(data);
+    } catch (err) {
+      setUnits([
+        { name: 'Frontend', description: 'UI/UX and client-side logic' },
+        { name: 'Backend', description: 'APIs and server logic' },
+        { name: 'QA', description: 'Testing and quality assurance' },
+      ]);
+    }
+  };
+
+  const handleUnitFormChange = (e) => {
+    const { name, value } = e.target;
+    setUnitForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddUnit = async (e) => {
+    e.preventDefault();
+    if (!unitForm.name.trim()) {
+      setUnitStatus({ loading: false, message: '', error: 'Unit name is required.' });
+      return;
+    }
+    setUnitStatus({ loading: true, message: '', error: '' });
+    try {
+      await fetchWrapper('/api/units', {
+        method: 'POST',
+        body: JSON.stringify({ name: unitForm.name, description: unitForm.description }),
+      });
+      setUnitStatus({ loading: false, message: 'Unit created!', error: '' });
+      setUnitForm({ name: '', description: '' });
+      fetchUnits();
+    } catch (err) {
+      setUnitStatus({ loading: false, message: '', error: 'Failed to create unit.' });
     }
   };
 
@@ -90,6 +132,44 @@ const Team = () => {
 
   return (
     <div className="p-6 space-y-10 text-white">
+      <motion.div className="mb-10" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl font-bold mb-4">🏢 Units</h1>
+        <form onSubmit={handleAddUnit} className="flex flex-col sm:flex-row items-center gap-2 bg-zinc-900/60 border border-white/10 backdrop-blur-md p-3 rounded-xl shadow-subtle mb-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Unit name"
+            value={unitForm.name}
+            onChange={handleUnitFormChange}
+            className="bg-zinc-800 border border-zinc-700 text-sm p-2 rounded w-48"
+          />
+          <input
+            type="text"
+            name="description"
+            placeholder="Description (optional)"
+            value={unitForm.description}
+            onChange={handleUnitFormChange}
+            className="bg-zinc-800 border border-zinc-700 text-sm p-2 rounded w-64"
+          />
+          <button
+            type="submit"
+            className="bg-indigo-600 hover:bg-indigo-500 text-sm px-3 py-2 rounded text-white transition"
+            disabled={unitStatus.loading}
+          >
+            {unitStatus.loading ? 'Adding...' : <><FaPlus className="inline" /> Add Unit</>}
+          </button>
+        </form>
+        {unitStatus.message && <p className="text-green-400 text-sm mb-2">{unitStatus.message}</p>}
+        {unitStatus.error && <p className="text-red-400 text-sm mb-2">{unitStatus.error}</p>}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {units.map((unit, i) => (
+            <div key={i} className="bg-zinc-900/60 backdrop-blur-md p-5 rounded-xl border border-white/10 shadow-subtle">
+              <h2 className="text-lg font-semibold">{unit.name}</h2>
+              <p className="text-zinc-400 text-sm">{unit.description}</p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
       <motion.div className="flex justify-between items-center" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-bold">👥 Team Members</h1>
 
