@@ -5,9 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserManagementModule } from '../user-management/user-management.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtStrategy } from './jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     UserManagementModule,
     PrismaModule,
     JwtModule.register({
