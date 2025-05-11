@@ -102,14 +102,6 @@ export default function UnitManagement() {
             {status.loading ? 'Creating...' : 'Create Unit'}
           </button>
         </form>
-        {status.message && !status.error && (
-          <button
-            className="w-full p-3 rounded font-medium transition bg-green-500 hover:bg-green-600 mt-2"
-            onClick={() => navigate('/dashboard')}
-          >
-            Go to Dashboard
-          </button>
-        )}
       </motion.div>
     </div>
   );
