@@ -20,16 +20,16 @@ export class ProjectAccessGuard implements CanActivate {
     const userId = request.user?.userID;
     
     // Extract project ID from params
-    const { projectId } = request.params;
+    const { id } = request.params;
     
-    if (!userId || !projectId) {
+    if (!userId || !id) {
       return false;
     }
 
     // Check project access
     const accessCheck = await this.teamMembershipService.checkProjectAccess(
       +userId,
-      +projectId,
+      +id,
       requiredAccess as any
     );
 
