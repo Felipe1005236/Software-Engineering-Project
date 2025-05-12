@@ -17,6 +17,7 @@ import { UnitModule } from './unit/unit.module';
 import { TeamMembershipModule } from './team-membership/team-membership.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
+import { CommentController } from './comment/comment.controller';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { PassportModule } from '@nestjs/passport';
     TeamMembershipModule,
     AuthModule,
   ],
-  controllers: [AppController, SearchController, DashboardController],
+  controllers: [AppController, SearchController, DashboardController, CommentController],
   providers: [AppService, SearchService],
 })
 export class AppModule {}
