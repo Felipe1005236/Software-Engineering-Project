@@ -32,6 +32,11 @@ export class TeamMembershipController {
     return this.teamMembershipService.findByTeam(+teamId);
   }
 
+  @Get('team/:teamId/org/:orgId')
+  findByTeamAndOrg(@Param('teamId') teamId: string, @Param('orgId') orgId: string) {
+    return this.teamMembershipService.findByTeamAndOrganization(+teamId, +orgId);
+  }
+
   @Get('check-access/:userId/:projectId/:requiredAccess')
   checkAccess(
     @Param('userId') userId: string,

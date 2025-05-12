@@ -62,6 +62,13 @@ export class TeamMembershipService {
     });
   }
 
+  async findByTeamAndOrganization(teamId: number, organizationId: number) {
+    return this.prisma.teamMembership.findMany({
+      where: { teamID: teamId, user: { unit: { organizationID: organizationId } } },
+      include: { user: true }
+    });
+  }
+
   // Check if a user has access to a specific project
   async checkProjectAccess(userId: number, projectId: number, requiredAccess: AccessLevel = 'READ_ONLY') {
     // Find the project to get its team ID

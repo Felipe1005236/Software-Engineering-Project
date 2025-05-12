@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { FaCircle, FaPlus } from 'react-icons/fa';
+import { useUser } from '../contexts/UserContext';
+
+const API_BASE_URL = 'http://localhost:3000/api';
 
 const Team = () => {
+  const { user, loading: userLoading } = useUser();
   const [teamMembers, setTeamMembers] = useState([]);
   const [units, setUnits] = useState([]);
   const [unitForm, setUnitForm] = useState({ name: '', description: '' });
@@ -14,13 +18,24 @@ const Team = () => {
   const [status, setStatus] = useState({ loading: false, message: '', error: '' });
 
   useEffect(() => {
-    fetchTeam();
-    fetchUnits();
-  }, []);
+    if (!userLoading && user) {
+      fetchTeam();
+    }
+  }, [userLoading, user]);
+
+  useEffect(() => {
+    if (!userLoading && user) {
+      fetchUnits();
+    }
+  }, [userLoading, user]);
 
   const fetchTeam = async () => {
     try {
-      const data = await fetchWrapper('/api/team');
+      if (!user?.organizationId) {
+        console.warn('No organization ID available');
+        return;
+      }
+      const data = await fetchWrapper(`/team-memberships/org/${user.organizationId}`);
       setTeamMembers(data);
     } catch (err) {
       console.warn('Using fallback team. Backend offline.');
@@ -61,7 +76,11 @@ const Team = () => {
 
   const fetchUnits = async () => {
     try {
-      const data = await fetchWrapper('/api/units');
+      if (!user) {
+        console.warn('No user available');
+        return;
+      }
+      const data = await fetchWrapper('/units');
       setUnits(data);
     } catch (err) {
       setUnits([
@@ -85,7 +104,7 @@ const Team = () => {
     }
     setUnitStatus({ loading: true, message: '', error: '' });
     try {
-      await fetchWrapper('/api/units', {
+      await fetchWrapper('/units', {
         method: 'POST',
         body: JSON.stringify({ name: unitForm.name, description: unitForm.description }),
       });
@@ -117,7 +136,10 @@ const Team = () => {
     setNewRole('');
 
     try {
-      await fetchWrapper('/api/team/invite', 'POST', { email: inviteEmail, role: newRole });
+      await fetchWrapper('/team/invite', {
+        method: 'POST',
+        body: JSON.stringify({ email: inviteEmail, role: newRole }),
+      });
       setStatus({ loading: false, message: 'Invite sent!', error: '' });
     } catch (err) {
       console.error('Invite failed:', err);
