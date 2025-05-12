@@ -20,15 +20,6 @@ export class UserManagementController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User | null> {
-    const userID = parseInt(id, 10);
-    if (isNaN(userID)) {
-      throw new BadRequestException('Invalid user ID');
-    }
-    return this.userService.findOne(userID);
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getCurrentUser(@Request() req): Promise<User | null> {
@@ -46,6 +37,17 @@ export class UserManagementController {
     }
     return this.userService.findOne(userID);
   }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<User | null> {
+    const userID = parseInt(id, 10);
+    if (isNaN(userID)) {
+      throw new BadRequestException('Invalid user ID');
+    }
+    return this.userService.findOne(userID);
+  }
+
+
 
   @Get('me-test')
   getMeTest(@Request() req) {
