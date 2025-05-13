@@ -23,11 +23,11 @@ export class ProjectAccessGuard implements CanActivate {
     const userRole = request.user?.role;
     this.logger.debug(`User ID from request: ${userId}, Role: ${userRole}`);
     
-    // Extract project ID from params
-    const { id } = request.params;
-    this.logger.debug(`Project ID from params: ${id}`);
+    // Extract project ID from params (check both 'id' and 'projectId')
+    const projectId = request.params.id || request.params.projectId;
+    this.logger.debug(`Project ID from params: ${projectId}`);
     
-    if (!userId || !id) {
+    if (!userId || !projectId) {
       this.logger.debug('Missing userId or project id');
       return false;
     }
@@ -41,7 +41,7 @@ export class ProjectAccessGuard implements CanActivate {
     // Check project access for non-admin users
     const accessCheck = await this.teamMembershipService.checkProjectAccess(
       +userId,
-      +id,
+      +projectId,
       requiredAccess as any
     );
     

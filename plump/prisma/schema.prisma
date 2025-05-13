@@ -140,6 +140,7 @@ model Project {
   dates        ProjectDates?
   tasks        Task[]
   timeTracking TimeTracking[]
+  stakeholders Stakeholder[]
 }
 
 model Budget {
@@ -243,5 +244,14 @@ model Request {
   updatedAt      DateTime     @updatedAt
   organization   Organization @relation(fields: [organizationID], references: [organizationID])
   unit           Unit         @relation(fields: [unitID], references: [unitID])
+}
+
+model Stakeholder {
+  stakeholderID Int      @id @default(autoincrement())
+  name          String
+  projectID     Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  project       Project  @relation(fields: [projectID], references: [projectID])
 }
 
