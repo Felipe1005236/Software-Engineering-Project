@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fetchWrapper } from '../utils/fetchWrapper';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 import { useUser } from '../contexts/UserContext';
 
 const statusColors = {
@@ -27,6 +27,7 @@ const TaskList = () => {
   });
   const [status, setStatus] = useState({ loading: false, error: '', success: '' });
   const lastTaskRef = useRef(null);
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -60,19 +61,36 @@ const TaskList = () => {
     };
 
     try {
-      const saved = await fetchWrapper(`/api/projects/${name}/tasks`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      const taskToAdd = saved || { ...payload, id: Date.now() };
-      setTasks((prev) => [...prev, taskToAdd]);
-      setTimeout(() => lastTaskRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-      setStatus({ loading: false, error: '', success: 'Task added successfully!' });
+      if (editingTask) {
+        // Update existing task - fixed path and method
+        await fetchWrapper(`/tasks/${editingTask}`, {
+          method: 'PATCH', // Changed from PUT to PATCH to match backend controller
+          body: payload, // No need for JSON.stringify with fetchWrapper
+        });
+        
+        // Update local state
+        setTasks(tasks.map(task => 
+          task.id === editingTask ? { ...task, ...payload } : task
+        ));
+        
+        setStatus({ loading: false, error: '', success: 'Task updated successfully!' });
+      } else {
+        // Create new task - fixed path
+        const saved = await fetchWrapper(`/tasks`, {
+          method: 'POST',
+          body: payload, // No need for JSON.stringify with fetchWrapper
+        });
+        const taskToAdd = saved || { ...payload, id: Date.now() };
+        setTasks((prev) => [...prev, taskToAdd]);
+        setTimeout(() => lastTaskRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        setStatus({ loading: false, error: '', success: 'Task added successfully!' });
+      }
     } catch (err) {
-      console.error('Add task failed:', err);
-      setStatus({ loading: false, error: err.message || 'Failed to add task', success: '' });
+      console.error(`Task ${editingTask ? 'update' : 'add'} failed:`, err);
+      setStatus({ loading: false, error: err.message || `Failed to ${editingTask ? 'update' : 'add'} task`, success: '' });
     }
 
+    // Reset form and editing state
     setNewTask({
       title: '',
       status: 'Pending',
@@ -82,16 +100,36 @@ const TaskList = () => {
       startDate: '',
       targetDate: '',
     });
+    setEditingTask(null);
   };
 
   const handleDelete = async (id) => {
     try {
-      await fetchWrapper(`/api/projects/${name}/tasks/${id}`, 'DELETE');
+      // Fixed delete path
+      await fetchWrapper(`/tasks/${id}`, {
+        method: 'DELETE'
+      });
       setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error('Delete failed:', err);
       setTasks((prev) => prev.filter((t) => t.id !== id));
     }
+  };
+
+  const handleEditTask = (task, e) => {
+    e.stopPropagation(); // Prevent navigation to task details
+    setEditingTask(task.id);
+    setNewTask({
+      title: task.title,
+      status: task.status,
+      percentageComplete: task.percentageComplete,
+      priority: task.priority,
+      details: task.details || '',
+      startDate: task.startDate || '',
+      targetDate: task.targetDate || '',
+    });
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -108,6 +146,8 @@ const TaskList = () => {
         onSubmit={handleAddTask}
         className="flex flex-col gap-3 bg-zinc-900/60 backdrop-blur-md border border-white/10 p-4 rounded-2xl shadow-subtle"
       >
+        <h3 className="text-lg font-semibold">{editingTask ? 'Edit Task' : 'Add New Task'}</h3>
+        
         <input
           type="text"
           placeholder="Task title"
@@ -164,13 +204,36 @@ const TaskList = () => {
             className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
           />
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded text-sm font-medium transition self-start"
-          disabled={status.loading}
-        >
-          {status.loading ? 'Adding...' : '+ Add Task'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded text-sm font-medium transition"
+            disabled={status.loading}
+          >
+            {status.loading ? 'Processing...' : editingTask ? 'Update Task' : '+ Add Task'}
+          </button>
+          
+          {editingTask && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingTask(null);
+                setNewTask({
+                  title: '',
+                  status: 'Pending',
+                  percentageComplete: 0,
+                  priority: 'Medium',
+                  details: '',
+                  startDate: '',
+                  targetDate: '',
+                });
+              }}
+              className="px-4 py-2 bg-zinc-600 hover:bg-zinc-500 rounded text-sm font-medium transition"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
       </form>
 
       {status.error && <p className="text-red-400 text-sm">{status.error}</p>}
@@ -213,15 +276,23 @@ const TaskList = () => {
                 {task.status}
               </span>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(task.id);
-                }}
-                className="absolute top-3 right-3 text-red-500 hover:text-red-400 text-xs"
-              >
-                <FaTrash />
-              </button>
+              <div className="absolute top-3 right-3 flex gap-2">
+                <button
+                  onClick={(e) => handleEditTask(task, e)}
+                  className="text-yellow-500 hover:text-yellow-400 text-xs"
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(task.id);
+                  }}
+                  className="text-red-500 hover:text-red-400 text-xs"
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </motion.div>
           ))}
         </motion.div>

@@ -4,7 +4,7 @@ import {
   Legend, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaPlus, FaClipboardCheck, FaUsers, FaChartLine, FaUsersCog, FaUserCircle } from 'react-icons/fa';
+import { FaPlus, FaClipboardCheck, FaUsers, FaChartLine, FaUsersCog, FaUserCircle, FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';
 import TeamMembershipManager from '../components/TeamMembershipManager';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { motion } from 'framer-motion';
@@ -33,6 +33,8 @@ const PRIORITY_OPTIONS = [
   'HIGH'
 ];
 
+const HEALTH_OPTIONS = ['GREEN', 'YELLOW', 'RED'];
+
 const ProjectDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -47,12 +49,30 @@ const ProjectDetails = () => {
   const [newTaskPercentage, setNewTaskPercentage] = useState(0);
   const [newTaskStartDate, setNewTaskStartDate] = useState('');
   const [newTaskTargetDate, setNewTaskTargetDate] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState(null);
   
   // Stakeholders state
   const [stakeholders, setStakeholders] = useState([]);
   const [stakeholderForm, setStakeholderForm] = useState({ name: '' });
   const [editingStakeholderIndex, setEditingStakeholderIndex] = useState(null);
   const [showStakeholderForm, setShowStakeholderForm] = useState(false);
+
+  const [editingProjectDetails, setEditingProjectDetails] = useState(false);
+  const [projectForm, setProjectForm] = useState({
+    title: '',
+    status: '',
+    phase: '',
+    startDate: '',
+    targetDate: '',
+    teamId: '',
+    health: {
+      scope: 'GREEN',
+      schedule: 'GREEN',
+      cost: 'GREEN',
+      resource: 'GREEN',
+      overall: 'GREEN'
+    }
+  });
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -62,6 +82,23 @@ const ProjectDetails = () => {
         
         const data = await fetchWrapper(`/projects/${id}`);
         setProject(data);
+        
+        // Initialize project form with fetched data
+        setProjectForm({
+          title: data.title || '',
+          status: data.status || 'PROPOSED',
+          phase: data.phase || 'INITIATING',
+          startDate: data.dates?.startDate || '',
+          targetDate: data.dates?.targetDate || '',
+          teamId: data.team?.teamID || '',
+          health: {
+            scope: data.health?.scope || 'GREEN',
+            schedule: data.health?.schedule || 'GREEN',
+            cost: data.health?.cost || 'GREEN',
+            resource: data.health?.resource || 'GREEN',
+            overall: data.health?.overall || 'GREEN'
+          }
+        });
         
         // Fetch stakeholders data
         try {
@@ -86,10 +123,37 @@ const ProjectDetails = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_BASE_URL}/tasks`, {
-        ...fetchOptions,
+      if (editingTaskId) {
+        // Update existing task
+        const updatedTask = await fetchWrapper(`/tasks/${editingTaskId}`, {
+          method: 'PATCH',
+          body: {
+            title: newTaskTitle,
+            details: newTaskDescription,
+            projectID: parseInt(id),
+            status: newTaskStatus,
+            percentageComplete: Number(newTaskPercentage),
+            priority: newTaskPriority,
+            startDate: newTaskStartDate,
+            targetDate: newTaskTargetDate
+          }
+        });
+        
+        // Update UI
+        setProject(prev => ({
+          ...prev,
+          tasks: prev.tasks.map(task => 
+            task.taskID === editingTaskId ? updatedTask : task
+          )
+        }));
+        
+        // Reset editing state
+        setEditingTaskId(null);
+      } else {
+        // Create new task
+        const newTask = await fetchWrapper(`/tasks`, {
         method: 'POST',
-        body: JSON.stringify({
+          body: {
           title: newTaskTitle,
           details: newTaskDescription,
           projectID: parseInt(id),
@@ -99,14 +163,16 @@ const ProjectDetails = () => {
           priority: newTaskPriority,
           startDate: newTaskStartDate,
           targetDate: newTaskTargetDate
-        })
+          }
       });
-      if (!response.ok) throw new Error('Failed to create task');
-      const newTask = await response.json();
+        
       setProject(prev => ({
         ...prev,
         tasks: [newTask, ...prev.tasks]
       }));
+      }
+      
+      // Reset form
       setNewTaskTitle('');
       setNewTaskDescription('');
       setNewTaskStatus('PROPOSED');
@@ -116,7 +182,41 @@ const ProjectDetails = () => {
       setNewTaskTargetDate('');
     } catch (err) {
       setError(err.message);
-      console.error('Error creating task:', err);
+      console.error('Error with task operation:', err);
+    }
+  };
+  
+  const handleEditTask = (task) => {
+    setEditingTaskId(task.taskID);
+    setNewTaskTitle(task.title);
+    setNewTaskDescription(task.details || '');
+    setNewTaskStatus(task.status);
+    setNewTaskPriority(task.priority);
+    setNewTaskPercentage(task.percentageComplete || 0);
+    setNewTaskStartDate(task.startDate || '');
+    setNewTaskTargetDate(task.targetDate || '');
+    
+    // Scroll to form
+    document.getElementById('taskForm')?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  const handleDeleteTask = async (taskId) => {
+    if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      try {
+        // Use fetchWrapper instead of fetch
+        await fetchWrapper(`/tasks/${taskId}`, {
+          method: 'DELETE'
+        });
+        
+        // Update UI
+        setProject(prev => ({
+          ...prev,
+          tasks: prev.tasks.filter(task => task.taskID !== taskId)
+        }));
+      } catch (err) {
+        setError(err.message);
+        console.error('Error deleting task:', err);
+      }
     }
   };
 
@@ -196,6 +296,60 @@ const ProjectDetails = () => {
     setShowStakeholderForm(true);
   };
 
+  const handleEditProject = () => {
+    setEditingProjectDetails(true);
+  };
+  
+  const handleCancelEdit = () => {
+    // Reset form to current project values
+    setProjectForm({
+      title: project.title || '',
+      status: project.status || 'PROPOSED',
+      phase: project.phase || 'INITIATING',
+      startDate: project.dates?.startDate || '',
+      targetDate: project.dates?.targetDate || '',
+      teamId: project.team?.teamID || '',
+      health: {
+        scope: project.health?.scope || 'GREEN',
+        schedule: project.health?.schedule || 'GREEN',
+        cost: project.health?.cost || 'GREEN',
+        resource: project.health?.resource || 'GREEN',
+        overall: project.health?.overall || 'GREEN'
+      }
+    });
+    setEditingProjectDetails(false);
+  };
+  
+  const handleUpdateProject = async () => {
+    try {
+      // Use fetchWrapper instead of fetch
+      const updatedProject = await fetchWrapper(`/projects/${id}`, {
+        method: 'PATCH',
+        body: {
+          title: projectForm.title,
+          status: projectForm.status,
+          phase: projectForm.phase,
+          teamId: projectForm.teamId ? parseInt(projectForm.teamId, 10) : undefined,
+          startDate: projectForm.startDate,
+          targetDate: projectForm.targetDate,
+          health: {
+            scope: projectForm.health.scope,
+            schedule: projectForm.health.schedule,
+            cost: projectForm.health.cost,
+            resource: projectForm.health.resource,
+            overall: projectForm.health.overall
+          }
+        }
+      });
+      
+      setProject(updatedProject);
+      setEditingProjectDetails(false);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error updating project:', err);
+    }
+  };
+
   if (loading) return <div className="p-6 text-white">Loading...</div>;
   if (error) return <div className="p-6 text-white text-red-500">Error: {error}</div>;
   if (!project) return <div className="p-6 text-white">Project not found</div>;
@@ -266,9 +420,37 @@ const ProjectDetails = () => {
       {activeTab === 'details' && (
         <div className="space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle">
-              <h2 className="text-lg font-semibold mb-4 text-zinc-300">Project Details</h2>
+            <div className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle relative">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-zinc-300">Project Details</h2>
+                {!editingProjectDetails ? (
+                  <button 
+                    onClick={handleEditProject}
+                    className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-1"
+                  >
+                    <FaEdit /> Edit
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleUpdateProject}
+                      className="text-green-500 hover:text-green-400 text-sm flex items-center gap-1"
+                    >
+                      <FaSave /> Save
+                    </button>
+                    <button 
+                      onClick={handleCancelEdit}
+                      className="text-red-500 hover:text-red-400 text-sm flex items-center gap-1"
+                    >
+                      <FaTimes /> Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {!editingProjectDetails ? (
               <div className="space-y-2">
+                  <p><span className="font-medium text-zinc-400">Title:</span> <span className="text-white">{project.title}</span></p>
                 <p><span className="font-medium text-zinc-400">Status:</span> <span className="text-white">{project.status}</span></p>
                 <p><span className="font-medium text-zinc-400">Phase:</span> <span className="text-white">{project.phase}</span></p>
                 <p><span className="font-medium text-zinc-400">Team:</span> <span className="text-white">{project.team?.name || 'Not assigned'}</span></p>
@@ -282,11 +464,76 @@ const ProjectDetails = () => {
                   </>
                 )}
               </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm text-zinc-400 mb-1">Title</label>
+                    <input 
+                      type="text"
+                      value={projectForm.title}
+                      onChange={(e) => setProjectForm({...projectForm, title: e.target.value})}
+                      className="bg-zinc-700 p-2 rounded w-full"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-zinc-400 mb-1">Status</label>
+                    <select
+                      value={projectForm.status}
+                      onChange={(e) => setProjectForm({...projectForm, status: e.target.value})}
+                      className="bg-zinc-700 p-2 rounded w-full"
+                    >
+                      {STATUS_OPTIONS.map(status => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-zinc-400 mb-1">Phase</label>
+                    <select
+                      value={projectForm.phase}
+                      onChange={(e) => setProjectForm({...projectForm, phase: e.target.value})}
+                      className="bg-zinc-700 p-2 rounded w-full"
+                    >
+                      <option value="INITIATING">INITIATING</option>
+                      <option value="PLANNING">PLANNING</option>
+                      <option value="EXECUTING">EXECUTING</option>
+                      <option value="MONITORING_CONTROLLING">MONITORING_CONTROLLING</option>
+                      <option value="CLOSING">CLOSING</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-zinc-400 mb-1">Start Date</label>
+                    <input 
+                      type="date"
+                      value={projectForm.startDate}
+                      onChange={(e) => setProjectForm({...projectForm, startDate: e.target.value})}
+                      className="bg-zinc-700 p-2 rounded w-full"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-zinc-400 mb-1">Target Date</label>
+                    <input 
+                      type="date"
+                      value={projectForm.targetDate}
+                      onChange={(e) => setProjectForm({...projectForm, targetDate: e.target.value})}
+                      className="bg-zinc-700 p-2 rounded w-full"
+                    />
+                  </div>
+                </div>
+              )}
         </div>
             
             {project.health && (
               <div className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle">
-                <h2 className="text-lg font-semibold mb-4 text-zinc-300">Health Status</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-zinc-300">Health Status</h2>
+                </div>
+                
+                {!editingProjectDetails ? (
                 <div className="grid grid-cols-2 gap-4">
                   <p><span className="font-medium text-zinc-400">Scope:</span> <span className={`text-${project.health.scope.toLowerCase()}-400`}>{project.health.scope}</span></p>
                   <p><span className="font-medium text-zinc-400">Schedule:</span> <span className={`text-${project.health.schedule.toLowerCase()}-400`}>{project.health.schedule}</span></p>
@@ -294,6 +541,94 @@ const ProjectDetails = () => {
                   <p><span className="font-medium text-zinc-400">Resource:</span> <span className={`text-${project.health.resource.toLowerCase()}-400`}>{project.health.resource}</span></p>
                   <p className="col-span-2"><span className="font-medium text-zinc-400">Overall:</span> <span className={`text-${project.health.overall.toLowerCase()}-400`}>{project.health.overall}</span></p>
                 </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-1">Scope</label>
+                      <select
+                        value={projectForm.health.scope}
+                        onChange={(e) => setProjectForm({
+                          ...projectForm, 
+                          health: {...projectForm.health, scope: e.target.value}
+                        })}
+                        className="bg-zinc-700 p-2 rounded w-full border-l-4"
+                        style={{borderLeftColor: getHealthColor(projectForm.health.scope)}}
+                      >
+                        {HEALTH_OPTIONS.map(status => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-1">Schedule</label>
+                      <select
+                        value={projectForm.health.schedule}
+                        onChange={(e) => setProjectForm({
+                          ...projectForm, 
+                          health: {...projectForm.health, schedule: e.target.value}
+                        })}
+                        className="bg-zinc-700 p-2 rounded w-full border-l-4"
+                        style={{borderLeftColor: getHealthColor(projectForm.health.schedule)}}
+                      >
+                        {HEALTH_OPTIONS.map(status => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-1">Cost</label>
+                      <select
+                        value={projectForm.health.cost}
+                        onChange={(e) => setProjectForm({
+                          ...projectForm, 
+                          health: {...projectForm.health, cost: e.target.value}
+                        })}
+                        className="bg-zinc-700 p-2 rounded w-full border-l-4"
+                        style={{borderLeftColor: getHealthColor(projectForm.health.cost)}}
+                      >
+                        {HEALTH_OPTIONS.map(status => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm text-zinc-400 mb-1">Resource</label>
+                      <select
+                        value={projectForm.health.resource}
+                        onChange={(e) => setProjectForm({
+                          ...projectForm, 
+                          health: {...projectForm.health, resource: e.target.value}
+                        })}
+                        className="bg-zinc-700 p-2 rounded w-full border-l-4"
+                        style={{borderLeftColor: getHealthColor(projectForm.health.resource)}}
+                      >
+                        {HEALTH_OPTIONS.map(status => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="col-span-2">
+                      <label className="block text-sm text-zinc-400 mb-1">Overall</label>
+                      <select
+                        value={projectForm.health.overall}
+                        onChange={(e) => setProjectForm({
+                          ...projectForm, 
+                          health: {...projectForm.health, overall: e.target.value}
+                        })}
+                        className="bg-zinc-700 p-2 rounded w-full border-l-4"
+                        style={{borderLeftColor: getHealthColor(projectForm.health.overall)}}
+                      >
+                        {HEALTH_OPTIONS.map(status => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -345,8 +680,10 @@ const ProjectDetails = () => {
               <FaClipboardCheck className="mr-2" /> Tasks
             </h2>
             
-            <form onSubmit={handleCreateTask} className="bg-zinc-800/60 backdrop-blur p-4 border border-white/10 rounded-lg mb-6">
-              <h3 className="text-lg font-medium mb-4">Create New Task</h3>
+            <form id="taskForm" onSubmit={handleCreateTask} className="bg-zinc-800/60 backdrop-blur p-4 border border-white/10 rounded-lg mb-6">
+              <h3 className="text-lg font-medium mb-4">
+                {editingTaskId ? 'Edit Task' : 'Create New Task'}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-zinc-400 text-sm mb-1">Title</label>
@@ -428,22 +765,59 @@ const ProjectDetails = () => {
                 </div>
               </div>
               
+              <div className="flex gap-3">
               <button
                 type="submit"
                 className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded"
               >
-                <FaPlus className="inline mr-1" /> Add Task
+                  {editingTaskId ? 'Update Task' : <><FaPlus className="inline mr-1" /> Add Task</>}
+                </button>
+                
+                {editingTaskId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingTaskId(null);
+                      setNewTaskTitle('');
+                      setNewTaskDescription('');
+                      setNewTaskStatus('PROPOSED');
+                      setNewTaskPriority('MEDIUM');
+                      setNewTaskPercentage(0);
+                      setNewTaskStartDate('');
+                      setNewTaskTargetDate('');
+                    }}
+                    className="bg-zinc-600 hover:bg-zinc-500 text-white px-4 py-2 rounded"
+                  >
+                    Cancel Edit
               </button>
+                )}
+              </div>
             </form>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {project.tasks?.map((task) => (
-                <div key={task.taskID} className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle">
-                  <h3 className="font-semibold mb-2 text-white">{task.title}</h3>
+                <div key={task.taskID} className="bg-zinc-800/60 backdrop-blur border border-white/10 p-4 rounded-lg shadow-subtle relative">
+                  <h3 className="font-semibold mb-2 text-white pr-16">{task.title}</h3>
                   <p className="text-zinc-400 mb-2">{task.details}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-zinc-400">Status: {task.status}</span>
                     <span className="text-sm text-zinc-400">{task.percentageComplete}% complete</span>
+                  </div>
+                  
+                  {/* Action buttons */}
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <button
+                      onClick={() => handleEditTask(task)}
+                      className="text-yellow-500 hover:text-yellow-400 text-xs"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTask(task.taskID)}
+                      className="text-red-500 hover:text-red-400 text-xs"
+                    >
+                      <FaTrash />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -559,6 +933,16 @@ const ProjectDetails = () => {
       )}
     </div>
   );
+};
+
+// Helper function to get health status color
+const getHealthColor = (status) => {
+  switch (status) {
+    case 'GREEN': return '#22c55e'; // green-500
+    case 'YELLOW': return '#eab308'; // yellow-500
+    case 'RED': return '#ef4444'; // red-500
+    default: return '#22c55e';
+  }
 };
 
 export default ProjectDetails;

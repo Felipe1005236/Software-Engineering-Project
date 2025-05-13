@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaClipboardList, FaPlus } from 'react-icons/fa';
+import { FaClipboardList, FaPlus, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { fetchWrapper } from '../utils/fetchWrapper';
 
 const iconMap = {
@@ -14,6 +14,8 @@ export default function ProjectDashboard() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [userAccessLevels, setUserAccessLevels] = useState({});
   const [newProject, setNewProject] = useState({
     title: '',
     manager: '',
@@ -27,6 +29,8 @@ export default function ProjectDashboard() {
   });
   const [users, setUsers] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteProjectId, setDeleteProjectId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -36,6 +40,11 @@ export default function ProjectDashboard() {
         const data = await fetchWrapper('/projects');
         if (Array.isArray(data)) setProjects(data);
         else setProjects([]);
+        
+        // Get access levels for all projects
+        for (const project of data) {
+          checkProjectAccess(project.projectID);
+        }
       } catch (err) {
         console.error('Error fetching projects:', err);
         setError(err.message);
@@ -44,6 +53,32 @@ export default function ProjectDashboard() {
     
     fetchProjects();
   }, []);
+  
+  // Function to check user's access level for a project
+  const checkProjectAccess = async (projectId) => {
+    try {
+      // You can implement this on the backend or use an existing endpoint
+      const accessInfo = await fetchWrapper(`/projects/${projectId}/access-level`).catch(() => ({
+        hasReadWrite: false,
+        hasFullAccess: false
+      }));
+      
+      setUserAccessLevels(prev => ({
+        ...prev,
+        [projectId]: {
+          canEdit: accessInfo.hasReadWrite || accessInfo.hasFullAccess,
+          canDelete: accessInfo.hasFullAccess
+        }
+      }));
+    } catch (error) {
+      console.error(`Error checking access for project ${projectId}:`, error);
+      // If we can't check access, assume the user doesn't have edit/delete permissions
+      setUserAccessLevels(prev => ({
+        ...prev,
+        [projectId]: { canEdit: false, canDelete: false }
+      }));
+    }
+  };
 
   useEffect(() => {
     // Fetch all users for manager dropdown
@@ -61,49 +96,92 @@ export default function ProjectDashboard() {
     p.title?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newEntry = {
-      ...newProject,
-      projectID: Date.now(),
-    };
-    localStorage.setItem(`project-${newEntry.projectID}`, JSON.stringify(newEntry));
-    setProjects(prev => [...prev, newEntry]);
-    setShowForm(false);
-    setNewProject({
-      title: '', manager: '', teamId: '', priority: 'Medium',
-      status: 'PROPOSED', phase: 'INITIATING',
-      startDate: '', targetDate: '', description: '',
-    });
-    navigate(`/projects/${newEntry.projectID}`);
-  };
-
   const handleCreateProject = async (e) => {
     e.preventDefault();
+    
     try {
-      await fetchWrapper('/projects', {
-        method: 'POST',
-        body: JSON.stringify({
-          title: newProject.title,
-          status: newProject.status,
-          phase: newProject.phase,
-          teamId: parseInt(newProject.teamId, 10),
-          startDate: newProject.startDate,
-          targetDate: newProject.targetDate,
-        }),
-      });
+      if (editingProject) {
+        // Update existing project
+        await fetchWrapper(`/projects/${editingProject}`, {
+          method: 'PATCH',
+          body: {
+            title: newProject.title,
+            status: newProject.status,
+            phase: newProject.phase,
+            teamId: parseInt(newProject.teamId, 10),
+            startDate: newProject.startDate,
+            targetDate: newProject.targetDate,
+          },
+        });
+      } else {
+        // Create new project
+        await fetchWrapper('/projects', {
+          method: 'POST',
+          body: {
+            title: newProject.title,
+            status: newProject.status,
+            phase: newProject.phase,
+            teamId: parseInt(newProject.teamId, 10),
+            startDate: newProject.startDate,
+            targetDate: newProject.targetDate,
+          },
+        });
+      }
+      
       setShowForm(false);
+      setEditingProject(null);
       setNewProject({
         title: '', manager: '', teamId: '', priority: 'Medium',
         status: 'PROPOSED', phase: 'INITIATING',
         startDate: '', targetDate: '', description: '',
       });
+      
       // Refresh projects list
       const data = await fetchWrapper('/projects');
       if (Array.isArray(data)) setProjects(data);
     } catch (err) {
-      console.error('Error creating project:', err);
+      console.error(`Error ${editingProject ? 'updating' : 'creating'} project:`, err);
       setError(err.message);
+    }
+  };
+  
+  const handleEditProject = (project, e) => {
+    e.stopPropagation(); // Prevent navigation to project details
+    
+    setEditingProject(project.projectID);
+    setNewProject({
+      title: project.title,
+      status: project.status,
+      phase: project.phase,
+      teamId: project.teamID?.toString() || '',
+      startDate: project.dates?.startDate || '',
+      targetDate: project.dates?.targetDate || '',
+      description: '',
+    });
+    setShowForm(true);
+  };
+  
+  const handleDeleteProject = async (projectId, e) => {
+    e.stopPropagation(); // Prevent navigation to project details
+    
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      setIsDeleting(true);
+      setDeleteProjectId(projectId);
+      
+      try {
+        await fetchWrapper(`/projects/${projectId}`, {
+          method: 'DELETE',
+        });
+        
+        // Update projects list after successful deletion
+        setProjects(projects.filter(p => p.projectID !== projectId));
+      } catch (err) {
+        console.error('Error deleting project:', err);
+        setError(`Failed to delete project: ${err.message}`);
+      } finally {
+        setIsDeleting(false);
+        setDeleteProjectId(null);
+      }
     }
   };
 
@@ -112,7 +190,15 @@ export default function ProjectDashboard() {
       <div className="flex justify-between items-center mb-10">
         <h1 className="text-4xl font-bold">📁 Projects</h1>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setEditingProject(null);
+            setNewProject({
+              title: '', manager: '', teamId: '', priority: 'Medium',
+              status: 'PROPOSED', phase: 'INITIATING',
+              startDate: '', targetDate: '', description: '',
+            });
+            setShowForm(!showForm);
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white text-sm font-medium shadow"
         >
           <FaPlus /> {showForm ? 'Close Form' : 'New Project'}
@@ -203,7 +289,7 @@ export default function ProjectDashboard() {
           </div>
           <div className="text-right">
             <button type="submit" className="bg-green-600 px-6 py-2 rounded text-white font-medium hover:bg-green-500">
-              Create Project
+              {editingProject ? 'Update Project' : 'Create Project'}
             </button>
           </div>
         </form>
@@ -218,18 +304,53 @@ export default function ProjectDashboard() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filteredProjects.map(({ projectID, title, status, phase }) => (
+        {filteredProjects.map((project) => (
           <div
-            key={projectID}
-            className="bg-zinc-800/70 p-6 rounded-xl shadow-subtle border border-white/10 hover:bg-zinc-700/60 cursor-pointer flex items-center justify-between"
-            onClick={() => navigate(`/projects/${projectID}`)}
+            key={project.projectID}
+            className="bg-zinc-800/70 p-6 rounded-xl shadow-subtle border border-white/10 hover:bg-zinc-700/60 cursor-pointer relative"
+            onClick={() => navigate(`/projects/${project.projectID}`)}
           >
-            <div>
-              <h3 className="text-lg font-semibold text-white">{title}</h3>
-              <p className="text-sm text-zinc-400">Status: {status}</p>
-              <p className="text-sm text-zinc-400">Phase: {phase}</p>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-white">{project.title}</h3>
+              {iconMap.default}
             </div>
-            {iconMap.default}
+            <p className="text-sm text-zinc-400">Status: {project.status}</p>
+            <p className="text-sm text-zinc-400 mb-4">Phase: {project.phase}</p>
+            
+            {/* Action buttons */}
+            <div className="flex gap-2 mt-4" onClick={e => e.stopPropagation()}>
+              <button
+                className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/projects/${project.projectID}`);
+                }}
+              >
+                <FaEye size={12} /> View
+              </button>
+              
+              {userAccessLevels[project.projectID]?.canEdit && (
+                <button
+                  className="flex items-center gap-1 px-3 py-1 bg-yellow-600 hover:bg-yellow-500 rounded text-xs"
+                  onClick={(e) => handleEditProject(project, e)}
+                >
+                  <FaEdit size={12} /> Edit
+                </button>
+              )}
+              
+              {userAccessLevels[project.projectID]?.canDelete && (
+                <button
+                  className={`flex items-center gap-1 px-3 py-1 bg-red-600 hover:bg-red-500 rounded text-xs ${
+                    isDeleting && deleteProjectId === project.projectID ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={(e) => handleDeleteProject(project.projectID, e)}
+                  disabled={isDeleting && deleteProjectId === project.projectID}
+                >
+                  <FaTrash size={12} />
+                  {isDeleting && deleteProjectId === project.projectID ? 'Deleting...' : 'Delete'}
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>

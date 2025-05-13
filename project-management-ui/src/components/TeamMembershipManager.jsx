@@ -5,10 +5,7 @@ import { fetchWrapper } from '../utils/fetchWrapper';
 
 const TEAM_ROLES = [
   { value: 'TEAM_LEAD', label: 'Team Lead', color: 'bg-purple-600' },
-  { value: 'TEAM_MEMBER', label: 'Team Member', color: 'bg-blue-600' },
-  { value: 'CONTRIBUTOR', label: 'Contributor', color: 'bg-green-600' },
-  { value: 'STAKEHOLDER', label: 'Stakeholder', color: 'bg-yellow-600' },
-  { value: 'OBSERVER', label: 'Observer', color: 'bg-gray-600' }
+  { value: 'TEAM_MEMBER', label: 'Team Member', color: 'bg-blue-600' }
 ];
 
 const ACCESS_LEVELS = [

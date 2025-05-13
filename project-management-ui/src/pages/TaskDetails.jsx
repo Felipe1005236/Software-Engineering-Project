@@ -18,7 +18,7 @@ const TaskDetails = () => {
 
   const fetchTask = async () => {
     try {
-      const data = await fetchWrapper(`/api/projects/${name}/tasks/${id}`);
+      const data = await fetchWrapper(`/tasks/${id}`);
       setTask(data);
       setStatus(data.status);
     } catch (err) {
@@ -50,7 +50,10 @@ const TaskDetails = () => {
   const handleStatusUpdate = async (newStatus) => {
     setStatus(newStatus);
     try {
-      await fetchWrapper(`/api/projects/${name}/tasks/${id}/status`, 'PUT', { status: newStatus });
+      await fetchWrapper(`/tasks/${id}`, {
+        method: 'PATCH',
+        body: { status: newStatus }
+      });
     } catch (err) {
       console.error('Failed to update status:', err);
     }
