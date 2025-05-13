@@ -4,9 +4,10 @@ import {
   Legend, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaPlus, FaClipboardCheck, FaUsers, FaChartLine, FaUsersCog } from 'react-icons/fa';
+import { FaPlus, FaClipboardCheck, FaUsers, FaChartLine, FaUsersCog, FaUserCircle } from 'react-icons/fa';
 import TeamMembershipManager from '../components/TeamMembershipManager';
 import { fetchWrapper } from '../utils/fetchWrapper';
+import { motion } from 'framer-motion';
 
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -46,6 +47,12 @@ const ProjectDetails = () => {
   const [newTaskPercentage, setNewTaskPercentage] = useState(0);
   const [newTaskStartDate, setNewTaskStartDate] = useState('');
   const [newTaskTargetDate, setNewTaskTargetDate] = useState('');
+  
+  // Stakeholders state
+  const [stakeholders, setStakeholders] = useState([]);
+  const [stakeholderForm, setStakeholderForm] = useState({ name: '' });
+  const [editingStakeholderIndex, setEditingStakeholderIndex] = useState(null);
+  const [showStakeholderForm, setShowStakeholderForm] = useState(false);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -53,8 +60,18 @@ const ProjectDetails = () => {
         setLoading(true);
         setError(null);
         
-        const data = await fetchWrapper(`${API_BASE_URL}/projects/${id}`);
+        const data = await fetchWrapper(`/projects/${id}`);
         setProject(data);
+        
+        // Fetch stakeholders data
+        try {
+          const stakeholdersData = await fetchWrapper(`/projects/${id}/stakeholders`);
+          setStakeholders(stakeholdersData || []);
+        } catch (stakeholderErr) {
+          console.error('Error fetching stakeholders:', stakeholderErr);
+          setStakeholders([]);
+          // Don't set the main error state just for stakeholders
+        }
       } catch (err) {
         setError(err.message);
         console.error('Error fetching project data:', err);
@@ -101,6 +118,65 @@ const ProjectDetails = () => {
       setError(err.message);
       console.error('Error creating task:', err);
     }
+  };
+
+  // Stakeholders handlers
+  const handleStakeholderSubmit = async (e) => {
+    e.preventDefault();
+    if (!stakeholderForm.name) return;
+
+    try {
+      if (editingStakeholderIndex !== null) {
+        // Update existing stakeholder
+        const stakeholder = stakeholders[editingStakeholderIndex];
+        const updatedStakeholder = await fetchWrapper(`/projects/${id}/stakeholders/${stakeholder.stakeholderID}`, {
+          method: 'PATCH',
+          body: { name: stakeholderForm.name }
+        });
+        
+        // Update the local state
+        const updatedList = [...stakeholders];
+        updatedList[editingStakeholderIndex] = updatedStakeholder;
+        setStakeholders(updatedList);
+        setEditingStakeholderIndex(null);
+      } else {
+        // Create new stakeholder
+        const newStakeholder = await fetchWrapper(`/projects/${id}/stakeholders`, {
+          method: 'POST',
+          body: { name: stakeholderForm.name, projectID: parseInt(id) }
+        });
+        
+        // Update the local state
+        setStakeholders(prev => [...prev, newStakeholder]);
+      }
+      
+      // Reset the form
+      setStakeholderForm({ name: '' });
+      setShowStakeholderForm(false);
+    } catch (err) {
+      console.error('Stakeholder operation failed:', err);
+    }
+  };
+
+  const handleStakeholderDelete = async (i) => {
+    const deleted = stakeholders[i];
+    const updated = stakeholders.filter((_, idx) => idx !== i);
+    setStakeholders(updated);
+    try {
+      await fetchWrapper(`/projects/${id}/stakeholders/${deleted.stakeholderID}`, {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      console.error('Delete stakeholder failed:', err);
+      // Restore the stakeholder if delete fails
+      setStakeholders(stakeholders);
+    }
+  };
+
+  const handleStakeholderEdit = (i) => {
+    setStakeholderForm(stakeholders[i]);
+    setEditingStakeholderIndex(i);
+    setShowStakeholderForm(true);
   };
 
   if (loading) return <div className="p-6 text-white">Loading...</div>;
@@ -155,6 +231,17 @@ const ProjectDetails = () => {
         >
           <FaUsersCog />
           Team
+        </button>
+        <button
+          className={`py-2 px-4 font-medium flex items-center gap-2 ${
+            activeTab === 'stakeholders' 
+              ? 'text-indigo-400 border-b-2 border-indigo-400' 
+              : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+          onClick={() => setActiveTab('stakeholders')}
+        >
+          <FaUserCircle />
+          Stakeholders
         </button>
       </div>
       
@@ -367,6 +454,83 @@ const ProjectDetails = () => {
               </button>
               </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'stakeholders' && (
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <FaUserCircle className="mr-2" /> Stakeholders
+            </h2>
+            <button
+              onClick={() => {
+                setStakeholderForm({ name: '' });
+                setEditingStakeholderIndex(null);
+                setShowStakeholderForm(!showStakeholderForm);
+              }}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-sm rounded shadow transition"
+            >
+              {showStakeholderForm ? 'Cancel' : '+ Add Stakeholder'}
+            </button>
+          </div>
+
+          {/* Form */}
+          {showStakeholderForm && (
+            <motion.form
+              onSubmit={handleStakeholderSubmit}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-zinc-900/60 backdrop-blur-md p-6 rounded-xl border border-white/10 shadow-subtle"
+            >
+              <input
+                type="text"
+                placeholder="Name"
+                value={stakeholderForm.name}
+                onChange={(e) => setStakeholderForm({ ...stakeholderForm, name: e.target.value })}
+                className="bg-zinc-800 p-3 rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                type="submit"
+                className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-medium"
+              >
+                {editingStakeholderIndex !== null ? 'Update' : 'Add'}
+              </button>
+            </motion.form>
+          )}
+
+          {/* Stakeholders List */}
+          <motion.ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {stakeholders.map((p, i) => (
+              <motion.li
+                key={i}
+                className="bg-zinc-900/60 backdrop-blur-md p-5 rounded-xl border border-white/10 shadow-subtle hover:shadow-lg transition"
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <FaUserCircle className="text-3xl text-indigo-400" />
+                  <div>
+                    <p className="font-semibold">{p.name}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3 text-xs mt-2">
+                  <button
+                    onClick={() => handleStakeholderEdit(i)}
+                    className="text-indigo-400 hover:underline"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleStakeholderDelete(i)}
+                    className="text-red-400 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </motion.li>
+            ))}
+          </motion.ul>
         </div>
       )}
     </div>

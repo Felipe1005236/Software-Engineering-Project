@@ -19,7 +19,6 @@ import ProjectDetails from '../pages/ProjectDetails';
 import Calendar from '../pages/Calendar';
 import Team from '../pages/Team';
 import Settings from '../pages/Settings';
-import Stakeholders from '../pages/Stakeholders';
 import TaskList from '../pages/TaskList';
 import TaskDetails from '../pages/TaskDetails';
 import Risks from '../pages/Risks';
@@ -61,7 +60,6 @@ const AppRoutes = () => (
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
-      <Route path="/stakeholders" element={<Stakeholders />} />
       <Route path="/risks" element={<Risks />} />
       <Route path="/time-tracking" element={<TimeTracking />} />
       <Route path="/budget" element={<Budget />} />
