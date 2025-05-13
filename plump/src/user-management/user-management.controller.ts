@@ -6,7 +6,7 @@ import { User } from './interfaces/user.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('user-management')
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UserManagementController {
   constructor(private readonly userService: UserManagementService) {}
 
@@ -20,19 +20,10 @@ export class UserManagementController {
     return this.userService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   async getCurrentUser(@Request() req): Promise<User | null> {
-    console.log('HIT /me endpoint - Full request user object:', JSON.stringify(req.user, null, 2));
-    console.log('HIT /me endpoint - userID type:', typeof req.user?.userID);
-    console.log('HIT /me endpoint - userId type:', typeof req.user?.userId);
-    
-    // Try both userID and userId
-    const userID = Number(req.user?.userID ?? req.user?.userId);
-    console.log('HIT /me endpoint - Final userID value:', userID);
-    
-    if (!req.user || isNaN(userID)) {
-      console.log('HIT /me endpoint - Invalid user or userID:', { user: req.user, userID });
+    const userID = req.user?.userID;
+    if (!userID) {
       throw new BadRequestException('Invalid token');
     }
     return this.userService.findOne(userID);
@@ -47,30 +38,28 @@ export class UserManagementController {
     return this.userService.findOne(userID);
   }
 
-
-
   @Get('me-test')
   getMeTest(@Request() req) {
     console.log('HIT /me-test endpoint');
     return { message: 'me-test works' };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('me')
   async updateCurrentUser(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    if (!req.user || !req.user.userID) {
-      throw new BadRequestException('Invalid user');
+    const userID = req.user?.userID;
+    if (!userID) {
+      throw new BadRequestException('Invalid token');
     }
-    return this.userService.update(req.user.userID, updateUserDto);
+    return this.userService.update(userID, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete('me')
   async deleteCurrentUser(@Request() req) {
-    if (!req.user || !req.user.userID) {
-      throw new BadRequestException('Invalid user');
+    const userID = req.user?.userID;
+    if (!userID) {
+      throw new BadRequestException('Invalid token');
     }
-    return this.userService.remove(req.user.userID);
+    return this.userService.remove(userID);
   }
 
   @Patch(':id')

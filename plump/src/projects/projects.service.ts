@@ -12,31 +12,31 @@ export class ProjectsService {
 
   // Create a new project
   async create(createProjectDto: CreateProjectDto) {
-    const { title, status, phase, teamId, healthId, budgetId, dateId } = createProjectDto;
-    
-    return this.prisma.project.create({
+    const { teamId, title, status, phase, startDate, targetDate } = createProjectDto;
+
+    // Create the project first
+    const project = await this.prisma.project.create({
       data: {
         title,
-        status: status as Status,
-        phase: phase as Phase,
-        teamID: teamId,
-        ...(healthId && {
-          health: {
-            connect: { healthID: healthId }
-          }
-        }),
-        ...(budgetId && {
-          budget: {
-            connect: { budgetID: budgetId }
-          }
-        }),
-        ...(dateId && {
-          dates: {
-            connect: { dateID: dateId }
-          }
-        }),
+        status,
+        phase,
+        team: { connect: { teamID: teamId } },
       },
     });
+
+    // If dates are provided, create ProjectDates and link to project
+    if (startDate && targetDate) {
+      await this.prisma.projectDates.create({
+        data: {
+          startDate: new Date(startDate),
+          targetDate: new Date(targetDate),
+          project: { connect: { projectID: project.projectID } },
+        },
+      });
+    }
+
+    // Return the full project with dates
+    return this.findOne(project.projectID);
   }  
 
   // Get all projects

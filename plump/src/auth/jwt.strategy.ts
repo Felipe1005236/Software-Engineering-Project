@@ -15,8 +15,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: any) {
     console.log('JWT payload in validate:', payload);
-    const userID = parseInt(payload.userID || payload.userId, 10);
-    if (isNaN(userID)) {
+    // Accept both userID and userId
+    const userID = payload.userID ?? payload.userId;
+    if (!userID) {
       throw new UnauthorizedException('Invalid user ID in token');
     }
   

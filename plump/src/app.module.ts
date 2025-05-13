@@ -18,6 +18,7 @@ import { TeamMembershipModule } from './team-membership/team-membership.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { CommentController } from './comment/comment.controller';
+import { TeamModule } from './team/team.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CommentController } from './comment/comment.controller';
     UnitModule,
     TeamMembershipModule,
     AuthModule,
+    TeamModule,
   ],
   controllers: [AppController, SearchController, DashboardController, CommentController],
   providers: [AppService, SearchService],

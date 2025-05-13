@@ -21,19 +21,24 @@ const Team = () => {
 
   useEffect(() => {
     if (!userLoading && user && user.unit && user.unit.organizationID) {
+      console.log('Token:', localStorage.getItem('token'));
+      console.log('User:', user);
       fetchUnits(user.unit.organizationID);
     }
   }, [userLoading, user]);
 
   const fetchUnits = async (orgId) => {
     try {
+      console.log('Fetching units for org:', orgId);
       const data = await fetchWrapper(`/units/organization/${orgId}`);
+      console.log('Units data:', data);
       setUnits(data);
       setTeams([]);
       setMembers([]);
       setSelectedUnit(null);
       setSelectedTeam(null);
     } catch (err) {
+      console.error('Error fetching units:', err);
       setUnits([]);
     }
   };
@@ -177,32 +182,6 @@ const Team = () => {
               >
                 {team.name}
               </button>
-            ))}
-          </div>
-        </>
-      )}
-
-      {members.length > 0 && (
-        <>
-          <h3 className="text-lg font-bold mt-6">Members in {selectedTeam?.name}</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {members.map(member => (
-              <div key={member.userID} className="bg-zinc-900/60 backdrop-blur-md p-5 rounded-xl border border-white/10 shadow-subtle transition">
-                <h2 className="text-lg font-semibold">{member.firstName} {member.lastName}</h2>
-                <p className="text-zinc-400 text-sm">{member.email}</p>
-                <p className="text-zinc-400 text-sm">Role: {member.primaryRole}</p>
-                <p className="text-zinc-400 text-sm">Type: {member.type}</p>
-                <p className="text-zinc-400 text-sm">Unit: {member.unit}</p>
-                <p className="text-zinc-400 text-sm">Manager: {member.unitManager}</p>
-                <span className={`inline-block mt-2 px-2 py-0.5 text-xs rounded-full text-white ${
-                  member.status === 'Online' ? 'bg-green-600'
-                  : member.status === 'Idle' ? 'bg-yellow-500'
-                  : member.status === 'Pending' ? 'bg-blue-600'
-                  : 'bg-zinc-700'
-                }`}>
-                  {member.status}
-                </span>
-              </div>
             ))}
           </div>
         </>

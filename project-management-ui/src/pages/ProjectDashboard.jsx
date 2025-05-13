@@ -17,7 +17,7 @@ export default function ProjectDashboard() {
   const [newProject, setNewProject] = useState({
     title: '',
     manager: '',
-    category: '',
+    teamId: '',
     priority: 'Medium',
     status: 'PROPOSED',
     phase: 'INITIATING',
@@ -25,6 +25,8 @@ export default function ProjectDashboard() {
     targetDate: '',
     description: '',
   });
+  const [users, setUsers] = useState([]);
+  const [teams, setTeams] = useState([]);
 
   const navigate = useNavigate();
 
@@ -43,6 +45,18 @@ export default function ProjectDashboard() {
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    // Fetch all users for manager dropdown
+    fetchWrapper('/user-management')
+      .then(setUsers)
+      .catch(() => setUsers([]));
+
+    // Fetch all teams for team dropdown
+    fetchWrapper('/teams')
+      .then(setTeams)
+      .catch(() => setTeams([]));
+  }, []);
+
   const filteredProjects = projects.filter((p) =>
     p.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -57,11 +71,40 @@ export default function ProjectDashboard() {
     setProjects(prev => [...prev, newEntry]);
     setShowForm(false);
     setNewProject({
-      title: '', manager: '', category: '', priority: 'Medium',
+      title: '', manager: '', teamId: '', priority: 'Medium',
       status: 'PROPOSED', phase: 'INITIATING',
       startDate: '', targetDate: '', description: '',
     });
     navigate(`/projects/${newEntry.projectID}`);
+  };
+
+  const handleCreateProject = async (e) => {
+    e.preventDefault();
+    try {
+      await fetchWrapper('/projects', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: newProject.title,
+          status: newProject.status,
+          phase: newProject.phase,
+          teamId: parseInt(newProject.teamId, 10),
+          startDate: newProject.startDate,
+          targetDate: newProject.targetDate,
+        }),
+      });
+      setShowForm(false);
+      setNewProject({
+        title: '', manager: '', teamId: '', priority: 'Medium',
+        status: 'PROPOSED', phase: 'INITIATING',
+        startDate: '', targetDate: '', description: '',
+      });
+      // Refresh projects list
+      const data = await fetchWrapper('/projects');
+      if (Array.isArray(data)) setProjects(data);
+    } catch (err) {
+      console.error('Error creating project:', err);
+      setError(err.message);
+    }
   };
 
   return (
@@ -84,7 +127,7 @@ export default function ProjectDashboard() {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-zinc-900/80 p-6 rounded-xl border border-white/10 mb-12 space-y-5 shadow-subtle">
+        <form onSubmit={handleCreateProject} className="bg-zinc-900/80 p-6 rounded-xl border border-white/10 mb-12 space-y-5 shadow-subtle">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-zinc-400 mb-1">Project Title</label>
@@ -97,13 +140,20 @@ export default function ProjectDashboard() {
               />
             </div>
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">Manager</label>
-              <input
-                type="text"
-                value={newProject.manager}
-                onChange={(e) => setNewProject({ ...newProject, manager: e.target.value })}
+              <label className="block text-sm text-zinc-400 mb-1">Team</label>
+              <select
+                value={newProject.teamId || ''}
+                onChange={(e) => setNewProject({ ...newProject, teamId: e.target.value })}
                 className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
-              />
+                required
+              >
+                <option value="">Select Team</option>
+                {teams.map(team => (
+                  <option key={team.teamID} value={team.teamID}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm text-zinc-400 mb-1">Start Date</label>
@@ -122,27 +172,6 @@ export default function ProjectDashboard() {
                 onChange={(e) => setNewProject({ ...newProject, targetDate: e.target.value })}
                 className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
               />
-            </div>
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">Category</label>
-              <input
-                type="text"
-                value={newProject.category}
-                onChange={(e) => setNewProject({ ...newProject, category: e.target.value })}
-                className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">Priority</label>
-              <select
-                value={newProject.priority}
-                onChange={(e) => setNewProject({ ...newProject, priority: e.target.value })}
-                className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
-              >
-                <option>Low</option>
-                <option>Medium</option>
-                <option>High</option>
-              </select>
             </div>
             <div>
               <label className="block text-sm text-zinc-400 mb-1">Status</label>
@@ -172,17 +201,6 @@ export default function ProjectDashboard() {
               </select>
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">Description</label>
-            <textarea
-              rows={3}
-              value={newProject.description}
-              onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-              className="w-full p-2 rounded bg-zinc-800 text-white border border-white/10"
-            />
-          </div>
-
           <div className="text-right">
             <button type="submit" className="bg-green-600 px-6 py-2 rounded text-white font-medium hover:bg-green-500">
               Create Project

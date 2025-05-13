@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsEnum } from 'class-validator';
+import { IsString, IsNumber, IsEnum, IsOptional, IsDateString } from 'class-validator';
 import { Status, Phase } from '@prisma/client';
 
 export class CreateProjectDto {
@@ -14,12 +14,20 @@ export class CreateProjectDto {
   @IsNumber()
   teamId: number;
 
-  @IsNumber()
-  healthId: number;
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  targetDate?: string;
 
   @IsNumber()
-  budgetId: number;
+  healthId?: number;
 
   @IsNumber()
-  dateId: number;
+  budgetId?: number;
+
+  @IsNumber()
+  dateId?: number;
 }

@@ -46,8 +46,14 @@ export class ProjectsController {
   }
 
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  async create(@Body() createProjectDto: CreateProjectDto) {
+    try {
+      const project = await this.projectsService.create(createProjectDto);
+      return project;
+    } catch (error) {
+      console.error('Error creating project:', error);
+      return { error: error.message || 'Unknown error' };
+    }
   }
 
   @Get()
