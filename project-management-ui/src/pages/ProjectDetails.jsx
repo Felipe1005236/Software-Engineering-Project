@@ -123,16 +123,25 @@ const ProjectDetails = () => {
   // Stakeholders handlers
   const handleStakeholderSubmit = async (e) => {
     e.preventDefault();
-    if (!stakeholderForm.name) return;
+    if (!stakeholderForm.name) {
+      console.error('Stakeholder name is required');
+      return;
+    }
 
+    console.log('Submitting stakeholder form:', stakeholderForm);
+    
     try {
       if (editingStakeholderIndex !== null) {
         // Update existing stakeholder
         const stakeholder = stakeholders[editingStakeholderIndex];
+        console.log(`Updating stakeholder ${stakeholder.stakeholderID} with data:`, stakeholderForm);
+        
         const updatedStakeholder = await fetchWrapper(`/projects/${id}/stakeholders/${stakeholder.stakeholderID}`, {
           method: 'PATCH',
           body: { name: stakeholderForm.name }
         });
+        
+        console.log('API response for update:', updatedStakeholder);
         
         // Update the local state
         const updatedList = [...stakeholders];
@@ -141,10 +150,17 @@ const ProjectDetails = () => {
         setEditingStakeholderIndex(null);
       } else {
         // Create new stakeholder
+        console.log(`Creating new stakeholder for project ${id} with data:`, stakeholderForm);
+        
         const newStakeholder = await fetchWrapper(`/projects/${id}/stakeholders`, {
           method: 'POST',
-          body: { name: stakeholderForm.name, projectID: parseInt(id) }
+          body: { 
+            name: stakeholderForm.name, 
+            projectID: parseInt(id) 
+          }
         });
+        
+        console.log('API response for create:', newStakeholder);
         
         // Update the local state
         setStakeholders(prev => [...prev, newStakeholder]);
@@ -155,6 +171,7 @@ const ProjectDetails = () => {
       setShowStakeholderForm(false);
     } catch (err) {
       console.error('Stakeholder operation failed:', err);
+      alert(`Failed to ${editingStakeholderIndex !== null ? 'update' : 'add'} stakeholder: ${err.message}`);
     }
   };
 
@@ -482,21 +499,28 @@ const ProjectDetails = () => {
               onSubmit={handleStakeholderSubmit}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-zinc-900/60 backdrop-blur-md p-6 rounded-xl border border-white/10 shadow-subtle"
+              className="grid grid-cols-1 gap-4 bg-zinc-900/60 backdrop-blur-md p-6 rounded-xl border border-white/10 shadow-subtle"
             >
-              <input
-                type="text"
-                placeholder="Name"
-                value={stakeholderForm.name}
-                onChange={(e) => setStakeholderForm({ ...stakeholderForm, name: e.target.value })}
-                className="bg-zinc-800 p-3 rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <button
-                type="submit"
-                className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-medium"
-              >
-                {editingStakeholderIndex !== null ? 'Update' : 'Add'}
-              </button>
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-zinc-400">Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter stakeholder name"
+                  value={stakeholderForm.name}
+                  onChange={(e) => setStakeholderForm({ ...stakeholderForm, name: e.target.value })}
+                  className="bg-zinc-800 p-3 rounded border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              
+              <div className="flex justify-end mt-2">
+                <button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-sm font-medium"
+                >
+                  {editingStakeholderIndex !== null ? 'Update' : 'Add Stakeholder'}
+                </button>
+              </div>
             </motion.form>
           )}
 

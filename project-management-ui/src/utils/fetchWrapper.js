@@ -11,10 +11,19 @@ export const fetchWrapper = async (url, options = {}) => {
     ...options.headers,
   };
 
+  // Handle body - automatically stringify objects if Content-Type is application/json
+  let body = options.body;
+  if (body && typeof body === 'object' && headers['Content-Type'] === 'application/json') {
+    body = JSON.stringify(body);
+  } else {
+    body = options.body;
+  }
+
   try {
     const response = await fetch(url.startsWith('http') ? url : `${API_BASE_URL}${url}`, {
       ...options,
       headers,
+      body,
       credentials: 'include',
     });
 
