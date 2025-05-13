@@ -15,6 +15,7 @@ export const fetchWrapper = async (url, options = {}) => {
     const response = await fetch(url.startsWith('http') ? url : `${API_BASE_URL}${url}`, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     if (!response.ok) {

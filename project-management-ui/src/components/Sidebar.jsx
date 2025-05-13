@@ -12,19 +12,12 @@ import {
   FaTimes,
   FaThLarge,
   FaClock,
-  FaBuilding
+  FaBuilding,
+  FaMoneyBillWave,
+  FaClipboardList
 } from 'react-icons/fa';
-import { useState } from 'react';
-
-const navItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: <FaHome /> },
-  { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
-  { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
-  { name: 'Team', path: '/team', icon: <FaUsers /> },
-  { name: 'Budget', path: '/budget', icon: <FaWallet /> },
-  { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
-  { name: 'Settings', path: '/settings', icon: <FaCogs /> },
-];
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const PHASE_GROUPS = {
   PLANNED: ['INITIATING', 'PLANNING'],
@@ -35,6 +28,24 @@ const PHASE_GROUPS = {
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { user } = useContext(AuthContext);
+
+  // Base navigation items that all users can see
+  const baseNavItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: <FaHome /> },
+    { name: 'Project Dashboard', path: '/project-dashboard', icon: <FaThLarge /> }, 
+    { name: 'Calendar', path: '/calendar', icon: <FaCalendarAlt /> },
+    { name: 'Team', path: '/team', icon: <FaUsers /> },
+    { name: 'Budget', path: '/budget', icon: <FaWallet /> },
+    { name: 'Time Tracking', path: '/time-tracking', icon: <FaClock /> },
+    { name: 'Settings', path: '/settings', icon: <FaCogs /> },
+  ];
+
+  // Determine which nav items to show based on user role
+  const navItems = [...baseNavItems];
+  if (user?.role === 'ADMIN') {
+    navItems.push({ name: 'Requests', path: '/requests', icon: <FaClipboardList /> });
+  }
 
   return (
     <motion.aside
