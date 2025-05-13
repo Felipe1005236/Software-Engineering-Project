@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fetchWrapper } from '../utils/fetchWrapper';
 import { FaTrash } from 'react-icons/fa';
+import { useUser } from '../contexts/UserContext';
 
 const statusColors = {
   'Pending': 'bg-yellow-500',
@@ -13,6 +14,7 @@ const statusColors = {
 const TaskList = () => {
   const { name } = useParams();
   const navigate = useNavigate();
+  const { user } = useUser();
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({
     title: '',
@@ -20,7 +22,8 @@ const TaskList = () => {
     percentageComplete: 0,
     priority: 'Medium',
     details: '',
-    dateID: 0,
+    startDate: '',
+    targetDate: '',
   });
   const [status, setStatus] = useState({ loading: false, error: '', success: '' });
   const lastTaskRef = useRef(null);
@@ -41,20 +44,33 @@ const TaskList = () => {
 
   const handleAddTask = async (e) => {
     e.preventDefault();
-    if (!newTask.title) return;
+    if (!newTask.title || !user) return;
     setStatus({ loading: true, error: '', success: '' });
 
+    const payload = {
+      title: newTask.title,
+      details: newTask.details,
+      projectID: parseInt(name, 10),
+      userID: user.userID,
+      status: newTask.status,
+      percentageComplete: newTask.percentageComplete,
+      priority: newTask.priority,
+      startDate: newTask.startDate,
+      targetDate: newTask.targetDate,
+    };
+
     try {
-      const saved = await fetchWrapper(`/api/projects/${name}/tasks`, 'POST', newTask);
-      const taskToAdd = saved || { ...newTask, id: Date.now() };
+      const saved = await fetchWrapper(`/api/projects/${name}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      const taskToAdd = saved || { ...payload, id: Date.now() };
       setTasks((prev) => [...prev, taskToAdd]);
       setTimeout(() => lastTaskRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       setStatus({ loading: false, error: '', success: 'Task added successfully!' });
     } catch (err) {
       console.error('Add task failed:', err);
-      const fallback = { ...newTask, id: Date.now() };
-      setTasks((prev) => [...prev, fallback]);
-      setStatus({ loading: false, error: '', success: 'Task added locally (no backend).' });
+      setStatus({ loading: false, error: err.message || 'Failed to add task', success: '' });
     }
 
     setNewTask({
@@ -63,7 +79,8 @@ const TaskList = () => {
       percentageComplete: 0,
       priority: 'Medium',
       details: '',
-      dateID: 0,
+      startDate: '',
+      targetDate: '',
     });
   };
 
@@ -133,10 +150,17 @@ const TaskList = () => {
             className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
           />
           <input
-            type="number"
-            placeholder="Date ID"
-            value={newTask.dateID}
-            onChange={(e) => setNewTask({ ...newTask, dateID: parseInt(e.target.value) })}
+            type="date"
+            placeholder="Start Date"
+            value={newTask.startDate}
+            onChange={(e) => setNewTask({ ...newTask, startDate: e.target.value })}
+            className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
+          />
+          <input
+            type="date"
+            placeholder="Target Date"
+            value={newTask.targetDate}
+            onChange={(e) => setNewTask({ ...newTask, targetDate: e.target.value })}
             className="bg-zinc-800 border border-zinc-700 text-white rounded p-2 w-40"
           />
         </div>
@@ -181,7 +205,8 @@ const TaskList = () => {
               <p className="text-sm text-zinc-400 mt-1">
                 Complete: {task.percentageComplete}%
               </p>
-              <p className="text-sm text-zinc-400 mt-1">Date ID: {task.dateID}</p>
+              <p className="text-sm text-zinc-400 mt-1">Start Date: {task.startDate}</p>
+              <p className="text-sm text-zinc-400 mt-1">Target Date: {task.targetDate}</p>
               <span
                 className={`mt-2 inline-block px-2 py-0.5 text-xs rounded-full text-white ${statusColors[task.status]}`}
               >

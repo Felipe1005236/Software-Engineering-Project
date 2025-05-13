@@ -18,11 +18,15 @@ const Team = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [newRole, setNewRole] = useState('');
   const [status, setStatus] = useState({ loading: false, message: '', error: '' });
+  const [teamForm, setTeamForm] = useState({ name: '' });
+  const [teamStatus, setTeamStatus] = useState({ loading: false, message: '', error: '' });
 
   useEffect(() => {
+    console.log('userLoading:', userLoading);
+    console.log('user:', user);
+    console.log('user.unit:', user?.unit);
+    console.log('user.unit.organizationID:', user?.unit?.organizationID);
     if (!userLoading && user && user.unit && user.unit.organizationID) {
-      console.log('Token:', localStorage.getItem('token'));
-      console.log('User:', user);
       fetchUnits(user.unit.organizationID);
     }
   }, [userLoading, user]);
@@ -169,6 +173,50 @@ const Team = () => {
           ))}
         </div>
       </motion.div>
+
+      {selectedUnit && (
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!teamForm.name.trim()) {
+              setTeamStatus({ loading: false, message: '', error: 'Team name is required.' });
+              return;
+            }
+            setTeamStatus({ loading: true, message: '', error: '' });
+            try {
+              await fetchWrapper('/teams', {
+                method: 'POST',
+                body: JSON.stringify({ name: teamForm.name, unitId: selectedUnit.unitID }),
+              });
+              setTeamStatus({ loading: false, message: 'Team created!', error: '' });
+              setTeamForm({ name: '' });
+              // Refresh teams for this unit
+              handleUnitClick(selectedUnit);
+            } catch (err) {
+              setTeamStatus({ loading: false, message: '', error: 'Failed to create team.' });
+            }
+          }}
+          className="flex flex-col sm:flex-row items-center gap-2 bg-zinc-900/60 border border-white/10 backdrop-blur-md p-3 rounded-xl shadow-subtle mb-4"
+        >
+          <input
+            type="text"
+            name="name"
+            placeholder="Team name"
+            value={teamForm.name}
+            onChange={e => setTeamForm({ name: e.target.value })}
+            className="bg-zinc-800 border border-zinc-700 text-sm p-2 rounded w-48"
+          />
+          <button
+            type="submit"
+            className="bg-indigo-600 hover:bg-indigo-500 text-sm px-3 py-2 rounded text-white transition"
+            disabled={teamStatus.loading}
+          >
+            {teamStatus.loading ? 'Adding...' : <><FaPlus className="inline" /> Add Team</>}
+          </button>
+          {teamStatus.message && <p className="text-green-400 text-sm mb-2">{teamStatus.message}</p>}
+          {teamStatus.error && <p className="text-red-400 text-sm mb-2">{teamStatus.error}</p>}
+        </form>
+      )}
 
       {teams.length > 0 && (
         <>

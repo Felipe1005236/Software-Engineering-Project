@@ -23,15 +23,6 @@ const EVENT_TYPE_COLORS = {
   DEFAULT: '#cccccc'
 };
 
-const fetchOptions = {
-  method: 'GET',
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-};
-
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState([]);
@@ -43,16 +34,13 @@ const Calendar = () => {
     const fetchAllEvents = async () => {
       try {
         // 1. Fetch manual events
-        const manualRes = await fetch(`${API_URL}/calendar-events`, fetchOptions);
-        const manualEvents = manualRes.ok ? await manualRes.json() : [];
+        const manualEvents = await fetchWrapper('/calendar-events');
 
         // 2. Fetch projects
-        const projectsRes = await fetch(`${API_URL}/projects`, fetchOptions);
-        const projects = projectsRes.ok ? await projectsRes.json() : [];
+        const projects = await fetchWrapper('/projects');
 
         // 3. Fetch tasks
-        const tasksRes = await fetch(`${API_URL}/tasks`, fetchOptions);
-        const tasks = tasksRes.ok ? await tasksRes.json() : [];
+        const tasks = await fetchWrapper('/tasks');
 
         // 4. Generate project date events
         const projectEvents = projects.flatMap(project => {
@@ -149,7 +137,7 @@ const Calendar = () => {
     setShowModal(false);
 
     try {
-      await fetchWrapper(`${API_URL}/calendar-events`, {
+      await fetchWrapper('/calendar-events', {
         method: 'POST',
         body: JSON.stringify(newEvent)
       });
@@ -165,7 +153,7 @@ const Calendar = () => {
     setEvents(filtered);
 
     try {
-      await fetchWrapper(`${API_URL}/calendar-events`, {
+      await fetchWrapper('/calendar-events', {
         method: 'DELETE',
         body: JSON.stringify(eventToDelete)
       });
