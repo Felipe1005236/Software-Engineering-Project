@@ -12,13 +12,8 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const userData = await fetchWrapper('/users/me');
-        if (userData) {
+        if (token) {
+          const userData = await fetchWrapper('/user-management/me');
           setUser({ ...userData, role: userData.primaryRole });
           setError(null);
         }

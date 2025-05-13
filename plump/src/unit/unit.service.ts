@@ -53,4 +53,26 @@ export class UnitService {
       where: { unitID: id }
     });
   }
+
+  async findTeamsByUnit(unitId: number) {
+    // Get all users in the unit
+    const users = await this.prisma.user.findMany({
+      where: { unitID: unitId },
+      select: { userID: true }
+    });
+    const userIds = users.map(u => u.userID);
+
+    // Get all team memberships for those users
+    const memberships = await this.prisma.teamMembership.findMany({
+      where: { userID: { in: userIds } },
+      include: { team: true }
+    });
+
+    // Get unique teams
+    const teamsMap = new Map();
+    memberships.forEach(m => {
+      if (m.team) teamsMap.set(m.team.teamID, m.team);
+    });
+    return Array.from(teamsMap.values());
+  }
 } 

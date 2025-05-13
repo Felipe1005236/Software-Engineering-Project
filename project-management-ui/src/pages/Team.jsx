@@ -7,8 +7,11 @@ import { useUser } from '../contexts/UserContext';
 
 const Team = () => {
   const { user, loading: userLoading } = useUser();
-  const [teamMembers, setTeamMembers] = useState([]);
   const [units, setUnits] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [selectedUnit, setSelectedUnit] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const [unitForm, setUnitForm] = useState({ name: '', description: '' });
   const [unitStatus, setUnitStatus] = useState({ loading: false, message: '', error: '' });
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,76 +20,43 @@ const Team = () => {
   const [status, setStatus] = useState({ loading: false, message: '', error: '' });
 
   useEffect(() => {
-    if (!userLoading && user) {
-      fetchTeam();
+    if (!userLoading && user && user.unit && user.unit.organizationID) {
+      fetchUnits(user.unit.organizationID);
     }
   }, [userLoading, user]);
 
-  useEffect(() => {
-    if (!userLoading && user) {
-      fetchUnits();
-    }
-  }, [userLoading, user]);
-
-  const fetchTeam = async () => {
+  const fetchUnits = async (orgId) => {
     try {
-      if (!user?.organizationId) {
-        console.warn('No organization ID available');
-        return;
-      }
-      const data = await fetchWrapper(`/team-memberships/org/${user.organizationId}`);
-      setTeamMembers(data);
+      const data = await fetchWrapper(`/units/organization/${orgId}`);
+      setUnits(data);
+      setTeams([]);
+      setMembers([]);
+      setSelectedUnit(null);
+      setSelectedTeam(null);
     } catch (err) {
-      console.warn('Using fallback team. Backend offline.');
-      setTeamMembers([
-        {
-          firstName: 'Saim',
-          lastName: 'Malik',
-          email: 'saim@example.com',
-          primaryRole: 'USER',
-          type: 'INTERNAL',
-          unit: 'Frontend',
-          unitManager: 'Nora',
-          status: 'Online',
-        },
-        {
-          firstName: 'Stefan',
-          lastName: 'Mojseov',
-          email: 'stefan@example.com',
-          primaryRole: 'ADMIN',
-          type: 'INTERNAL',
-          unit: 'Backend',
-          unitManager: 'Mark',
-          status: 'Idle',
-        },
-        {
-          firstName: 'Milica',
-          lastName: 'Tadic',
-          email: 'milicia@example.com',
-          primaryRole: 'MANAGER',
-          type: 'EXTERNAL',
-          unit: 'UX',
-          unitManager: 'Tina',
-          status: 'Offline',
-        },
-      ]);
+      setUnits([]);
     }
   };
 
-  const fetchUnits = async () => {
+  const handleUnitClick = async (unit) => {
+    setSelectedUnit(unit);
+    setSelectedTeam(null);
+    setMembers([]);
     try {
-      if (!user) {
-        console.warn('No user available');
-        return;
-      }
-      const data = await fetchWrapper('/units');
-      setUnits(data);
+      const data = await fetchWrapper(`/units/${unit.unitID}/teams`);
+      setTeams(data);
     } catch (err) {
-      setUnits([
-        { name: 'Frontend', description: 'UI/UX and client-side logic' },
-        { name: 'Backend', description: 'APIs and server logic' },
-        { name: 'QA', description: 'Testing and quality assurance' },
-      ]);
+      setTeams([]);
+    }
+  };
+
+  const handleTeamClick = async (team) => {
+    setSelectedTeam(team);
+    try {
+      const data = await fetchWrapper(`/team-memberships/team/${team.teamID}`);
+      setMembers(data.map(m => m.user));
+    } catch (err) {
+      setMembers([]);
     }
   };
 
@@ -109,7 +79,7 @@ const Team = () => {
       });
       setUnitStatus({ loading: false, message: 'Unit created!', error: '' });
       setUnitForm({ name: '', description: '' });
-      fetchUnits();
+      fetchUnits(user.unit.organizationID);
     } catch (err) {
       setUnitStatus({ loading: false, message: '', error: 'Failed to create unit.' });
     }
@@ -130,7 +100,7 @@ const Team = () => {
       unitManager: '',
       status: 'Pending',
     };
-    setTeamMembers((prev) => [...prev, newMember]);
+    setMembers((prev) => [...prev, newMember]);
     setInviteEmail('');
     setNewRole('');
 
@@ -146,7 +116,7 @@ const Team = () => {
     }
   };
 
-  const filteredTeam = teamMembers.filter((member) =>
+  const filteredTeam = members.filter((member) =>
     `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.primaryRole.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -182,15 +152,62 @@ const Team = () => {
         </form>
         {unitStatus.message && <p className="text-green-400 text-sm mb-2">{unitStatus.message}</p>}
         {unitStatus.error && <p className="text-red-400 text-sm mb-2">{unitStatus.error}</p>}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {units.map((unit, i) => (
-            <div key={i} className="bg-zinc-900/60 backdrop-blur-md p-5 rounded-xl border border-white/10 shadow-subtle">
-              <h2 className="text-lg font-semibold">{unit.name}</h2>
-              <p className="text-zinc-400 text-sm">{unit.description}</p>
-            </div>
+        <div className="flex gap-4 flex-wrap">
+          {units.map(unit => (
+            <button
+              key={unit.unitID}
+              onClick={() => handleUnitClick(unit)}
+              className={`px-4 py-2 rounded ${selectedUnit?.unitID === unit.unitID ? 'bg-indigo-600' : 'bg-zinc-800'}`}
+            >
+              {unit.name}
+            </button>
           ))}
         </div>
       </motion.div>
+
+      {teams.length > 0 && (
+        <>
+          <h2 className="text-xl font-bold mt-6">👥 Teams in {selectedUnit?.name}</h2>
+          <div className="flex gap-4 flex-wrap">
+            {teams.map(team => (
+              <button
+                key={team.teamID}
+                onClick={() => handleTeamClick(team)}
+                className={`px-4 py-2 rounded ${selectedTeam?.teamID === team.teamID ? 'bg-indigo-400' : 'bg-zinc-700'}`}
+              >
+                {team.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {members.length > 0 && (
+        <>
+          <h3 className="text-lg font-bold mt-6">Members in {selectedTeam?.name}</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {members.map(member => (
+              <div key={member.userID} className="bg-zinc-900/60 backdrop-blur-md p-5 rounded-xl border border-white/10 shadow-subtle transition">
+                <h2 className="text-lg font-semibold">{member.firstName} {member.lastName}</h2>
+                <p className="text-zinc-400 text-sm">{member.email}</p>
+                <p className="text-zinc-400 text-sm">Role: {member.primaryRole}</p>
+                <p className="text-zinc-400 text-sm">Type: {member.type}</p>
+                <p className="text-zinc-400 text-sm">Unit: {member.unit}</p>
+                <p className="text-zinc-400 text-sm">Manager: {member.unitManager}</p>
+                <span className={`inline-block mt-2 px-2 py-0.5 text-xs rounded-full text-white ${
+                  member.status === 'Online' ? 'bg-green-600'
+                  : member.status === 'Idle' ? 'bg-yellow-500'
+                  : member.status === 'Pending' ? 'bg-blue-600'
+                  : 'bg-zinc-700'
+                }`}>
+                  {member.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       <motion.div className="flex justify-between items-center" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-bold">👥 Team Members</h1>
 

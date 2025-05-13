@@ -36,4 +36,9 @@ export class UnitController {
   remove(@Param('id') id: string) {
     return this.unitService.remove(+id);
   }
+
+  @Get(':id/teams')
+  async getTeamsByUnit(@Param('id') id: string) {
+    return this.unitService.findTeamsByUnit(+id);
+  }
 } 
