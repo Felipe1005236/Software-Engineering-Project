@@ -53,6 +53,14 @@ export class ProjectsController {
   @Get()
   async findAll(@Request() req) {
     const userId = req.user.userID;
+    const userRole = req.user.role;
+
+    // If user is admin, return all projects
+    if (userRole === 'ADMIN') {
+      return this.projectsService.findAll();
+    }
+
+    // For non-admin users, filter by team membership
     const teamMemberships = await this.teamMembershipService.findByUser(userId);
     const teamIds = teamMemberships.map(membership => membership.teamID);
     

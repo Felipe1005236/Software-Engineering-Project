@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsEnum, IsOptional, IsInt } from 'class-validator';
+import { IsString, IsEmail, IsEnum, IsOptional, IsInt, IsBoolean } from 'class-validator';
 import { Role, Type } from '@prisma/client';
 
 export class CreateUserDto {
@@ -31,4 +31,8 @@ export class CreateUserDto {
   @IsEnum(Type)
   @IsOptional()
   type?: Type = Type.INTERNAL;
+
+  @IsBoolean()
+  @IsOptional()
+  active?: boolean = false;
 }

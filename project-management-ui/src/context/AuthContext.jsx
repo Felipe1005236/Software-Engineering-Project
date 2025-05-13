@@ -12,14 +12,24 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (token) {
-          const userData = await fetchWrapper('/users/me');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const userData = await fetchWrapper('/users/me');
+        if (userData) {
           setUser({ ...userData, role: userData.primaryRole });
+          setError(null);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        // Only clear token if it's an authentication error
+        if (error.message.toLowerCase().includes('unauthorized') || error.message.includes('401')) {
+          localStorage.removeItem('token');
+          setUser(null);
+        }
         setError(error.message);
-        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }

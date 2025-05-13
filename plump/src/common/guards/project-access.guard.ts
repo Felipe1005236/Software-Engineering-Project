@@ -18,9 +18,10 @@ export class ProjectAccessGuard implements CanActivate {
     const requiredAccess = this.reflector.get<string>('requiredAccess', context.getHandler()) || 'READ_ONLY';
     const request = context.switchToHttp().getRequest();
     
-    // Extract user ID from request (depends on your auth implementation)
+    // Extract user ID and role from request
     const userId = request.user?.userID;
-    this.logger.debug(`User ID from request: ${userId}`);
+    const userRole = request.user?.role;
+    this.logger.debug(`User ID from request: ${userId}, Role: ${userRole}`);
     
     // Extract project ID from params
     const { id } = request.params;
@@ -31,7 +32,13 @@ export class ProjectAccessGuard implements CanActivate {
       return false;
     }
 
-    // Check project access
+    // Allow admin users full access
+    if (userRole === 'ADMIN') {
+      this.logger.debug('Admin user - granting full access');
+      return true;
+    }
+
+    // Check project access for non-admin users
     const accessCheck = await this.teamMembershipService.checkProjectAccess(
       +userId,
       +id,

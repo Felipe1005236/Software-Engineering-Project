@@ -239,6 +239,8 @@ export default function Signup() {
         // Redirect to login after 2 seconds
         setTimeout(() => navigate('/login'), 2000);
       } else {
+        // Store user data for organization creation
+        localStorage.setItem('signupData', JSON.stringify(formData));
         // Handle create organization flow
         navigate('/create-org');
       }

@@ -20,6 +20,12 @@ export const fetchWrapper = async (url, options = {}) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+      // Only remove token if it's an auth endpoint returning 401
+      if ((url.includes('/auth/') || url === '/users/me') && response.status === 401) {
+        localStorage.removeItem('token');
+      }
+      
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
@@ -27,10 +33,6 @@ export const fetchWrapper = async (url, options = {}) => {
     return data;
   } catch (error) {
     console.error('[fetchWrapper Error]', error);
-    if (error.message === 'Unauthorized' || error.message.includes('401')) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
     throw error;
   }
 };
