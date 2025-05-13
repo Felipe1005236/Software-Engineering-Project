@@ -3,18 +3,13 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   Legend, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
+import { fetchWrapper } from '../utils/fetchWrapper';
 
 const Budget = () => {
-  const [projects, setProjects] = useState([
-    { id: 1, name: 'Website Redesign' },
-    { id: 2, name: 'Mobile App Development' },
-    { id: 3, name: 'Marketing Campaign' },
-  ]);
-
+  const [projects, setProjects] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [selectedChartsProjectID, setSelectedChartsProjectID] = useState(null);
   const [formData, setFormData] = useState({
-    budgetID: null,
     projectID: '',
     totalBudget: '',
     actualCost: '',
@@ -22,11 +17,37 @@ const Budget = () => {
   });
   const [formOpen, setFormOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('budgets')) || [];
-    setBudgets(stored);
+    fetchProjects();
+    fetchBudgets();
   }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const data = await fetchWrapper('/projects');
+      setProjects(data);
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+      setError('Failed to load projects');
+    }
+  };
+
+  const fetchBudgets = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchWrapper('/budget');
+      setBudgets(data);
+      setError('');
+    } catch (err) {
+      console.error('Failed to fetch budgets:', err);
+      setError('Failed to load budgets');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleProjectSelect = (e) => {
     const id = parseInt(e.target.value);
@@ -39,7 +60,6 @@ const Budget = () => {
       setEditIndex(budgets.findIndex(b => b.projectID === id));
     } else {
       setFormData({
-        budgetID: null,
         projectID: id,
         totalBudget: '',
         actualCost: '',
@@ -54,66 +74,77 @@ const Budget = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const entry = {
-      budgetID: formData.budgetID || Date.now(),
+    setLoading(true);
+    setError('');
+
+    const payload = {
       projectID: parseInt(formData.projectID),
       totalBudget: parseFloat(formData.totalBudget),
       actualCost: parseFloat(formData.actualCost),
       forecastCost: parseFloat(formData.forecastCost),
     };
 
-    let updated;
-    if (editIndex !== null) {
-      updated = budgets.map((b, i) => (i === editIndex ? entry : b));
+    try {
+      if (editIndex !== null) {
+        const budgetToUpdate = budgets[editIndex];
+        await fetchWrapper(`/budget/${budgetToUpdate.budgetID}`, {
+          method: 'PATCH',
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetchWrapper('/budget', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+      }
+      
+      await fetchBudgets();
+      setFormData({ projectID: '', totalBudget: '', actualCost: '', forecastCost: '' });
+      setFormOpen(false);
       setEditIndex(null);
-    } else {
-      updated = [...budgets, entry];
+    } catch (err) {
+      console.error('Failed to save budget:', err);
+      setError('Failed to save budget');
+    } finally {
+      setLoading(false);
     }
-
-    setBudgets(updated);
-    localStorage.setItem('budgets', JSON.stringify(updated));
-    setFormData({ budgetID: null, projectID: '', totalBudget: '', actualCost: '', forecastCost: '' });
-    setFormOpen(false);
-  };
-
-  const handleEdit = (index) => {
-    setFormData(budgets[index]);
-    setFormOpen(true);
-    setEditIndex(index);
-  };
-
-  const handleDelete = (index) => {
-    const updated = budgets.filter((_, i) => i !== index);
-    setBudgets(updated);
-    localStorage.setItem('budgets', JSON.stringify(updated));
   };
 
   const getProjectName = (id) => {
-    const project = projects.find(p => p.id === id);
-    return project ? project.name : `Project ${id}`;
+    const project = projects.find(p => p.projectID === id);
+    return project ? project.title : `Project ${id}`;
   };
 
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
   const selectedBudget = budgets.find(b => b.projectID === selectedChartsProjectID);
 
-  const getSummary = (list) => ({
-    totalBudget: list.reduce((sum, b) => sum + b.totalBudget, 0),
-    actualCost: list.reduce((sum, b) => sum + b.actualCost, 0),
-    forecastCost: list.reduce((sum, b) => sum + b.forecastCost, 0),
-  });
+  if (loading && budgets.length === 0) {
+    return (
+      <div className="bg-black text-white min-h-screen px-6 py-16 font-sans flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black text-white min-h-screen px-6 py-16 font-sans">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-10">Budget Overview</h1>
 
+        {error && (
+          <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+        )}
+
         {/* Add Button */}
         <div className="flex justify-center mb-8">
           <button
             onClick={() => setFormOpen(!formOpen)}
             className="bg-white text-black px-6 py-3 rounded-full hover:bg-gray-200 transition"
+            disabled={loading}
           >
             {formOpen ? 'Cancel' : 'Add Budget Entry'}
           </button>
@@ -130,11 +161,12 @@ const Budget = () => {
                 onChange={handleProjectSelect}
                 required
                 className="w-full bg-black border border-gray-600 p-3 rounded text-white"
+                disabled={loading}
               >
                 <option value="">Choose a project</option>
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
+                  <option key={p.projectID} value={p.projectID}>
+                    {p.title}
                   </option>
                 ))}
               </select>
@@ -148,6 +180,7 @@ const Budget = () => {
                 onChange={handleChange}
                 required
                 className="w-full bg-black border border-gray-600 p-3 rounded text-white"
+                disabled={loading}
               />
             </div>
             <div>
@@ -159,6 +192,7 @@ const Budget = () => {
                 onChange={handleChange}
                 required
                 className="w-full bg-black border border-gray-600 p-3 rounded text-white"
+                disabled={loading}
               />
             </div>
             <div>
@@ -170,14 +204,16 @@ const Budget = () => {
                 onChange={handleChange}
                 required
                 className="w-full bg-black border border-gray-600 p-3 rounded text-white"
+                disabled={loading}
               />
             </div>
             <div className="text-center">
               <button
                 type="submit"
                 className="bg-white text-black px-8 py-3 rounded-full font-medium hover:bg-gray-200 transition"
+                disabled={loading}
               >
-                {editIndex !== null ? 'Update Budget' : 'Save Budget'}
+                {loading ? 'Saving...' : editIndex !== null ? 'Update Budget' : 'Save Budget'}
               </button>
             </div>
           </form>
@@ -185,28 +221,28 @@ const Budget = () => {
 
         {/* Budget Cards */}
         <div className="space-y-6">
-          {budgets.map((b, i) => (
-            <div key={b.budgetID || i} className="bg-zinc-800/60 p-6 rounded-xl border border-white/10 shadow-subtle">
+          {budgets.map((b) => (
+            <div key={b.budgetID} className="bg-zinc-800/60 p-6 rounded-xl border border-white/10 shadow-subtle">
               <h2 className="text-2xl font-semibold mb-2">{getProjectName(b.projectID)}</h2>
               <p><strong>Total Budget:</strong> ${b.totalBudget.toFixed(2)}</p>
               <p><strong>Actual Cost:</strong> ${b.actualCost.toFixed(2)}</p>
               <p><strong>Forecast Cost:</strong> ${b.forecastCost.toFixed(2)}</p>
               <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => handleEdit(i)}
+                  onClick={() => {
+                    setFormData(b);
+                    setFormOpen(true);
+                    setEditIndex(budgets.findIndex(budget => budget.budgetID === b.budgetID));
+                  }}
                   className="text-sm px-4 py-2 bg-yellow-500 text-black rounded"
+                  disabled={loading}
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(i)}
-                  className="text-sm px-4 py-2 bg-red-600 text-white rounded"
-                >
-                  Delete
-                </button>
-                <button
                   onClick={() => setSelectedChartsProjectID(b.projectID)}
                   className="text-sm px-4 py-2 bg-indigo-600 text-white rounded"
+                  disabled={loading}
                 >
                   View Charts
                 </button>

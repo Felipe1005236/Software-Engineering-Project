@@ -491,7 +491,7 @@ const ProjectDetails = () => {
             >
               {showStakeholderForm ? 'Cancel' : '+ Add Stakeholder'}
             </button>
-          </div>
+              </div>
 
           {/* Form */}
           {showStakeholderForm && (
