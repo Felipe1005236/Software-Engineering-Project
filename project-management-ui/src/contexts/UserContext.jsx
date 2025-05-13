@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        const data = await fetchWrapper('/api/me');
+        const data = await fetchWrapper('/me');
         setUser(data);
       } catch (err) {
         setUser(null);

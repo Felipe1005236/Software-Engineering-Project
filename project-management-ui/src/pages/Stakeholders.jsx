@@ -39,7 +39,7 @@ const Stakeholders = () => {
     } else {
       updatedList.push(form);
       try {
-        await fetchWrapper('/api/stakeholders', {
+        await fetchWrapper('/stakeholders', {
           method: 'POST',
           body: form,
         });
@@ -58,7 +58,7 @@ const Stakeholders = () => {
     const updated = stakeholders.filter((_, idx) => idx !== i);
     setStakeholders(updated);
     try {
-      await fetchWrapper('/api/stakeholders', {
+      await fetchWrapper('/stakeholders', {
         method: 'DELETE',
         body: deleted,
       });

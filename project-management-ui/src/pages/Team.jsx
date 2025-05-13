@@ -4,7 +4,6 @@ import { fetchWrapper } from '../utils/fetchWrapper';
 import { FaCircle, FaPlus } from 'react-icons/fa';
 import { useUser } from '../contexts/UserContext';
 
-const API_BASE_URL = 'http://localhost:3000/api';
 
 const Team = () => {
   const { user, loading: userLoading } = useUser();

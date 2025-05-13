@@ -28,15 +28,15 @@ const OrganizationManagement = () => {
       
       // In a real app, this would get the current user's organization
       // For now, we'll assume the user is part of organization with ID 1
-      const orgData = await fetchWrapper('/api/organizations/1');
+      const orgData = await fetchWrapper('/organizations/1');
       setOrganization(orgData);
       
       // Fetch units for this organization
-      const unitsData = await fetchWrapper(`/api/units/organization/${orgData.organizationID}`);
+      const unitsData = await fetchWrapper(`/units/organization/${orgData.organizationID}`);
       setUnits(unitsData);
       
       // Fetch users for this organization
-      const usersData = await fetchWrapper(`/api/users/organization/${orgData.organizationID}`);
+      const usersData = await fetchWrapper(`/users/organization/${orgData.organizationID}`);
       setUsers(usersData);
       
     } catch (err) {
@@ -49,7 +49,7 @@ const OrganizationManagement = () => {
   
   const handleEditOrganization = async (updatedData) => {
     try {
-      const response = await fetchWrapper(`/api/organizations/${organization.organizationID}`, {
+      const response = await fetchWrapper(`/organizations/${organization.organizationID}`, {
         method: 'PUT',
         body: JSON.stringify(updatedData)
       });
@@ -63,7 +63,7 @@ const OrganizationManagement = () => {
   
   const handleCreateUnit = async (unitData) => {
     try {
-      const newUnit = await fetchWrapper('/api/units', {
+      const newUnit = await fetchWrapper('/units', {
         method: 'POST',
         body: JSON.stringify({
           ...unitData,
@@ -81,7 +81,7 @@ const OrganizationManagement = () => {
   
   const handleEditUnit = async (unitData) => {
     try {
-      const updatedUnit = await fetchWrapper(`/api/units/${unitData.unitID}`, {
+      const updatedUnit = await fetchWrapper(`/units/${unitData.unitID}`, {
         method: 'PUT',
         body: JSON.stringify(unitData)
       });
@@ -100,7 +100,7 @@ const OrganizationManagement = () => {
     if (!confirm('Are you sure you want to delete this unit?')) return;
     
     try {
-      await fetchWrapper(`/api/units/${unitID}`, {
+      await fetchWrapper(`/units/${unitID}`, {
         method: 'DELETE'
       });
       
