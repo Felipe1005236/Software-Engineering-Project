@@ -121,6 +121,13 @@ export default function ProjectDashboard() {
     }
 
     try {
+      // First check if the team is already associated with a project
+      const team = await fetchWrapper(`/teams/${newProject.teamId}`);
+      if (team.project) {
+        setError('This team is already associated with another project');
+        return;
+      }
+
       const payload = {
         title: newProject.title,
         status: newProject.status || 'PROPOSED',
