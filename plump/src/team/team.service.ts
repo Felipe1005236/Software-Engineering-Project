@@ -10,6 +10,20 @@ export class TeamService {
     return this.prisma.team.findMany();
   }
 
+  async findOne(id: number) {
+    return this.prisma.team.findUnique({
+      where: { teamID: id },
+      include: {
+        project: true,
+        members: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+  }
+
   async create(name: string, unitId: number, creatorId: number) {
     // Create the team and team membership in a transaction
     return this.prisma.$transaction(async (prisma) => {

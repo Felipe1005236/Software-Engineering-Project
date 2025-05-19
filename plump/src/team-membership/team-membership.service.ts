@@ -7,7 +7,34 @@ import { TeamRole, AccessLevel } from '@prisma/client';
 export class TeamMembershipService {
   constructor(private prisma: PrismaService) {}
 
-  create(createTeamMembershipDto: CreateTeamMembershipDto) {
+  async create(createTeamMembershipDto: CreateTeamMembershipDto) {
+    // Check if membership already exists
+    const existingMembership = await this.prisma.teamMembership.findUnique({
+      where: {
+        userID_teamID: {
+          userID: createTeamMembershipDto.userID,
+          teamID: createTeamMembershipDto.teamID
+        }
+      }
+    });
+
+    if (existingMembership) {
+      // If membership exists, update it instead
+      return this.prisma.teamMembership.update({
+        where: {
+          userID_teamID: {
+            userID: createTeamMembershipDto.userID,
+            teamID: createTeamMembershipDto.teamID
+          }
+        },
+        data: {
+          teamRole: createTeamMembershipDto.teamRole,
+          accessLevel: createTeamMembershipDto.accessLevel
+        }
+      });
+    }
+
+    // If no existing membership, create new one
     return this.prisma.teamMembership.create({
       data: createTeamMembershipDto
     });
