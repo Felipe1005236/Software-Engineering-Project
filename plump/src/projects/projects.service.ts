@@ -88,9 +88,72 @@ export class ProjectsService {
 
   // Update a project by ID
   async update(projectID: number, updateProjectDto: UpdateProjectDto) {
+    const { teamId, startDate, targetDate, health, ...rest } = updateProjectDto;
+    
+    // Update project dates if provided
+    if (startDate || targetDate) {
+      await this.prisma.projectDates.upsert({
+        where: {
+          projectID: projectID
+        },
+        create: {
+          projectID: projectID,
+          startDate: startDate ? new Date(startDate) : new Date(),
+          targetDate: targetDate ? new Date(targetDate) : new Date()
+        },
+        update: {
+          startDate: startDate ? new Date(startDate) : undefined,
+          targetDate: targetDate ? new Date(targetDate) : undefined
+        }
+      });
+    }
+
+    // Update health status if provided
+    if (health) {
+      await this.prisma.healthStatus.upsert({
+        where: {
+          projectID: projectID
+        },
+        create: {
+          projectID: projectID,
+          scope: health.scope || 'GREEN',
+          schedule: health.schedule || 'GREEN',
+          cost: health.cost || 'GREEN',
+          resource: health.resource || 'GREEN',
+          overall: health.overall || 'GREEN'
+        },
+        update: {
+          scope: health.scope,
+          schedule: health.schedule,
+          cost: health.cost,
+          resource: health.resource,
+          overall: health.overall
+        }
+      });
+    }
+    
     return this.prisma.project.update({
       where: { projectID },
-      data: updateProjectDto,
+      data: {
+        ...rest,
+        ...(teamId && {
+          team: { connect: { teamID: teamId } }
+        })
+      },
+      include: {
+        budget: true,
+        health: true,
+        dates: true,
+        team: {
+          include: {
+            members: {
+              include: {
+                user: true
+              }
+            }
+          }
+        }
+      }
     });
   }
 

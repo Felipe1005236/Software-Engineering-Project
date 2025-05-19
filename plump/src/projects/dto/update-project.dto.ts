@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsOptional, IsEnum } from 'class-validator';
-import { Status, Phase } from '@prisma/client'; 
+import { IsString, IsNumber, IsOptional, IsEnum, IsDateString } from 'class-validator';
+import { Status, Phase, HealthColours } from '@prisma/client'; 
 
 export class UpdateProjectDto {
   @IsString()
@@ -29,4 +29,21 @@ export class UpdateProjectDto {
   @IsNumber()
   @IsOptional()
   dateId?: number;
+
+  @IsDateString()
+  @IsOptional()
+  startDate?: string;
+
+  @IsDateString()
+  @IsOptional()
+  targetDate?: string;
+
+  @IsOptional()
+  health?: {
+    scope?: HealthColours;
+    schedule?: HealthColours;
+    cost?: HealthColours;
+    resource?: HealthColours;
+    overall?: HealthColours;
+  };
 }

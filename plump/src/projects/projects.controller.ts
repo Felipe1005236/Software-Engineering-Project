@@ -117,4 +117,54 @@ export class ProjectsController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.remove(id);
   }
+
+  @Get(':id/access-level')
+  async getProjectAccessLevel(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req
+  ) {
+    const userId = req.user.userID;
+    const userRole = req.user.role;
+
+    // Admin users have full access
+    if (userRole === 'ADMIN') {
+      return { accessLevel: 'FULL_ACCESS' };
+    }
+
+    // Check team membership access
+    const accessCheck = await this.teamMembershipService.checkProjectAccess(
+      userId,
+      id,
+      'FULL_ACCESS'
+    );
+
+    if (accessCheck.hasAccess) {
+      return { accessLevel: 'FULL_ACCESS' };
+    }
+
+    // Check for read-write access
+    const readWriteCheck = await this.teamMembershipService.checkProjectAccess(
+      userId,
+      id,
+      'READ_WRITE'
+    );
+
+    if (readWriteCheck.hasAccess) {
+      return { accessLevel: 'READ_WRITE' };
+    }
+
+    // Check for read-only access
+    const readOnlyCheck = await this.teamMembershipService.checkProjectAccess(
+      userId,
+      id,
+      'READ_ONLY'
+    );
+
+    if (readOnlyCheck.hasAccess) {
+      return { accessLevel: 'READ_ONLY' };
+    }
+
+    // No access
+    return { accessLevel: 'NO_ACCESS' };
+  }
 }
