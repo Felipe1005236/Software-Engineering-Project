@@ -57,7 +57,15 @@ export class TeamMembershipService {
     return this.prisma.teamMembership.findMany({
       where: { teamID: teamId },
       include: {
-        user: true
+        user: {
+          include: {
+            unit: {
+              include: {
+                manager: true
+              }
+            }
+          }
+        }
       }
     });
   }

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TeamRole, AccessLevel } from '@prisma/client';
 
 @Injectable()
 export class TeamService {
@@ -9,14 +10,27 @@ export class TeamService {
     return this.prisma.team.findMany();
   }
 
-  async create(name: string, unitId: number) {
-    // Optionally, you can add more fields
-    return this.prisma.team.create({
-      data: {
-        name,
-        // Optionally, add a relation to unit if your schema supports it
-        // unit: { connect: { unitID: unitId } }
-      }
+  async create(name: string, unitId: number, creatorId: number) {
+    // Create the team and team membership in a transaction
+    return this.prisma.$transaction(async (prisma) => {
+      // Create the team
+      const team = await prisma.team.create({
+        data: {
+          name,
+        }
+      });
+
+      // Create team membership for the creator
+      await prisma.teamMembership.create({
+        data: {
+          userID: creatorId,
+          teamID: team.teamID,
+          teamRole: TeamRole.TEAM_LEAD,
+          accessLevel: AccessLevel.FULL_ACCESS
+        }
+      });
+
+      return team;
     });
   }
 } 

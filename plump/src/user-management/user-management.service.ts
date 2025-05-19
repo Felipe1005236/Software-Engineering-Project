@@ -59,6 +59,18 @@ export class UserManagementService {
     });
   }
 
+  async findByUnit(unitId: number): Promise<User[]> {
+    return this.prisma.user.findMany({
+      where: {
+        unitID: unitId,
+      },
+      include: {
+        unit: true,
+        teamMemberships: true,
+      },
+    });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
     if (typeof id !== 'number' || isNaN(id)) {
       throw new Error('Invalid user ID');

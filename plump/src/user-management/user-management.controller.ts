@@ -44,6 +44,11 @@ export class UserManagementController {
     return { message: 'me-test works' };
   }
 
+  @Get('unit/:unitId')
+  async findByUnit(@Param('unitId') unitId: string) {
+    return this.userService.findByUnit(+unitId);
+  }
+
   @Patch('me')
   async updateCurrentUser(@Request() req, @Body() updateUserDto: UpdateUserDto) {
     const userID = req.user?.userID;

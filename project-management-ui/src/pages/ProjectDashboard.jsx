@@ -92,6 +92,22 @@ export default function ProjectDashboard() {
       .catch(() => setTeams([]));
   }, []);
 
+  // Add new useEffect to fetch teams
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const data = await fetchWrapper('/teams');
+        if (Array.isArray(data)) setTeams(data);
+        else setTeams([]);
+      } catch (err) {
+        console.error('Error fetching teams:', err);
+        setError(err.message);
+      }
+    };
+    
+    fetchTeams();
+  }, []);
+
   const filteredProjects = projects.filter((p) =>
     p.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -99,41 +115,44 @@ export default function ProjectDashboard() {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     
+    if (!newProject.title || !newProject.teamId) {
+      setError('Title and team are required');
+      return;
+    }
+
     try {
+      const payload = {
+        title: newProject.title,
+        status: newProject.status || 'PROPOSED',
+        phase: newProject.phase || 'INITIATING',
+        teamId: parseInt(newProject.teamId, 10),
+        startDate: newProject.startDate || new Date().toISOString(),
+        targetDate: newProject.targetDate
+      };
+
       if (editingProject) {
         // Update existing project
         await fetchWrapper(`/projects/${editingProject}`, {
           method: 'PATCH',
-          body: {
-            title: newProject.title,
-            status: newProject.status,
-            phase: newProject.phase,
-            teamId: parseInt(newProject.teamId, 10),
-            startDate: newProject.startDate,
-            targetDate: newProject.targetDate,
-          },
+          body: payload
         });
       } else {
         // Create new project
         await fetchWrapper('/projects', {
           method: 'POST',
-          body: {
-            title: newProject.title,
-            status: newProject.status,
-            phase: newProject.phase,
-            teamId: parseInt(newProject.teamId, 10),
-            startDate: newProject.startDate,
-            targetDate: newProject.targetDate,
-          },
+          body: payload
         });
       }
       
       setShowForm(false);
       setEditingProject(null);
       setNewProject({
-        title: '', manager: '', teamId: '', priority: 'Medium',
-        status: 'PROPOSED', phase: 'INITIATING',
-        startDate: '', targetDate: '', description: '',
+        title: '',
+        teamId: '',
+        status: 'PROPOSED',
+        phase: 'INITIATING',
+        startDate: '',
+        targetDate: ''
       });
       
       // Refresh projects list
