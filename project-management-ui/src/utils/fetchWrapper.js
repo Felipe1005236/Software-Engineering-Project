@@ -1,8 +1,15 @@
 // src/utils/fetchWrapper.js
 
+import { handleDemoRequest } from './demoHandler';
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 export const fetchWrapper = async (url, options = {}) => {
+  if (IS_DEMO) {
+    return handleDemoRequest(url, options);
+  }
+
   const token = localStorage.getItem('token');
   
   const headers = {

@@ -89,8 +89,15 @@ npm run dev
 
 GitHub Actions workflows are configured in `.github/workflows/`:
 - `ci.yml` — runs backend and frontend build + tests on every push and PR to `main`
+- `deploy-pages.yml` — builds and deploys the frontend to GitHub Pages on every push to `main`
 
-> **Note on GitHub Pages deployment**: The frontend requires the NestJS backend to function and cannot be served as a standalone static site. To run a local demo, use `docker-compose up --build`.
+## GitHub Pages Demo
+
+The live GitHub Pages deployment runs in **demo mode** (`VITE_DEMO_MODE=true`). In this mode the frontend is a fully self-contained static site — no backend is required. All API calls are intercepted at build time and resolved against bundled mock data (projects, tasks, budgets, calendar events, time logs, risks, and users).
+
+> Any email and password will work on the login page. Data changes (adding tasks, editing projects, etc.) persist only for the current browser session and reset on page refresh.
+
+To deploy the full live application with a real database, host the NestJS backend separately (e.g. Render, Railway) and set the `VITE_API_URL` repository secret to point at it — then remove `VITE_DEMO_MODE: 'true'` from `deploy-pages.yml`.
 
 ## License
 

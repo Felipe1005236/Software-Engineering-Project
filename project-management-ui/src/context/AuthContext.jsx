@@ -1,5 +1,8 @@
 import { createContext, useState, useEffect } from 'react';
 import { fetchWrapper } from '../utils/fetchWrapper';
+import { DEMO_USER, DEMO_TOKEN } from '../utils/demoData';
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
 
 export const AuthContext = createContext(null);
 
@@ -9,6 +12,14 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (IS_DEMO) {
+      // In demo mode seed a token so protected routes work on page refresh
+      localStorage.setItem('token', DEMO_TOKEN);
+      setUser({ ...DEMO_USER, role: DEMO_USER.primaryRole });
+      setLoading(false);
+      return;
+    }
+
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('token');

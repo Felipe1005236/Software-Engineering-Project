@@ -47,6 +47,8 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           # Must match the GitHub Pages path: /<repo-name>/
           VITE_BASE_URL: /PLUMP/
+          # Enable static demo mode — all API calls use bundled mock data
+          VITE_DEMO_MODE: 'true'
         run: npm run build
 
       - name: Upload Pages artifact

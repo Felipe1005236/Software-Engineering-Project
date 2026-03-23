@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,6 +45,12 @@ const Login = () => {
             <h1 className="text-3xl font-bold text-white">Welcome!</h1>
             <p className="text-zinc-400 mt-2">Sign in to your account</p>
           </div>
+
+          {IS_DEMO && (
+            <div className="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-4 py-3 rounded-lg mb-4 text-sm text-center">
+              <span className="font-semibold">Demo mode</span> — enter any email &amp; password to explore
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
