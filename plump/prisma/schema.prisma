@@ -107,15 +107,17 @@ model User {
   teamMemberships TeamMembership[]
 }
 
-model TeamMembership {
-  membershipID   Int         @id @default(autoincrement())
-  userID         Int
-  teamID         Int
-  teamRole       TeamRole    @default(TEAM_MEMBER)
-  accessLevel    AccessLevel @default(READ_ONLY)
-  joinedAt       DateTime    @default(now())
-  user           User        @relation(fields: [userID], references: [userID])
-  team           Team        @relation(fields: [teamID], references: [teamID])
+  //gantt chart data
+  startDate      DateTime?
+  endDate        DateTime?
+  dependencies   String?   
+  ganttData      String?   
+
+  // // Foreign Keys
+  teamID      Int           @unique  // Enforces one to one
+  // healthID    Int           @unique           
+  // budgetID    Int           @unique
+  // dateID      Int           @unique
 
   @@unique([userID, teamID])
 }
@@ -200,7 +202,11 @@ model TimeTracking {
   project        Project  @relation(fields: [projectID], references: [projectID])
   user           User     @relation(fields: [userID], references: [userID])
 
-  @@unique([userID, projectID, dateWorked])
+  // Relationships
+  project       Project @relation(fields: [projectID], references: [projectID])
+  dates         TaskDates? @relation(fields: [dateID], references: [dateID])
+  user          User? @relation(fields: [userID], references: [userID])
+  dependencies String?
 }
 
 model Comment {
