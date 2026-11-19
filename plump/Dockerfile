@@ -12,12 +12,11 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-# Build the NestJS application and Prisma 
+# Generate Prisma client
 RUN npx prisma generate
-RUN npm run build
 
 # Expose the application port
 EXPOSE 3000
 
-# Command to run the application
-CMD ["node", "dist/main"] 
+# Command to run the application in development mode
+CMD ["npm", "run", "start:dev"] 

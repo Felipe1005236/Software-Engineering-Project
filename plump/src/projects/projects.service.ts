@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';  
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { Prisma, Status } from '@prisma/client'; 
+import { Prisma, Status, Phase } from '@prisma/client'; 
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 
@@ -12,48 +12,148 @@ export class ProjectsService {
 
   // Create a new project
   async create(createProjectDto: CreateProjectDto) {
-    return this.prisma.project.create({
+    const { teamId, title, status, phase, startDate, targetDate } = createProjectDto;
+
+    // Create the project first
+    const project = await this.prisma.project.create({
       data: {
-        title: createProjectDto.title,
-        status: createProjectDto.status,
-        ...(createProjectDto.phase && { phase: createProjectDto.phase }),
-        ...(createProjectDto.teamId && { teamID: createProjectDto.teamId }),
-        ...(createProjectDto.healthId && {
-          health: {
-            connect: { healthID: createProjectDto.healthId }
-          }
-        }),
-        ...(createProjectDto.budgetId && {
-          budget: {
-            connect: { budgetID: createProjectDto.budgetId }
-          }
-        }),
-        ...(createProjectDto.dateId && {
-          dates: {
-            connect: { dateID: createProjectDto.dateId }
-          }
-        }),
+        title,
+        status,
+        phase,
+        team: { connect: { teamID: teamId } },
       },
     });
+
+    // If dates are provided, create ProjectDates and link to project
+    if (startDate && targetDate) {
+      await this.prisma.projectDates.create({
+        data: {
+          startDate: new Date(startDate),
+          targetDate: new Date(targetDate),
+          project: { connect: { projectID: project.projectID } },
+        },
+      });
+    }
+
+    // Return the full project with dates
+    return this.findOne(project.projectID);
   }  
 
   // Get all projects
-  async findAll() {
-    return this.prisma.project.findMany();
+  findAll(where?: any) {
+    return this.prisma.project.findMany({
+      where,
+      include: {
+        team: {
+          include: {
+            members: {
+              include: {
+                user: true
+              }
+            }
+          }
+        },
+        budget: true,
+        health: true,
+        dates: true
+      }
+    });
   }
 
   // Get one project by ID
   async findOne(projectID: number) {
     return this.prisma.project.findUnique({
       where: { projectID },
+      include: {
+        budget: true,
+        health: true,
+        dates: true,
+        tasks: {
+          orderBy: {
+            taskID: 'desc'
+          }
+        },
+        team: {
+          include: {
+            members: {
+              include: {
+                user: true
+              }
+            }
+          }
+        }
+      }
     });
   }
 
   // Update a project by ID
   async update(projectID: number, updateProjectDto: UpdateProjectDto) {
+    const { teamId, startDate, targetDate, health, ...rest } = updateProjectDto;
+    
+    // Update project dates if provided
+    if (startDate || targetDate) {
+      await this.prisma.projectDates.upsert({
+        where: {
+          projectID: projectID
+        },
+        create: {
+          projectID: projectID,
+          startDate: startDate ? new Date(startDate) : new Date(),
+          targetDate: targetDate ? new Date(targetDate) : new Date()
+        },
+        update: {
+          startDate: startDate ? new Date(startDate) : undefined,
+          targetDate: targetDate ? new Date(targetDate) : undefined
+        }
+      });
+    }
+
+    // Update health status if provided
+    if (health) {
+      await this.prisma.healthStatus.upsert({
+        where: {
+          projectID: projectID
+        },
+        create: {
+          projectID: projectID,
+          scope: health.scope || 'GREEN',
+          schedule: health.schedule || 'GREEN',
+          cost: health.cost || 'GREEN',
+          resource: health.resource || 'GREEN',
+          overall: health.overall || 'GREEN'
+        },
+        update: {
+          scope: health.scope,
+          schedule: health.schedule,
+          cost: health.cost,
+          resource: health.resource,
+          overall: health.overall
+        }
+      });
+    }
+    
     return this.prisma.project.update({
       where: { projectID },
-      data: updateProjectDto,
+      data: {
+        ...rest,
+        ...(teamId && {
+          team: { connect: { teamID: teamId } }
+        })
+      },
+      include: {
+        budget: true,
+        health: true,
+        dates: true,
+        team: {
+          include: {
+            members: {
+              include: {
+                user: true
+              }
+            }
+          }
+        }
+      }
     });
   }
 
