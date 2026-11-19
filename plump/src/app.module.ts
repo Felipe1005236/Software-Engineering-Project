@@ -21,25 +21,13 @@ import { CommentController } from './comment/comment.controller';
 import { TeamModule } from './team/team.module';
 import { StakeholdersModule } from './stakeholders/stakeholders.module';
 
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
+
 @Module({
-  imports: [
-    PassportModule,
-    PrismaModule,
-    BudgetModule,
-    ProjectsModule,
-    UserManagementModule,
-    HealthStatusModule,
-    TimeTrackingModule,
-    TaskModule,
-    CalendarEventModule,
-    OrganizationModule,
-    UnitModule,
-    TeamMembershipModule,
-    AuthModule,
-    TeamModule,
-    StakeholdersModule,
-  ],
-  controllers: [AppController, SearchController, DashboardController, CommentController],
-  providers: [AppService, SearchService],
+  imports: [UsersModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

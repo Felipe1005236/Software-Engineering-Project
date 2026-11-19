@@ -1,24 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  app.use((req, res, next) => {
-    console.log('GLOBAL LOG:', req.method, req.url, req.headers.authorization);
-    next();
-  });
-
-  app.enableCors({
-    origin: 'http://localhost:8080', // Frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-  });
-  
-  app.setGlobalPrefix('api');
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3000);
 }
 
 bootstrap();
