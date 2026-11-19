@@ -39,7 +39,9 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
 
       {/* Details */}
       <p className="text-zinc-400 text-sm mb-2">Status: {project.status}</p>
-      <p className="text-zinc-400 text-sm mb-4 truncate">Team: {project.members.join(', ')}</p>
+      <p className="text-zinc-400 text-sm mb-4 truncate">
+        Team: {(project.members || []).join(', ')}
+      </p>
 
       {/* Edit/Delete Controls */}
       <div

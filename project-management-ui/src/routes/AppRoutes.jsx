@@ -1,42 +1,52 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
 
-import Dashboard from '../pages/Dashboard';
-import Projects from '../pages/Projects';
-import Calendar from '../pages/Calendar';
-import Team from '../pages/Team';
-import Settings from '../pages/Settings';
-import Stakeholders from '../pages/Stakeholders';
-import TaskList from '../pages/TaskList';
-import TaskDetails from '../pages/TaskDetails';
-
+// Public Pages
+import AppLanding from '../pages/AppLanding';
+import LearnMore from '../pages/LearnMore';
+import Pricing from '../pages/Pricing';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 import ForgotPassword from '../pages/ForgotPassword';
+import CreateOrganization from '../pages/CreateOrganization'; 
+import UnitManagement from '../pages/UnitManagement';
+
+// Protected Pages (with MainLayout)
+import Dashboard from '../pages/Dashboard';
+import Projects from '../pages/Projects';
+import ProjectDashboard from '../pages/ProjectDashboard';
+import ProjectDetails from '../pages/ProjectDetails';
+import Calendar from '../pages/Calendar';
+import Team from '../pages/Team';
+import Settings from '../pages/Settings';
+import TaskList from '../pages/TaskList';
+import TaskDetails from '../pages/TaskDetails';
+import Risks from '../pages/Risks';
+import TimeTracking from '../pages/TimeTracking';
+import Budget from '../pages/Budget';
+import OrganizationManagement from '../pages/OrganizationManagement';
+import Requests from '../pages/Requests';
+
+// Error Pages
 import NotFound from '../pages/NotFound';
 import ServerError from '../pages/ServerError';
 
+// Auth Wrapper
 import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => (
   <Routes>
     {/* Public Routes */}
-    <Route path="/" element={<Navigate to="/login" />} />
-    <Route
-      path="/login"
-      element={
-        localStorage.getItem('token') ? <Navigate to="/dashboard" /> : <Login />
-      }
-    />
-    <Route
-      path="/signup"
-      element={
-        localStorage.getItem('token') ? <Navigate to="/dashboard" /> : <Signup />
-      }
-    />
+    <Route path="/" element={<AppLanding />} />
+    <Route path="/learn-more" element={<LearnMore />} />
+    <Route path="/pricing" element={<Pricing />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/signup" element={<Signup />} />
     <Route path="/forgot" element={<ForgotPassword />} />
+    <Route path="/create-org" element={<CreateOrganization />} /> { }
+    <Route path="/units" element={<UnitManagement />} /> 
 
-    {/* Protected Routes */}
+    {/* Protected Routes (with sidebar + layout) */}
     <Route
       element={
         <ProtectedRoute>
@@ -44,20 +54,36 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     >
-      {/* Main Pages */}
+      {/* Top-Level */}
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/projects" element={<Projects />} />
+      <Route path="/project-dashboard" element={<ProjectDashboard />} />
       <Route path="/calendar" element={<Calendar />} />
       <Route path="/team" element={<Team />} />
       <Route path="/settings" element={<Settings />} />
-      <Route path="/stakeholders" element={<Stakeholders />} />
+      <Route path="/risks" element={<Risks />} />
+      <Route path="/time-tracking" element={<TimeTracking />} />
+      <Route path="/budget" element={<Budget />} />
+      <Route path="/organization" element={<OrganizationManagement />} />
+      <Route 
+        path="/requests" 
+        element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <Requests />
+          </ProtectedRoute>
+        } 
+      />
 
-      {/* Project Task Flow */}
+      {/* Nested Task Routes */}
       <Route path="/projects/:name/tasks" element={<TaskList />} />
       <Route path="/projects/:name/tasks/:id" element={<TaskDetails />} />
+
+      {/* Project Routes */}
+      <Route path="/projects/:id" element={<ProjectDetails />} />
+      <Route path="/projects/:id/tasks" element={<TaskList />} />
+      <Route path="/projects/:id/tasks/:taskId" element={<TaskDetails />} />
     </Route>
 
-    {/* Error & Fallback Pages */}
+    {/* Error Pages */}
     <Route path="/500" element={<ServerError />} />
     <Route path="/404" element={<NotFound />} />
     <Route path="*" element={<NotFound />} />

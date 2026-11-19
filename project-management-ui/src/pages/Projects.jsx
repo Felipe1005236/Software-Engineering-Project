@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import ProjectCard from '../components/ProjectCard';
 import ProjectModal from '../components/ProjectModal';
-import { fetchWrapper } from '../utils/fetchWrapper';
 import { useNavigate } from 'react-router-dom';
+import { fetchWrapper } from '../utils/fetchWrapper';
+
+const BASE_URL = 'http://localhost:3000/api';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -17,43 +19,20 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const data = await fetchWrapper('/api/projects');
-      if (data) setProjects(data);
+      const data = await fetchWrapper('/projects');
+      const sanitized = data.map((p) => ({
+        id: p.projectID,
+        name: p.title,
+        priority: 'Medium',
+        members: [], 
+        status: p.status || 'Unknown',
+        tasks: [], 
+      }));
+  
+      setProjects(sanitized);
     } catch (err) {
-      console.error('Failed to fetch projects. Using fallback data.');
-      setProjects([
-        {
-          id: '1',
-          name: 'Apollo Redesign',
-          priority: 'High',
-          members: ['Alice', 'Javier'],
-          status: 'In Progress',
-          tasks: [
-            {
-              id: 'task-1',
-              title: 'Fix Login Bug',
-              assignee: 'Kavya Shah',
-              due: '2025-04-05',
-              status: 'In Progress',
-              description: 'Handle expired sessions gracefully.',
-            },
-          ],
-        },
-        {
-          id: '2',
-          name: 'Marketing Revamp',
-          priority: 'Medium',
-          members: ['Kavya'],
-          status: 'Planning',
-        },
-        {
-          id: '3',
-          name: 'Bug Fix Sprint',
-          priority: 'Low',
-          members: ['Saim', 'Dev Bot'],
-          status: 'Completed',
-        },
-      ]);
+      console.error('Failed to fetch projects:', err);
+      setProjects([]);
     }
   };
 
@@ -62,29 +41,36 @@ const Projects = () => {
     setIsModalOpen(true);
   };
 
-  const handleSave = async (newProject) => {
+  const handleSave = async (project) => {
     try {
       if (editProject) {
-        await fetchWrapper(`/api/projects/${editProject.id}`, 'PUT', newProject);
-        setProjects((prev) =>
-          prev.map((p) => (p.id === editProject.id ? { ...newProject, id: editProject.id } : p))
-        );
+        const data = await fetchWrapper(`/projects/${project.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(project),
+        });
+        setProjects(prev => prev.map(p => p.id === project.id ? data : p));
       } else {
-        const saved = await fetchWrapper('/api/projects', 'POST', newProject);
-        setProjects((prev) => [...prev, saved]);
+        const data = await fetchWrapper('/projects', {
+          method: 'POST',
+          body: JSON.stringify(project),
+        });
+        setProjects(prev => [...prev, data]);
       }
+      setIsModalOpen(false);
+      setEditProject(null);
     } catch (err) {
-      console.error('Save failed:', err);
+      console.error('Failed to save project:', err);
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = async (target) => {
+  const handleDelete = async (id) => {
     try {
-      await fetchWrapper(`/api/projects/${target.id}`, 'DELETE');
-      setProjects((prev) => prev.filter((p) => p.id !== target.id));
+      await fetchWrapper(`/projects/${id}`, {
+        method: 'DELETE',
+      });
+      setProjects(prev => prev.filter(p => p.id !== id));
     } catch (err) {
-      console.error('Delete failed:', err);
+      console.error('Failed to delete project:', err);
     }
   };
 
@@ -130,7 +116,7 @@ const Projects = () => {
               project={project}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onViewTasks={() => navigate(`/projects/${project.name}/tasks`)}
+              onViewTasks={() => navigate(`/projects/${project.id}/tasks`)}
             />
           ))}
         </motion.div>
